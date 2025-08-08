@@ -26,18 +26,18 @@ or
 yarn add react-images-extended-2
 ```
 
+Minimal example code:
 ```jsx
+import { JSX } from 'react';
 import { Lightbox, IImage } from 'react-images-extended-2';
 
-export function Sample (props: { images: Array<IImage> }) {
-  ...
-  return (
-    <Lightbox
-      images={props.images}
-      showThumbnails
-    />
-  );
+export function DocumentPreview(props: { documents?: string[] }): JSX.Element {
+  const images: Array<IImage> = props.documents.map((item: string) => ({
+    src: item
+  }));
+  return <Lightbox images={images} showThumbnails />;
 }
+
 ```
 
 ## Options ( NOT UPDATED YET )
