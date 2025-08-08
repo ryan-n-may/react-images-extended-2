@@ -44,7 +44,7 @@ export function DocumentPreview(props: { documents?: string[] }): JSX.Element {
 
 Property	|	Type		|	Default		|	Description
 :-----------------------|:--------------|:--------------|:--------------------------------
-images	|	`Array<IImage>`	|	false	|	Images to be displayed in the courassel.
+images	|	`Array<IImage>`	|	required	|	Images to be displayed in the courassel.
 customControls | `Array<ICustomControl>;` | optional | Allows configuring custom controls.
 showCloseButton | boolean | optional | Show or hide the close button "X".
 showThumbnails | boolean | optional | show or hide the thumbnails at the bottom of the display.
