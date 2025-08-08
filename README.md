@@ -1,98 +1,46 @@
 # React Images Extended
 
-This is a fork of an old and unsupported package, modernised and added features included.  I will update the documentation when I have time. 
+This is a fork of () with the following changes made
 
-![downloads](https://img.shields.io/npm/dt/react-images-extended.svg 'NpmJS total downloads')
+- Updated to the lateat typescript version. 
+- Updated to the latest version of react.
+- Converted to use functional components.
+- Added picture-in-picture mode.
+- Added controls including image inversion.
 
-A simple, responsive lightbox React JS component for displaying an array of images with zooming and rotating capabilities.
-This is a fork of [jossmac/react-images](https://github.com/jossmac/react-images)
+To do: 
+- Make this package fully themeable with chakra themes.
+- Add extensibility with custom controls that gain access to the lightbox state.
 
 ### Why this fork ?
-I needed something like jossmac's react-images but with extended features like zooming and rotating, with the ability to save selelcted zoom level (scaling) and rotation angle via API, and re-apply them initially on get.
-
+I needed to replicate the functionality of the original package, but improve maintainability and modernise the implementation.
 
 ### Quick start
 
 
 ```bash
-npm install --save react-images-extended
+npm install --save react-images-extended-2
 ```
 or
 ```bash
-yarn add react-images-extended
+yarn add react-images-extended-2
 ```
 
 ```jsx
-import React from 'react';
-import Lightbox from 'react-images';
+import { Lightbox, IImage } from 'react-images-extended-2';
 
-export default class Sample extends React.Component {
+export function Sample (props: { images: Array<IImage> }) {
   ...
-  render() {
-    return (
-      <Lightbox
-        images={[{ src: 'http://example.com/img1.jpg' }, { src: 'http://example.com/img2.jpg' }]}
-        isOpen={this.state.lightboxIsOpen}
-        onClickPrev={this.gotoPrevious}
-        onClickNext={this.gotoNext}
-        onClose={this.closeLightbox}
-        rotatable={true}
-        zoomable={true}
-        onSave={(currentImageIndex, params) => console.log('currentImageIndex, currentImageSrc, params : ', currentImageIndex, this.props.images[currentImageIndex].src, params)}
-      />
-    );
-  }
+  return (
+    <Lightbox
+      images={props.images}
+      showThumbnails
+    />
+  );
 }
 ```
 
-
-## Demo & Examples
-
-Live demo: [react-images-extended.surge.sh](https://react-images-extended.surge.sh)
-
-To build the examples locally, run:
-
-```
-yarn install
-yarn start
-```
-
-Then open [`localhost:8000`](http://localhost:8000) in a browser.
-
-### Using srcSet
-
-Example using srcSet:
-```jsx
-<Lightbox
-  images={LIGHTBOX_IMAGE_SET}
-  ...
-/>
-
-const LIGHTBOX_IMAGE_SET = [
-  {
-    src: 'http://example.com/example/img1.jpg',
-    caption: 'A forest'
-    srcSet: [
-      'http://example.com/example/img1_1024.jpg 1024w',
-      'http://example.com/example/img1_800.jpg 800w',
-      'http://example.com/example/img1_500.jpg 500w',
-      'http://example.com/example/img1_320.jpg 320w',
-    ],
-  },
-  {
-    src: 'http://example.com/example/img2.jpg',
-    srcSet: [
-      'http://example.com/example/img2_1024.jpg 1024w',
-      'http://example.com/example/img2_800.jpg 800w',
-      'http://example.com/example/img2_500.jpg 500w',
-      'http://example.com/example/img2_320.jpg 320w',
-    ],
-  }
-];
-
-```
-
-## Options
+## Options ( NOT UPDATED YET )
 
 Property	|	Type		|	Default		|	Description
 :-----------------------|:--------------|:--------------|:--------------------------------
