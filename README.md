@@ -46,26 +46,19 @@ Property	|	Type		|	Default		|	Description
 :-----------------------|:--------------|:--------------|:--------------------------------
 images	|	`Array<IImage>`	|	false	|	Images to be displayed in the courassel.
 customControls | `Array<ICustomControl>;` | optional | Allows configuring custom controls.
-
 showCloseButton | boolean | optional | Show or hide the close button "X".
 showThumbnails | boolean | optional | show or hide the thumbnails at the bottom of the display.
 displayMode | ILightboxDisplayMode | optional | determines the starting display mode of the image viewer.
-
 initialPipWidth | number | 300px | determines the starting width of the resizable PiP.
 initialPipHeight | number | 800px | determines the starting height of the resizable PiP.
-
 onClickImage | `() => void`  | optional  | Callback triggered when an image is cliked.
 onClickNext | `() => void`  | optional  | Callback triggered when navigating to the next image.
 onClickPrev | `() => void`  | optional  | Callback triggered when navigating to the previous image.
 onClickThumbnail | `() => void`  | optional  | Callback triggered when navigating to the thumbnail image.
-
 onClose | `() => void`  | optional  | Callback triggered when closing the image viewer. 
-
 onRotateLeft | `() => void`  | optional  | Callback triggered when rotating the image left.
 onRotateRight | `() => void`  | optional  | Callback triggered when rotating the image right.
-
 onZoomIn | `() => void`  | optional  | Callback triggered when zooming in.
 onZoomOut | `() => void`  | optional  | Callback triggered when zooming out.
-
 onSave | `(currentImage: number, state: {zoom: number, rotation: number}) => void` | optional | Callback triggered when saving an image.
 
