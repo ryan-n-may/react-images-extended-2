@@ -40,44 +40,66 @@ export function DocumentPreview(props: { documents?: string[] }): JSX.Element {
 
 ```
 
-## Options ( NOT UPDATED YET )
+## Options 
+
+images: Array<IImage>;
+
+  // Optional custom controls @todo: implement this.
+  customControls?: Array<{
+    label: string;
+    icon: string;
+    onClick: (state: ILightboxState) => Partial<ILightboxState>;
+    isDisabled?: (state: ILightboxState) => boolean;
+    isActive?: (state: ILightboxState) => boolean;
+  }>;
+
+  // Callback methods
+  onClickImage?: () => void;
+  onClickNext?: () => void;
+  onClickPrev?: () => void;
+  onClose?: () => void;
+  onRotateLeft?: () => void;
+  onRotateRight?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onSave?: (
+    currentImage: number,
+    state: { zoom: number; rotation: number }
+  ) => void;
+  onClickThumbnail?: () => void;
+
+  // Optional configurations
+  showCloseButton?: boolean;
+  showThumbnails?: boolean;
+  displayMode?: LightboxDisplayMode;
+
+  initialPipWidth?: number; // todo: implement this, currently hardcoded
+  initialPipHeight?: number; // todo: implement this, current hardcoded
 
 Property	|	Type		|	Default		|	Description
 :-----------------------|:--------------|:--------------|:--------------------------------
-backdropClosesModal	|	bool	|	false	|	Allow users to exit the lightbox by clicking the backdrop
-closeButtonTitle | string | ' Close (Esc) ' | Customize close esc title
-enableKeyboardInput | bool  | true  | Supports keyboard input - <code>esc</code>, <code>arrow left</code>, and <code>arrow right</code>
-currentImage  | number  | 0 | The index of the image to display initially
-customControls | array | undefined | An array of elements to display as custom controls on the top of lightbox
-images  | array | undefined | Required. Array of image objects See image options table below
-imageCountSeparator  | String  | ' of ' | Customize separator in the image count
-isOpen  | bool  | false | Whether or not the lightbox is displayed
-leftArrowTitle | string | ' Previous (Left arrow key) ' | Customize of left arrow title
-onClickPrev | func | undefined | Fired on request of the previous image
-onClickNext | func | undefined | Fired on request of the next image
-onClose | func | undefined | Required. Handle closing of the lightbox
-onClickImage | func | undefined | Handle click on image
-onClickThumbnail | func | undefined | Handle click on thumbnail
-onSave | func | undefined | Show save button and handle click / params : currentImageIndex, {rotation, zoom}
-preloadNextImage | bool | true | Based on the direction the user is navigating, preload the next available image
-rightArrowTitle | string | ' Next (Right arrow key) ' | Customize right arrow title
-rotatable | bool | false | Show rotate buttons
-showCloseButton | bool  | true | Optionally display a close "X" button in top right corner
-showImageCount | bool  | true | Optionally display image index, e.g., "3 of 20"
-width | number  | 1024 | Maximum width of the carousel; defaults to 1024px
-spinner | func | DefaultSpinner | Spinner component class
-spinnerColor | string | 'white' | Color of spinner
-spinnerSize | number | 100 | Size of spinner
-preventScroll | bool | true | Determines whether scrolling is prevented via [react-scrolllock](https://github.com/jossmac/react-scrolllock)
-zoomable | bool | false | Show zoom buttons
+images	|	`Array<IImage>`	|	false	|	Images to be displayed in the courassel.
+customControls | `Array<ICustomControl>;` | optional | Allows configuring custom controls.
 
-## Images object
+showCloseButton | boolean | optional | Show or hide the close button "X".
+showThumbnails | boolean | optional | show or hide the thumbnails at the bottom of the display.
+displayMode | ILightboxDisplayMode | optional | determines the starting display mode of the image viewer.
 
-Property	|	Type		|	Default		|	Description
-:-----------------------|:--------------|:--------------|:--------------------------------
-src  | string | undefined | Required
-srcSet  | array of strings | undefined | Optional
-caption  | string | undefined | Optional
-alt  | string | undefined | Optional
-initialZoom  | number | 1 | Optional
-initialRotation  | number | 0 | Optional
+initialPipWidth | number | 300px | determines the starting width of the resizable PiP.
+initialPipHeight | number | 800px | determines the starting height of the resizable PiP.
+
+onClickImage | `() => void`  | optional  | Callback triggered when an image is cliked.
+onClickNext | `() => void`  | optional  | Callback triggered when navigating to the next image.
+onClickPrev | `() => void`  | optional  | Callback triggered when navigating to the previous image.
+onClickThumbnail | `() => void`  | optional  | Callback triggered when navigating to the thumbnail image.
+
+onClose | `() => void`  | optional  | Callback triggered when closing the image viewer. 
+
+onRotateLeft | `() => void`  | optional  | Callback triggered when rotating the image left.
+onRotateRight | `() => void`  | optional  | Callback triggered when rotating the image right.
+
+onZoomIn | `() => void`  | optional  | Callback triggered when zooming in.
+onZoomOut | `() => void`  | optional  | Callback triggered when zooming out.
+
+onSave | `(currentImage: number, state: {zoom: number, rotation: number}) => void` | optional | Callback triggered when saving an image.
+
