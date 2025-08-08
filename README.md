@@ -1,5 +1,7 @@
 # React Images Extended
 
+This is a fork of an old and unsupported package, modernised and added features included.  I will update the documentation when I have time. 
+
 ![downloads](https://img.shields.io/npm/dt/react-images-extended.svg 'NpmJS total downloads')
 
 A simple, responsive lightbox React JS component for displaying an array of images with zooming and rotating capabilities.
