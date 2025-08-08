@@ -14,6 +14,7 @@ import {
   LightboxProvider,
   useSetupState,
   useLightboxImageState,
+  ILightboxState,
 } from "./ComponentState";
 import { IImage } from "./utils/types";
 import {
@@ -24,9 +25,21 @@ import { useLoadImage } from "./hooks/loadImage";
 import { useContainerDimensions } from "./hooks/containerDims";
 import { debuginfo } from "./utils/log";
 
+export interface ICustomControl {
+  label: string;
+  icon: string;
+  onClick: (state: ILightboxState) => Partial<ILightboxState>;
+  isDisabled?: (state: ILightboxState) => boolean;
+  isActive?: (state: ILightboxState) => boolean;
+}
+
 export interface ILightboxProps {
   images: Array<IImage>;
 
+  // Optional custom controls @todo: implement this.
+  customControls?: Array<ICustomControl>;
+
+  // Callback methods
   onClickImage?: () => void;
   onClickNext?: () => void;
   onClickPrev?: () => void;
@@ -41,16 +54,13 @@ export interface ILightboxProps {
   ) => void;
   onClickThumbnail?: () => void;
 
+  // Optional configurations
   showCloseButton?: boolean;
   showThumbnails?: boolean;
   displayMode?: LightboxDisplayMode;
 
-  componentWidth?: string;
-  componentHeight?: string;
-  componentMinHeight?: string;
-
-  pipWidth?: number;
-  pipHeight?: number;
+  initialPipWidth?: number; // todo: implement this, currently hardcoded
+  initialPipHeight?: number; // todo: implement this, current hardcoded
 }
 
 export const Lightbox = (props: ILightboxProps) => {
