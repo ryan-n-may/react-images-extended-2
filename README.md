@@ -42,40 +42,6 @@ export function DocumentPreview(props: { documents?: string[] }): JSX.Element {
 
 ## Options 
 
-images: Array<IImage>;
-
-  // Optional custom controls @todo: implement this.
-  customControls?: Array<{
-    label: string;
-    icon: string;
-    onClick: (state: ILightboxState) => Partial<ILightboxState>;
-    isDisabled?: (state: ILightboxState) => boolean;
-    isActive?: (state: ILightboxState) => boolean;
-  }>;
-
-  // Callback methods
-  onClickImage?: () => void;
-  onClickNext?: () => void;
-  onClickPrev?: () => void;
-  onClose?: () => void;
-  onRotateLeft?: () => void;
-  onRotateRight?: () => void;
-  onZoomIn?: () => void;
-  onZoomOut?: () => void;
-  onSave?: (
-    currentImage: number,
-    state: { zoom: number; rotation: number }
-  ) => void;
-  onClickThumbnail?: () => void;
-
-  // Optional configurations
-  showCloseButton?: boolean;
-  showThumbnails?: boolean;
-  displayMode?: LightboxDisplayMode;
-
-  initialPipWidth?: number; // todo: implement this, currently hardcoded
-  initialPipHeight?: number; // todo: implement this, current hardcoded
-
 Property	|	Type		|	Default		|	Description
 :-----------------------|:--------------|:--------------|:--------------------------------
 images	|	`Array<IImage>`	|	false	|	Images to be displayed in the courassel.
