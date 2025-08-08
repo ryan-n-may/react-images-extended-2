@@ -1,6 +1,6 @@
 {
   "name": "react-images-extended-2",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "A simple, responsive lightbox component for displaying an array of images with React.js with extended features",
   "main": "dist/index.js",
 
@@ -13,7 +13,7 @@
   },
 
   "dependencies": {
-    "@chakra-ui/react": "3.6.0",
+    "@chakra-ui/react": "2.8.2",
     "styled-components": "6.1.19",
     "lucide-react": "0.536.0",
     "react-draggable": "4.5.0",

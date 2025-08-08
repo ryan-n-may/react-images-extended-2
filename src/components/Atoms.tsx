@@ -54,21 +54,14 @@ export function ActionButtonAtom({
   tooltip,
 }: IActionButtonProps) {
   return (
-    <Tooltip.Root>
-      <Tooltip.Trigger>
-        <IconButton
-          zIndex={HEADER_Z_INDEX}
-          onClick={onClick}
-          disabled={disabled}
-          aria-label={"action-button"}
-        >
-          {icon}
-        </IconButton>
-      </Tooltip.Trigger>
-
-      <Tooltip.Positioner>
-        <Tooltip.Content>{tooltip}</Tooltip.Content>
-      </Tooltip.Positioner>
-    </Tooltip.Root>
+    <Tooltip label={tooltip} placement="bottom" hasArrow>
+      <IconButton
+        zIndex={HEADER_Z_INDEX}
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={"action-button"}
+        icon={icon}
+      />
+    </Tooltip>
   );
 }

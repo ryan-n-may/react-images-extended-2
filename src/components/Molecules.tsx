@@ -1,4 +1,4 @@
-import { IconButton, Collapsible, Box } from "@chakra-ui/react";
+import { IconButton, Collapse, Box } from "@chakra-ui/react";
 import { ActionButtonAtom, ThumbnailAtom } from "./Atoms";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { CollapsedControls, Header, ThumnailBar } from "./StyledComponents";
@@ -80,14 +80,12 @@ export function HeaderMolecule({
     <>
       <Header className="pip-drag-handle">
         {controls ? controls : <></>}
-        <Collapsible.Root
+        <Collapse
           in={showExtraControls}
           transition={{ enter: { duration: 0.3 }, exit: { duration: 0.2 } }}
         >
-          <Collapsible.Content>
-            <CollapsedControls> {extraControls} </CollapsedControls>
-          </Collapsible.Content>
-        </Collapsible.Root>
+          <CollapsedControls> {extraControls} </CollapsedControls>
+        </Collapse>
         {!!showCloseButton && (
           <IconButton onClick={callBacks.onClose} aria-label={""}>
             <X />
