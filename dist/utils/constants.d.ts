@@ -1,0 +1,13 @@
+export declare const FOOTER_HEIGHT = 84;
+export declare const IMAGE_MAX_SIZE_RATIO = 0.8;
+export declare const SCALE_STEP = 0.1;
+export declare const MIN_SCALE = 0.1;
+export declare const SCALE_PRECISION = 10;
+export declare const ROTATE_STEP = 90;
+export declare const FULL_ROTATION = 360;
+export declare const CENTER_DIVISOR = 2;
+export declare const MODAL_Z_INDEX = 1000;
+export declare const IMAGE_Z_INDEX = 1010;
+export declare const HEADER_Z_INDEX = 1020;
+export declare const FOOTER_Z_INDEX = 1020;
+//# sourceMappingURL=constants.d.ts.map

@@ -1,12 +1,9 @@
 import { useRef, useMemo } from "react";
 import { SpinnerAtom } from "./components/Atoms";
-import { PositionedBox, ThumbnailsMolecule } from "./components/Molecules";
+import { ThumbnailsMolecule } from "./components/Molecules";
 import { DefaultHeader, Modal } from "./components/Organisms";
 import { FOOTER_HEIGHT } from "./utils/constants";
-import {
-  FigureContainerFullScreen,
-  PiPPortal,
-} from "./components/StyledComponents";
+import { FigureContainerFullScreen } from "./components/StyledComponents";
 import { Box } from "@chakra-ui/react";
 import {
   LightboxDisplayMode,
@@ -17,13 +14,11 @@ import {
   ILightboxState,
 } from "./ComponentState";
 import { IImage } from "./utils/types";
-import {
-  DraggableImageComponent,
-  DraggableImageFullScreen,
-} from "./components/Draggable";
+import { DraggableImageFullScreen } from "./components/Draggable";
 import { useLoadImage } from "./hooks/loadImage";
 import { useContainerDimensions } from "./hooks/containerDims";
 import { debuginfo } from "./utils/log";
+import { useDocumentPiP } from "./utils/pip";
 
 export interface ICustomControl {
   label: string;
@@ -104,8 +99,7 @@ export const LightboxWrapper = (props: ILightboxProps) => {
 
 const LightboxFunctional = () => {
   const lightboxState = useLightboxState();
-  const { images, currentImage, displayMode, showThumbnails } =
-    lightboxState.state;
+  const { images, currentImage, showThumbnails } = lightboxState.state;
   const { imageState } = useLightboxImageState();
   const { imageLoaded } = imageState;
 
@@ -131,37 +125,40 @@ const LightboxFunctional = () => {
     return <Box as="figure">{ImageElementFullscreen}</Box>;
   }, [ImageElementFullscreen]);
 
-  const ImageElement = useMemo(() => {
-    debuginfo(`Rendering ImageElement for currentImage: ${currentImage}`);
-    if (!images[currentImage]) return null;
-    return <DraggableImageComponent imageRef={imageRef} />;
-  }, [images, currentImage, imageRef]);
+  const { open, close, isOpen } = useDocumentPiP();
 
-  const ImageCourassel = useMemo(() => {
-    debuginfo(`Rendering ImageCourassel for currentImage: ${currentImage}`);
-    return <Box as="figure">{ImageElement}</Box>;
-  }, [ImageElement]);
+  const onPipClick = () => {
+    if (isOpen()) close();
+    open(
+      <>
+        <strong>Document Viewer</strong>
+        <Box position="sticky" top="0" zIndex="sticky">
+          <DefaultHeader
+            containerWidthRef={containerWidthRef}
+            containerHeightRef={containerHeightRef}
+          />
+        </Box>
+        {imageLoaded && (
+          <FigureContainerFullScreen>
+            {ImageCourasselFullscreen}
+          </FigureContainerFullScreen>
+        )}
+        {!imageLoaded && <SpinnerAtom size="lg" />}
+        <Box position="sticky" bottom="0" zIndex="sticky">
+          {showThumbnails && <ThumbnailsMolecule size={"sm"} />}
+        </Box>
+      </>
+    ).catch((error) => {
+      console.error("Error opening PiP:", error);
+      close();
+    });
+  };
+
+  // Set the PiP callback in the lightbox state; only able to open on user event interaction.
+  lightboxState.setPipCallback(onPipClick);
 
   return (
     <>
-      {displayMode === LightboxDisplayMode.PIP && (
-        <PiPPortal>
-          <PositionedBox>
-            <DefaultHeader
-              containerWidthRef={containerWidthRef}
-              containerHeightRef={containerHeightRef}
-            />
-            <Box paddingTop="40px" height="100%" position="relative">
-              {imageLoaded && <> {ImageCourassel} </>}
-              {!imageLoaded && <SpinnerAtom size="lg" />}
-
-              {showThumbnails && displayMode !== LightboxDisplayMode.PIP && (
-                <ThumbnailsMolecule size={"xs"} />
-              )}
-            </Box>
-          </PositionedBox>
-        </PiPPortal>
-      )}
       <Modal
         hidden={
           lightboxState.state.displayMode !== LightboxDisplayMode.FULLSCREEN
@@ -176,8 +173,7 @@ const LightboxFunctional = () => {
           </Box>
           {imageLoaded && (
             <FigureContainerFullScreen>
-              {" "}
-              {ImageCourasselFullscreen}{" "}
+              {ImageCourasselFullscreen}
             </FigureContainerFullScreen>
           )}
           {!imageLoaded && <SpinnerAtom size="lg" />}

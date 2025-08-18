@@ -88,6 +88,8 @@ function lightboxReducer(state, action) {
             return Object.assign(Object.assign({}, state), { images: action.payload });
         case "SET_CURRENT_IMAGE":
             return Object.assign(Object.assign({}, state), { currentImage: Math.max(0, Math.min(action.payload, state.images.length - 1)) });
+        case "SET_PIP_CALLBACK":
+            return Object.assign(Object.assign({}, state), { onClickPip: action.payload });
         case "UPDATE_IMAGE_STATE":
             return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), action.payload) });
         case "UPDATE_IMAGE_STATE_LOADED":
@@ -119,6 +121,9 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
     const [state, dispatch] = (0, react_1.useReducer)(lightboxReducer, Object.assign(Object.assign({}, defaultState), initialState));
     const setPiPPosition = (0, react_1.useCallback)((left, top) => {
         dispatch({ type: "SET_PIP_POSITION", payload: { left, top } });
+    }, []);
+    const setPipCallback = (0, react_1.useCallback)((callback) => {
+        dispatch({ type: "SET_PIP_CALLBACK", payload: callback });
     }, []);
     const setState = (0, react_1.useCallback)((newState) => {
         dispatch({ type: "SET_STATE", payload: newState });
@@ -179,6 +184,7 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
         state,
         dispatch,
         setPiPPosition,
+        setPipCallback,
         setState,
         setImages,
         setCurrentImage,
@@ -227,7 +233,7 @@ const useCurrentImage = () => {
 exports.useCurrentImage = useCurrentImage;
 const useCallbackMethods = () => {
     const { state } = (0, exports.useLightboxState)();
-    const { onClickImage, onClickNext, onClickPrev, onClose, onRotateLeft, onRotateRight, onZoomIn, onZoomOut, onSave, onClickThumbnail, } = state;
+    const { onClickImage, onClickNext, onClickPrev, onClose, onRotateLeft, onRotateRight, onZoomIn, onZoomOut, onSave, onClickThumbnail, onClickPip, } = state;
     return {
         onClickImage,
         onClickNext,
@@ -239,6 +245,7 @@ const useCallbackMethods = () => {
         onZoomOut,
         onSave,
         onClickThumbnail,
+        onClickPip,
     };
 };
 exports.useCallbackMethods = useCallbackMethods;

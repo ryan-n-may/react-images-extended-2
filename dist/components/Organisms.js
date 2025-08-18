@@ -14,6 +14,7 @@ function DefaultHeader({ containerWidthRef, containerHeightRef, }) {
     const lightboxState = (0, ComponentState_1.useLightboxState)();
     const { imageLoaded } = lightboxState.state.imageState;
     const currentDisplayMode = lightboxState.state.displayMode;
+    const callbacks = (0, ComponentState_1.useCallbackMethods)();
     const [showExtraControls, setShowExtraControls] = (0, react_1.useState)(true);
     const toggleShowExtraControls = () => setShowExtraControls(!showExtraControls);
     const defaultActions = [];
@@ -22,7 +23,9 @@ function DefaultHeader({ containerWidthRef, containerHeightRef, }) {
     defaultActions.push((0, jsx_runtime_1.jsxs)(react_2.HStack, { gap: "1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate left", disabled: !imageLoaded, onClick: () => lightboxState.rotateLeft(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCcwSquare, {}) }, "rotate-left"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate right", disabled: !imageLoaded, onClick: () => lightboxState.rotateRight(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCwSquare, {}) }, "rotate-right")] }, "rotate-buttons"));
     if (currentDisplayMode !== ComponentState_1.LightboxDisplayMode.PIP) {
         defaultActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Enter Picture-in-Picture mode", disabled: !imageLoaded, onClick: () => {
+                var _a;
                 lightboxState.setDisplayMode(ComponentState_1.LightboxDisplayMode.PIP);
+                (_a = callbacks.onClickPip) === null || _a === void 0 ? void 0 : _a.call(callbacks); // used to enter DPIP mode on user interaction.
             }, icon: (0, jsx_runtime_1.jsx)(lucide_react_1.PictureInPicture, {}) }, "toggle-pip"));
     }
     if (currentDisplayMode !== ComponentState_1.LightboxDisplayMode.FULLSCREEN) {

@@ -15,6 +15,6 @@ function ThumbnailAtom({ index, src, active, onClick, }) {
 }
 exports.ThumbnailAtom = ThumbnailAtom;
 function ActionButtonAtom({ onClick, icon, disabled = false, tooltip, }) {
-    return ((0, jsx_runtime_1.jsxs)(react_1.Tooltip.Root, { children: [(0, jsx_runtime_1.jsx)(react_1.Tooltip.Trigger, { children: (0, jsx_runtime_1.jsx)(react_1.IconButton, { zIndex: constants_1.HEADER_Z_INDEX, onClick: onClick, disabled: disabled, "aria-label": "action-button", children: icon }) }), (0, jsx_runtime_1.jsx)(react_1.Tooltip.Positioner, { children: (0, jsx_runtime_1.jsx)(react_1.Tooltip.Content, { children: tooltip }) })] }));
+    return ((0, jsx_runtime_1.jsx)(react_1.Tooltip, { label: tooltip, placement: "bottom", hasArrow: true, children: (0, jsx_runtime_1.jsx)(react_1.IconButton, { zIndex: constants_1.HEADER_Z_INDEX, onClick: onClick, disabled: disabled, "aria-label": "action-button", icon: icon }) }));
 }
 exports.ActionButtonAtom = ActionButtonAtom;

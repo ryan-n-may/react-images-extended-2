@@ -86,6 +86,8 @@ export interface ILightboxState {
 
   // Callbacks
 
+  onClickPip?: () => void;
+
   onClickImage?: () => void;
   onClickNext?: () => void;
   onClickPrev?: () => void;
@@ -125,6 +127,7 @@ export type LightboxAction =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "SET_DRAGGING_PIP"; payload: boolean }
+  | { type: "SET_PIP_CALLBACK"; payload: () => void }
   | {
       type: "RESET_IMAGE_STATE";
       payload: { widthRef: number; heightRef: number };
@@ -257,6 +260,12 @@ function lightboxReducer(
         ),
       };
 
+    case "SET_PIP_CALLBACK":
+      return {
+        ...state,
+        onClickPip: action.payload,
+      };
+
     case "UPDATE_IMAGE_STATE":
       return {
         ...state,
@@ -342,6 +351,7 @@ export interface ILightboxContext {
   dispatch: React.Dispatch<LightboxAction>;
 
   setPiPPosition: (left: number, top: number) => void;
+  setPipCallback: (callback: () => void) => void;
   // Convenience methods for common operations
   setState: (state: Partial<ILightboxState>) => void;
   setImages: (images: IImage[]) => void;
@@ -386,6 +396,10 @@ export const LightboxProvider: React.FC<ILightboxProviderProps> = ({
 
   const setPiPPosition = useCallback((left: number, top: number) => {
     dispatch({ type: "SET_PIP_POSITION", payload: { left, top } });
+  }, []);
+
+  const setPipCallback = useCallback((callback: () => void) => {
+    dispatch({ type: "SET_PIP_CALLBACK", payload: callback });
   }, []);
 
   const setState = useCallback((newState: Partial<ILightboxState>) => {
@@ -464,6 +478,7 @@ export const LightboxProvider: React.FC<ILightboxProviderProps> = ({
     state,
     dispatch,
     setPiPPosition,
+    setPipCallback,
     setState,
     setImages,
     setCurrentImage,
@@ -531,6 +546,7 @@ export const useCallbackMethods = () => {
     onZoomOut,
     onSave,
     onClickThumbnail,
+    onClickPip,
   } = state;
   return {
     onClickImage,
@@ -543,6 +559,7 @@ export const useCallbackMethods = () => {
     onZoomOut,
     onSave,
     onClickThumbnail,
+    onClickPip,
   };
 };
 

@@ -17,7 +17,7 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiddenPortal, Portal } from "./StyledComponents";
 import { HStack } from "@chakra-ui/react";
-import { LightboxDisplayMode, useLightboxState } from "../ComponentState";
+import { LightboxDisplayMode, useCallbackMethods, useLightboxState } from "../ComponentState";
 
 export function DefaultHeader({
   containerWidthRef,
@@ -29,6 +29,8 @@ export function DefaultHeader({
   const lightboxState = useLightboxState();
   const { imageLoaded } = lightboxState.state.imageState;
   const currentDisplayMode = lightboxState.state.displayMode;
+
+  const callbacks = useCallbackMethods();
 
   const [showExtraControls, setShowExtraControls] = useState<boolean>(true);
   const toggleShowExtraControls = () =>
@@ -83,6 +85,7 @@ export function DefaultHeader({
         disabled={!imageLoaded}
         onClick={() => {
           lightboxState.setDisplayMode(LightboxDisplayMode.PIP);
+          callbacks.onClickPip?.(); // used to enter DPIP mode on user interaction.
         }}
         icon={<PictureInPicture />}
       />

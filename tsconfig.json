@@ -17,8 +17,14 @@
     "jsx": "react-jsx",
 
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true
   },
-  
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/demos/"
+  ],
   "include": ["src"]
 }

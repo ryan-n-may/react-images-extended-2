@@ -1,16 +1,11 @@
-import { IconButton, Collapse, Box } from "@chakra-ui/react";
+import { IconButton, Collapse } from "@chakra-ui/react";
 import { ActionButtonAtom, ThumbnailAtom } from "./Atoms";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { CollapsedControls, Header, ThumnailBar } from "./StyledComponents";
 import {
   useCallbackMethods,
   useLightboxImages,
-  useLightboxState,
 } from "../ComponentState";
-import { useEffect } from "react";
-import { debuginfo } from "../utils/log";
-import ReactDraggable, { DraggableData, DraggableEvent } from "react-draggable";
-import { Resizable } from "re-resizable";
 
 export interface IThumbnailsMoleculeProps {
   size?: string;
@@ -93,46 +88,5 @@ export function HeaderMolecule({
         )}
       </Header>
     </>
-  );
-}
-
-export function PositionedBox({ children }: { children: React.ReactNode }) {
-  const state = useLightboxState();
-
-  useEffect(() => {
-    debuginfo(
-      `Pip position left: ${state.state.pipPosition.left}, top: ${state.state.pipPosition.top}`
-    );
-  }, [state.state.pipPosition]);
-
-  return (
-    <ReactDraggable
-      handle=".pip-drag-handle"
-      defaultPosition={{ x: 0, y: 0 }}
-      onStop={(_e: DraggableEvent, data: DraggableData) => {
-        console.log("Final position:", data.x, data.y);
-        state.setPiPPosition(data.y, data.x);
-      }}
-    >
-      <Resizable
-        defaultSize={{ width: 400, height: 600 }}
-        minWidth={100}
-        minHeight={100}
-        maxWidth={800}
-        maxHeight={800}
-      >
-        <Box
-          position="relative"
-          width="100%"
-          height="100%"
-          background="white"
-          border="2px"
-          borderRadius={10}
-          overflow={"hidden"}
-        >
-          {children}
-        </Box>
-      </Resizable>
-    </ReactDraggable>
   );
 }
