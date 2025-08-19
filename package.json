@@ -1,33 +1,41 @@
 {
   "name": "react-images-extended-2",
-  "version": "1.0.5",
+  "version": "1.0.26",
   "description": "A simple, responsive lightbox component for displaying an array of images with React.js with extended features",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-
+  "style": "dist/styles.css",
+  "files": [
+    "dist/"
+  ],
   "author": "Isla May",
   "license": "MIT",
-
   "repository": {
     "type": "git",
     "url": "https://github.com/ryan-n-may/react-images-extended-2"
   },
-
   "dependencies": {
-    "@chakra-ui/react": "2.8.2",
-    "styled-components": "6.1.19",
     "lucide-react": "0.536.0",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
-    "ts": "0.2.2"
-  },
-  "devDependencies": {
-    "@types/react": "18.2.45",
-    "@types/react-dom": "18.2.17",
+    "ts": "0.2.2",
     "typescript": "5.4.3"
   },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.4.49",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.17"
+  },
   "scripts": {
-    "build": "npx tsc"
+    "clear": "rm -rf dist && rm -rf node_modules",
+    "build": "npm run build:css && npx tsc",
+    "build:css": "tailwindcss -i ./src/tailwind.css -o ./dist/styles.css --minify"
   },
   "keywords": [
     "react",

@@ -2,7 +2,7 @@
 export interface IThumbnailsMoleculeProps {
     size?: string;
 }
-export declare function ThumbnailsMolecule({ size }: IThumbnailsMoleculeProps): import("react/jsx-runtime").JSX.Element;
+export declare function ThumbnailsMolecule({ size }: IThumbnailsMoleculeProps): import("react/jsx-runtime").JSX.Element | null;
 export interface IHeaderProps {
     controls?: Array<JSX.Element>;
     extraControls?: Array<JSX.Element>;

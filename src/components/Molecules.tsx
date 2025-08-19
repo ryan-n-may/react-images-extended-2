@@ -1,10 +1,18 @@
-import { IconButton, Collapse } from "@chakra-ui/react";
-import { ActionButtonAtom, ThumbnailAtom } from "./Atoms";
+import { ActionButtonAtom } from "./Atoms";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
-import { CollapsedControls, Header, ThumnailBar } from "./StyledComponents";
+import {
+  CollapsedControls,
+  Header,
+  LeftGradientThumbnail,
+  NoGradientThumbnail,
+  RightGradientThumbnail,
+  ThumbnailScroller,
+  ThumnailBar,
+} from "./StyledComponents";
 import {
   useCallbackMethods,
   useLightboxImages,
+  useLightboxState,
 } from "../ComponentState";
 
 export interface IThumbnailsMoleculeProps {
@@ -14,6 +22,25 @@ export interface IThumbnailsMoleculeProps {
 export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
   const imageState = useLightboxImages();
   const callBacks = useCallbackMethods();
+
+  const currentImage = imageState.currentImage;
+  if (imageState.images.length === 0) return null;
+
+  const imageArray = imageState.images;
+
+  const minimalBackthumbnail = Math.max(0, currentImage - 2);
+  const minimalForwardthumbnail = Math.min(
+    imageState.images.length - 1,
+    currentImage + 2
+  );
+
+  const noScrollImage = imageArray[currentImage];
+  const leftScrollImage = imageArray.slice(minimalBackthumbnail, currentImage);
+  const rightScrollImage = imageArray.slice(
+    currentImage + 1,
+    minimalForwardthumbnail + 1
+  );
+
   return (
     <ThumnailBar>
       <ActionButtonAtom
@@ -26,23 +53,44 @@ export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
         disabled={imageState.currentImage === 0}
       />
 
-      {size !== "xs" &&
-        imageState.images.map((img, idx) => {
-          if (!img.src) return null;
-          return (
-            <ThumbnailAtom
-              src={img.src}
-              size={size}
-              active={idx === imageState.currentImage}
-              index={idx}
-              key={idx}
-              onClick={() => {
-                imageState.toImage(idx);
-                if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
-              }}
-            />
-          );
-        })}
+      <ThumbnailScroller>
+        {leftScrollImage.map((image, index) => (
+          <LeftGradientThumbnail
+            key={`thumbnail-${index}`}
+            index={index}
+            src={image.src}
+            size={size}
+            active={false}
+            onClick={() => {
+              imageState.setCurrentImage(minimalBackthumbnail + index);
+              if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+            }}
+          />
+        ))}
+
+        <NoGradientThumbnail
+          src={noScrollImage.src}
+          size={size}
+          active={true}
+          index={currentImage}
+          key={currentImage}
+          onClick={() => {}} // no navigation to the current image
+        />
+
+        {rightScrollImage.map((image, index) => (
+          <RightGradientThumbnail
+            key={`thumbnail-${index}`}
+            index={currentImage + 1 + index}
+            src={image.src}
+            size={size}
+            active={false}
+            onClick={() => {
+              imageState.setCurrentImage(currentImage + 1 + index);
+              if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+            }}
+          />
+        ))}
+      </ThumbnailScroller>
 
       <ActionButtonAtom
         tooltip="Next Image"
@@ -71,21 +119,32 @@ export function HeaderMolecule({
   showExtraControls,
 }: IHeaderProps) {
   const callBacks = useCallbackMethods();
+
+  const lightboxState = useLightboxState();
+  const currentImage = lightboxState.state.currentImage ?? 0;
+  const images = lightboxState.state.images;
+
+  const imageCount = images?.length ?? 0;
+
   return (
     <>
-      <Header className="pip-drag-handle">
-        {controls ? controls : <></>}
-        <Collapse
-          in={showExtraControls}
-          transition={{ enter: { duration: 0.3 }, exit: { duration: 0.2 } }}
-        >
-          <CollapsedControls> {extraControls} </CollapsedControls>
-        </Collapse>
-        {!!showCloseButton && (
-          <IconButton onClick={callBacks.onClose} aria-label={""}>
-            <X />
-          </IconButton>
+      <Header>
+        {controls && controls}
+        {showExtraControls && (
+          <CollapsedControls>
+            {extraControls && extraControls}
+          </CollapsedControls>
         )}
+        {!!showCloseButton && (
+          <button
+            onClick={callBacks.onClose}
+            aria-label="Close"
+            className="flex items-center justify-center p-2 rounded hover:bg-gray-200 transition-colors"
+          >
+            <X />
+          </button>
+        )}
+        <p> {`${currentImage} / ${imageCount}`} </p>
       </Header>
     </>
   );

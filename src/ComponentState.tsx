@@ -1,10 +1,11 @@
-import React, {
+import {
   createContext,
   useContext,
   useReducer,
   useCallback,
   useEffect,
   ReactNode,
+  FC,
 } from "react";
 import { IImage } from "./utils/types";
 import { debuginfo } from "./utils/log";
@@ -14,13 +15,6 @@ import {
   rotateManipulation,
   zoomManipulation,
 } from "./utils/manipulation";
-
-export interface ILightboxPipState {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
 
 export interface ILightboxImageState {
   imageLoaded: boolean;
@@ -54,15 +48,6 @@ export enum ActionType {
   RESET_IMAGE = "RESET_IMAGE",
 
   SAVE = "SAVE",
-
-  TOGGLE_PIP = "TOGGLE_PIP",
-  TOGGLE_FULLSCREEN = "TOGGLE_FULLSCREEN",
-}
-
-export enum LightboxDisplayMode {
-  FULLSCREEN = "fullscreen",
-  COMPONENT = "component",
-  PIP = "pip",
 }
 
 // State interface for the entire lightbox component
@@ -71,9 +56,6 @@ export interface ILightboxState {
   images: IImage[];
   currentImage: number;
   imageState: ILightboxImageState;
-
-  // Display mode
-  displayMode: LightboxDisplayMode;
 
   // UI state
   showThumbnails: boolean;
@@ -120,18 +102,13 @@ export type LightboxAction =
   | { type: "SET_CURRENT_IMAGE"; payload: number }
   | { type: "UPDATE_IMAGE_STATE"; payload: Partial<ILightboxImageState> }
   | { type: "UPDATE_IMAGE_STATE_LOADED"; payload: { imageLoaded: boolean } }
-  | { type: "SET_DISPLAY_MODE_PIP"; payload: LightboxDisplayMode }
-  | { type: "SET_DISPLAY_MODE_FS"; payload: LightboxDisplayMode }
   | { type: "SET_PIP_POSITION"; payload: { left: number; top: number } }
   | { type: "SET_SHOW_THUMBNAILS"; payload: boolean }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "SET_DRAGGING_PIP"; payload: boolean }
   | { type: "SET_PIP_CALLBACK"; payload: () => void }
-  | {
-      type: "RESET_IMAGE_STATE";
-      payload: { widthRef: number; heightRef: number };
-    }
+  | { type: "RESET_IMAGE" }
   | { type: "RESET_ALL" };
 
 // Default state
@@ -152,7 +129,6 @@ const defaultState: ILightboxState = {
     scaleY: 1,
   },
   pipPosition: { left: 0, top: 0 },
-  displayMode: LightboxDisplayMode.FULLSCREEN,
   showThumbnails: false,
   isLoading: false,
   isDraggingImage: false,
@@ -284,24 +260,6 @@ function lightboxReducer(
         },
       };
 
-    case "SET_DISPLAY_MODE_PIP":
-      debuginfo("Setting display mode to PIP");
-      return {
-        ...state,
-        displayMode: action.payload,
-        imageState: {
-          ...state.imageState,
-          left: 0,
-          top: 0,
-        },
-      };
-
-    case "SET_DISPLAY_MODE_FS":
-      return {
-        ...state,
-        displayMode: action.payload,
-      };
-
     case "SET_SHOW_THUMBNAILS":
       return {
         ...state,
@@ -320,11 +278,9 @@ function lightboxReducer(
         isDraggingImage: action.payload,
       };
 
-    case "RESET_IMAGE_STATE":
+    case "RESET_IMAGE":
       debuginfo("Resetting image state");
       const stateOnImageReset = handleReset(
-        action.payload.widthRef,
-        action.payload.heightRef,
         state.imageState.imageWidth,
         state.imageState.imageHeight
       );
@@ -350,8 +306,6 @@ export interface ILightboxContext {
   state: ILightboxState;
   dispatch: React.Dispatch<LightboxAction>;
 
-  setPiPPosition: (left: number, top: number) => void;
-  setPipCallback: (callback: () => void) => void;
   // Convenience methods for common operations
   setState: (state: Partial<ILightboxState>) => void;
   setImages: (images: IImage[]) => void;
@@ -369,10 +323,9 @@ export interface ILightboxContext {
   updateImageState: (updates: Partial<ILightboxImageState>) => void;
   setImageLoaded: (imageLoaded: boolean) => void;
 
-  setDisplayMode: (mode: LightboxDisplayMode) => void;
   setDraggingImage: (isDragging: boolean) => void;
 
-  resetImageState: (widthRef: number, heightRed: number) => void;
+  resetImageState: () => void;
   resetAll: () => void;
 }
 
@@ -385,7 +338,7 @@ interface ILightboxProviderProps {
   initialState?: Partial<ILightboxState>;
 }
 
-export const LightboxProvider: React.FC<ILightboxProviderProps> = ({
+export const LightboxProvider: FC<ILightboxProviderProps> = ({
   children,
   initialState = {},
 }) => {
@@ -393,14 +346,6 @@ export const LightboxProvider: React.FC<ILightboxProviderProps> = ({
     ...defaultState,
     ...initialState,
   });
-
-  const setPiPPosition = useCallback((left: number, top: number) => {
-    dispatch({ type: "SET_PIP_POSITION", payload: { left, top } });
-  }, []);
-
-  const setPipCallback = useCallback((callback: () => void) => {
-    dispatch({ type: "SET_PIP_CALLBACK", payload: callback });
-  }, []);
 
   const setState = useCallback((newState: Partial<ILightboxState>) => {
     dispatch({ type: "SET_STATE", payload: newState });
@@ -456,18 +401,12 @@ export const LightboxProvider: React.FC<ILightboxProviderProps> = ({
     dispatch({ type: "ROTATE_RIGHT", payload: null });
   }, []);
 
-  const setDisplayMode = useCallback((mode: LightboxDisplayMode) => {
-    if (mode === LightboxDisplayMode.PIP)
-      dispatch({ type: "SET_DISPLAY_MODE_PIP", payload: mode });
-    else dispatch({ type: "SET_DISPLAY_MODE_FS", payload: mode });
-  }, []);
-
   const setDraggingImage = useCallback((isDragging: boolean) => {
     dispatch({ type: "SET_DRAGGING", payload: isDragging });
   }, []);
 
-  const resetImageState = useCallback((widthRef: number, heightRef: number) => {
-    dispatch({ type: "RESET_IMAGE_STATE", payload: { widthRef, heightRef } });
+  const resetImageState = useCallback(() => {
+    dispatch({ type: "RESET_IMAGE" });
   }, []);
 
   const resetAll = useCallback(() => {
@@ -477,8 +416,6 @@ export const LightboxProvider: React.FC<ILightboxProviderProps> = ({
   const contextValue = {
     state,
     dispatch,
-    setPiPPosition,
-    setPipCallback,
     setState,
     setImages,
     setCurrentImage,
@@ -490,7 +427,6 @@ export const LightboxProvider: React.FC<ILightboxProviderProps> = ({
     rotateRight,
     updateImageState,
     setImageLoaded,
-    setDisplayMode,
     setDraggingImage,
     resetImageState,
     resetAll,
@@ -588,17 +524,6 @@ export const useLightboxImageState = () => {
     resetImageState,
     isLoaded: state.imageState.imageLoaded,
     hasError: !!state.imageState.error,
-  };
-};
-
-export const useLightboxDisplay = () => {
-  const { state, setDisplayMode } = useLightboxState();
-  return {
-    displayMode: state.displayMode,
-    setDisplayMode,
-    isFullscreen: state.displayMode === LightboxDisplayMode.FULLSCREEN,
-    isPiP: state.displayMode === LightboxDisplayMode.PIP,
-    isComponent: state.displayMode === LightboxDisplayMode.COMPONENT,
   };
 };
 

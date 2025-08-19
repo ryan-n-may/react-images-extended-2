@@ -1,16 +1,10 @@
 import React from "react";
-import { IconButton, Spinner, Tooltip } from "@chakra-ui/react";
 import { Thumbnail, ImageSpinnerWrapper } from "./StyledComponents";
-import { HEADER_Z_INDEX } from "../utils/constants";
 
-export interface ISpinnerProps {
-  size?: "sm" | "md" | "lg";
-}
-export function SpinnerAtom(props: ISpinnerProps) {
-  const { size = "md" } = props;
+export function SpinnerAtom() {
   return (
     <ImageSpinnerWrapper>
-      <Spinner zIndex={HEADER_Z_INDEX} size={size} />
+      <p> Loading... </p>
     </ImageSpinnerWrapper>
   );
 }
@@ -51,17 +45,15 @@ export function ActionButtonAtom({
   onClick,
   icon,
   disabled = false,
-  tooltip,
 }: IActionButtonProps) {
   return (
-    <Tooltip label={tooltip} placement="bottom" hasArrow>
-      <IconButton
-        zIndex={HEADER_Z_INDEX}
-        onClick={onClick}
-        disabled={disabled}
-        aria-label={"action-button"}
-        icon={icon}
-      />
-    </Tooltip>
+    <button
+      onClick={onClick}
+      aria-label="action-button"
+      disabled={disabled}
+      className="flex items-center justify-center p-2 rounded hover:bg-gray-200 transition-colors"
+    >
+      {icon}
+    </button>
   );
 }

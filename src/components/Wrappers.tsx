@@ -6,32 +6,21 @@ import {
   ReactNode,
   useMemo,
 } from "react";
-import { Box } from "@chakra-ui/react";
 import { useLightboxImageState, useLightboxState } from "../ComponentState";
 import { debuginfo } from "../utils/log";
-
-export interface ILightboxStateUpdateControls {
-  updateStyle: (style: any) => void;
-  setIsDragging: (isDragging: boolean) => void;
-  updatePosition: (left: number, top: number) => void;
-  getPosition: () => { left: number; top: number };
-  getDimensions: () => { width: number; height: number };
-  getScale: () => { scaleX: number; scaleY: number };
-  getRotation: () => { rotate: number };
-  getIsDragging: () => boolean;
-  children: ReactNode;
-}
 
 export function Draggable({ children }: { children: ReactNode }) {
   const dragStartRef = useRef({ x: 0, y: 0 });
   const dragOffsetRef = useRef({ x: 0, y: 0 });
+
   const lightboxState = useLightboxState();
-  const { pipPosition, isDraggingImage } = lightboxState.state;
+  const { isDraggingImage } = lightboxState.state;
 
   const { imageState } = useLightboxImageState();
 
   const wrapperStyle = useMemo(
     () => ({
+      border: isDraggingImage ? "1px solid #ccc" : "none",
       width: `${imageState.width}px`,
       height: "auto",
       transform: `rotate(${imageState.rotate}deg) scaleX(${imageState.scaleX}) scaleY(${imageState.scaleY})`,
@@ -76,21 +65,15 @@ export function Draggable({ children }: { children: ReactNode }) {
       lightboxState.setDraggingImage(true);
 
       debuginfo(`Mouse down position at (${event.clientX}, ${event.clientY})`);
-      debuginfo(
-        `Mouse down position converted to (${
-          event.clientX - pipPosition.left
-        }, ${event.clientY - pipPosition.top})`
-      );
 
-      // Convert screen coordinates to PiP container relative coordinates
       dragStartRef.current = {
-        x: event.clientX, // - pipPosition.left,
-        y: event.clientY, // - pipPosition.top
+        x: event.clientX,
+        y: event.clientY,
       };
       const { left, top } = lightboxState.state.imageState;
       dragOffsetRef.current = {
-        x: left, // - pipPosition.left || 0,
-        y: top, // - pipPosition.top || 0
+        x: left,
+        y: top,
       };
 
       debuginfo(
@@ -100,7 +83,7 @@ export function Draggable({ children }: { children: ReactNode }) {
         `Drag offset position: (${dragOffsetRef.current.x}, ${dragOffsetRef.current.y})`
       );
     },
-    [pipPosition.left, pipPosition.top, isDraggingImage]
+    [isDraggingImage, imageState.left, imageState.top]
   );
 
   const handleMouseMove = useCallback(
@@ -121,16 +104,16 @@ export function Draggable({ children }: { children: ReactNode }) {
         top: dragOffsetRef.current.y + deltaY,
       });
     },
-    [pipPosition.left, pipPosition.top, isDraggingImage]
+    [isDraggingImage, dragOffsetRef, dragStartRef]
   );
 
   const handleMouseUp = useCallback(() => {
     debuginfo("Mouse up event detected, stopping drag");
     lightboxState.setDraggingImage(false);
-  }, []);
+  }, [lightboxState]);
 
   return (
-    <Box
+    <div
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -138,6 +121,6 @@ export function Draggable({ children }: { children: ReactNode }) {
       style={wrapperStyle}
     >
       {children}
-    </Box>
+    </div>
   );
 }

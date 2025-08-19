@@ -3,16 +3,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Draggable = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = require("react");
-const react_2 = require("@chakra-ui/react");
 const ComponentState_1 = require("../ComponentState");
 const log_1 = require("../utils/log");
 function Draggable({ children }) {
     const dragStartRef = (0, react_1.useRef)({ x: 0, y: 0 });
     const dragOffsetRef = (0, react_1.useRef)({ x: 0, y: 0 });
     const lightboxState = (0, ComponentState_1.useLightboxState)();
-    const { pipPosition, isDraggingImage } = lightboxState.state;
+    const { isDraggingImage } = lightboxState.state;
     const { imageState } = (0, ComponentState_1.useLightboxImageState)();
     const wrapperStyle = (0, react_1.useMemo)(() => ({
+        border: isDraggingImage ? "1px solid #ccc" : "none",
         width: `${imageState.width}px`,
         height: "auto",
         transform: `rotate(${imageState.rotate}deg) scaleX(${imageState.scaleX}) scaleY(${imageState.scaleY})`,
@@ -52,20 +52,18 @@ function Draggable({ children }) {
         event.preventDefault();
         lightboxState.setDraggingImage(true);
         (0, log_1.debuginfo)(`Mouse down position at (${event.clientX}, ${event.clientY})`);
-        (0, log_1.debuginfo)(`Mouse down position converted to (${event.clientX - pipPosition.left}, ${event.clientY - pipPosition.top})`);
-        // Convert screen coordinates to PiP container relative coordinates
         dragStartRef.current = {
-            x: event.clientX, // - pipPosition.left,
-            y: event.clientY, // - pipPosition.top
+            x: event.clientX,
+            y: event.clientY,
         };
         const { left, top } = lightboxState.state.imageState;
         dragOffsetRef.current = {
-            x: left, // - pipPosition.left || 0,
-            y: top, // - pipPosition.top || 0
+            x: left,
+            y: top,
         };
         (0, log_1.debuginfo)(`Drag start position: (${dragStartRef.current.x}, ${dragStartRef.current.y})`);
         (0, log_1.debuginfo)(`Drag offset position: (${dragOffsetRef.current.x}, ${dragOffsetRef.current.y})`);
-    }, [pipPosition.left, pipPosition.top, isDraggingImage]);
+    }, [isDraggingImage, imageState.left, imageState.top]);
     const handleMouseMove = (0, react_1.useCallback)((event) => {
         if (!isDraggingImage)
             return;
@@ -79,11 +77,11 @@ function Draggable({ children }) {
             left: dragOffsetRef.current.x + deltaX,
             top: dragOffsetRef.current.y + deltaY,
         });
-    }, [pipPosition.left, pipPosition.top, isDraggingImage]);
+    }, [isDraggingImage, dragOffsetRef, dragStartRef]);
     const handleMouseUp = (0, react_1.useCallback)(() => {
         (0, log_1.debuginfo)("Mouse up event detected, stopping drag");
         lightboxState.setDraggingImage(false);
-    }, []);
-    return ((0, jsx_runtime_1.jsx)(react_2.Box, { onMouseDown: handleMouseDown, onMouseMove: handleMouseMove, onMouseUp: handleMouseUp, onMouseLeave: handleMouseUp, style: wrapperStyle, children: children }));
+    }, [lightboxState]);
+    return ((0, jsx_runtime_1.jsx)("div", { onMouseDown: handleMouseDown, onMouseMove: handleMouseMove, onMouseUp: handleMouseUp, onMouseLeave: handleMouseUp, style: wrapperStyle, children: children }));
 }
 exports.Draggable = Draggable;

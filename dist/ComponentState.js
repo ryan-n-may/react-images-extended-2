@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.useLightboxDrag = exports.useLightboxDisplay = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.LightboxDisplayMode = exports.ActionType = void 0;
+exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.ActionType = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = require("react");
 const log_1 = require("./utils/log");
@@ -18,15 +18,7 @@ var ActionType;
     ActionType["FLIP_HORIZONTAL"] = "FLIP_HORIZONTAL";
     ActionType["RESET_IMAGE"] = "RESET_IMAGE";
     ActionType["SAVE"] = "SAVE";
-    ActionType["TOGGLE_PIP"] = "TOGGLE_PIP";
-    ActionType["TOGGLE_FULLSCREEN"] = "TOGGLE_FULLSCREEN";
 })(ActionType || (exports.ActionType = ActionType = {}));
-var LightboxDisplayMode;
-(function (LightboxDisplayMode) {
-    LightboxDisplayMode["FULLSCREEN"] = "fullscreen";
-    LightboxDisplayMode["COMPONENT"] = "component";
-    LightboxDisplayMode["PIP"] = "pip";
-})(LightboxDisplayMode || (exports.LightboxDisplayMode = LightboxDisplayMode = {}));
 // Default state
 const defaultState = {
     images: [],
@@ -45,7 +37,6 @@ const defaultState = {
         scaleY: 1,
     },
     pipPosition: { left: 0, top: 0 },
-    displayMode: LightboxDisplayMode.FULLSCREEN,
     showThumbnails: false,
     isLoading: false,
     isDraggingImage: false,
@@ -94,20 +85,15 @@ function lightboxReducer(state, action) {
             return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), action.payload) });
         case "UPDATE_IMAGE_STATE_LOADED":
             return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), { imageLoaded: action.payload.imageLoaded }) });
-        case "SET_DISPLAY_MODE_PIP":
-            (0, log_1.debuginfo)("Setting display mode to PIP");
-            return Object.assign(Object.assign({}, state), { displayMode: action.payload, imageState: Object.assign(Object.assign({}, state.imageState), { left: 0, top: 0 }) });
-        case "SET_DISPLAY_MODE_FS":
-            return Object.assign(Object.assign({}, state), { displayMode: action.payload });
         case "SET_SHOW_THUMBNAILS":
             return Object.assign(Object.assign({}, state), { showThumbnails: action.payload });
         case "SET_LOADING":
             return Object.assign(Object.assign({}, state), { isLoading: action.payload });
         case "SET_DRAGGING":
             return Object.assign(Object.assign({}, state), { isDraggingImage: action.payload });
-        case "RESET_IMAGE_STATE":
+        case "RESET_IMAGE":
             (0, log_1.debuginfo)("Resetting image state");
-            const stateOnImageReset = (0, manipulation_1.handleReset)(action.payload.widthRef, action.payload.heightRef, state.imageState.imageWidth, state.imageState.imageHeight);
+            const stateOnImageReset = (0, manipulation_1.handleReset)(state.imageState.imageWidth, state.imageState.imageHeight);
             return Object.assign(Object.assign({}, state), { isDraggingImage: false, imageState: Object.assign(Object.assign({}, state.imageState), stateOnImageReset) });
         case "RESET_ALL":
             return defaultState;
@@ -119,12 +105,6 @@ function lightboxReducer(state, action) {
 const LightboxContext = (0, react_1.createContext)(undefined);
 const LightboxProvider = ({ children, initialState = {}, }) => {
     const [state, dispatch] = (0, react_1.useReducer)(lightboxReducer, Object.assign(Object.assign({}, defaultState), initialState));
-    const setPiPPosition = (0, react_1.useCallback)((left, top) => {
-        dispatch({ type: "SET_PIP_POSITION", payload: { left, top } });
-    }, []);
-    const setPipCallback = (0, react_1.useCallback)((callback) => {
-        dispatch({ type: "SET_PIP_CALLBACK", payload: callback });
-    }, []);
     const setState = (0, react_1.useCallback)((newState) => {
         dispatch({ type: "SET_STATE", payload: newState });
     }, []);
@@ -165,17 +145,11 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
         (0, log_1.debuginfo)("Rotate right callback triggered");
         dispatch({ type: "ROTATE_RIGHT", payload: null });
     }, []);
-    const setDisplayMode = (0, react_1.useCallback)((mode) => {
-        if (mode === LightboxDisplayMode.PIP)
-            dispatch({ type: "SET_DISPLAY_MODE_PIP", payload: mode });
-        else
-            dispatch({ type: "SET_DISPLAY_MODE_FS", payload: mode });
-    }, []);
     const setDraggingImage = (0, react_1.useCallback)((isDragging) => {
         dispatch({ type: "SET_DRAGGING", payload: isDragging });
     }, []);
-    const resetImageState = (0, react_1.useCallback)((widthRef, heightRef) => {
-        dispatch({ type: "RESET_IMAGE_STATE", payload: { widthRef, heightRef } });
+    const resetImageState = (0, react_1.useCallback)(() => {
+        dispatch({ type: "RESET_IMAGE" });
     }, []);
     const resetAll = (0, react_1.useCallback)(() => {
         dispatch({ type: "RESET_ALL" });
@@ -183,8 +157,6 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
     const contextValue = {
         state,
         dispatch,
-        setPiPPosition,
-        setPipCallback,
         setState,
         setImages,
         setCurrentImage,
@@ -196,7 +168,6 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
         rotateRight,
         updateImageState,
         setImageLoaded,
-        setDisplayMode,
         setDraggingImage,
         resetImageState,
         resetAll,
@@ -277,17 +248,6 @@ const useLightboxImageState = () => {
     };
 };
 exports.useLightboxImageState = useLightboxImageState;
-const useLightboxDisplay = () => {
-    const { state, setDisplayMode } = (0, exports.useLightboxState)();
-    return {
-        displayMode: state.displayMode,
-        setDisplayMode,
-        isFullscreen: state.displayMode === LightboxDisplayMode.FULLSCREEN,
-        isPiP: state.displayMode === LightboxDisplayMode.PIP,
-        isComponent: state.displayMode === LightboxDisplayMode.COMPONENT,
-    };
-};
-exports.useLightboxDisplay = useLightboxDisplay;
 const useLightboxDrag = () => {
     const { state, setDraggingImage } = (0, exports.useLightboxState)();
     return {

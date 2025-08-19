@@ -8,38 +8,33 @@ const lucide_react_1 = require("lucide-react");
 const react_1 = require("react");
 const react_dom_1 = require("react-dom");
 const StyledComponents_1 = require("./StyledComponents");
-const react_2 = require("@chakra-ui/react");
 const ComponentState_1 = require("../ComponentState");
-function DefaultHeader({ containerWidthRef, containerHeightRef, }) {
+const LightboxFunctional_1 = require("../LightboxFunctional");
+function DefaultHeader(props) {
     const lightboxState = (0, ComponentState_1.useLightboxState)();
     const { imageLoaded } = lightboxState.state.imageState;
-    const currentDisplayMode = lightboxState.state.displayMode;
-    const callbacks = (0, ComponentState_1.useCallbackMethods)();
     const [showExtraControls, setShowExtraControls] = (0, react_1.useState)(true);
     const toggleShowExtraControls = () => setShowExtraControls(!showExtraControls);
     const defaultActions = [];
     const extraActions = [];
-    defaultActions.push((0, jsx_runtime_1.jsxs)(react_2.HStack, { gap: "1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom in", disabled: !imageLoaded, onClick: () => lightboxState.zoomIn(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomIn, {}) }, "zoom-in"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom out", disabled: !imageLoaded, onClick: () => lightboxState.zoomOut(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomOut, {}) }, "zoom-out")] }, "zoom-buttons"));
-    defaultActions.push((0, jsx_runtime_1.jsxs)(react_2.HStack, { gap: "1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate left", disabled: !imageLoaded, onClick: () => lightboxState.rotateLeft(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCcwSquare, {}) }, "rotate-left"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate right", disabled: !imageLoaded, onClick: () => lightboxState.rotateRight(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCwSquare, {}) }, "rotate-right")] }, "rotate-buttons"));
-    if (currentDisplayMode !== ComponentState_1.LightboxDisplayMode.PIP) {
-        defaultActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Enter Picture-in-Picture mode", disabled: !imageLoaded, onClick: () => {
-                var _a;
-                lightboxState.setDisplayMode(ComponentState_1.LightboxDisplayMode.PIP);
-                (_a = callbacks.onClickPip) === null || _a === void 0 ? void 0 : _a.call(callbacks); // used to enter DPIP mode on user interaction.
-            }, icon: (0, jsx_runtime_1.jsx)(lucide_react_1.PictureInPicture, {}) }, "toggle-pip"));
+    defaultActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom in", disabled: !imageLoaded, onClick: () => lightboxState.zoomIn(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomIn, {}) }, "zoom-in"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom out", disabled: !imageLoaded, onClick: () => lightboxState.zoomOut(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomOut, {}) }, "zoom-out")] }, "zoom-buttons"));
+    defaultActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate left", disabled: !imageLoaded, onClick: () => lightboxState.rotateLeft(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCcwSquare, {}) }, "rotate-left"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate right", disabled: !imageLoaded, onClick: () => lightboxState.rotateRight(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCwSquare, {}) }, "rotate-right")] }, "rotate-buttons"));
+    defaultActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Extra controls", disabled: !imageLoaded, onClick: () => toggleShowExtraControls(), icon: showExtraControls ? (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeftToLine, {}) : (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRightToLine, {}) }, "toggle-collapse"));
+    extraActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip vertical", disabled: !imageLoaded, onClick: () => lightboxState.flipVertical(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipVertical2, {}) }, "flip-vertical"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip horizontal", disabled: !imageLoaded, onClick: () => lightboxState.flipHorisontal(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipHorizontal2, {}) }, "flip-horisontal")] }, "flip-controls"));
+    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Reset image position", disabled: !imageLoaded, onClick: () => lightboxState.resetImageState(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RefreshCw, {}) }, "reset-image"));
+    if (props.pipControls) {
+        const { open, isOpen, close } = props.pipControls;
+        extraActions.push((0, jsx_runtime_1.jsx)("button", { className: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded", onClick: () => {
+                if (isOpen())
+                    close();
+                else
+                    open((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: (0, jsx_runtime_1.jsx)(ComponentState_1.LightboxProvider, { initialState: lightboxState.state, children: (0, jsx_runtime_1.jsx)(LightboxFunctional_1.LightboxDPIP, {}) }) })).catch((error) => {
+                        console.error("Error opening PiP:", error);
+                        close();
+                    });
+            }, children: (0, jsx_runtime_1.jsx)(lucide_react_1.PictureInPicture, {}) }, "pip-button"));
     }
-    if (currentDisplayMode !== ComponentState_1.LightboxDisplayMode.FULLSCREEN) {
-        defaultActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Toggle fullscreen mode", disabled: !imageLoaded, onClick: () => {
-                lightboxState.setDisplayMode(ComponentState_1.LightboxDisplayMode.FULLSCREEN);
-                lightboxState.resetImageState(containerWidthRef.current, containerHeightRef.current);
-            }, icon: (0, jsx_runtime_1.jsx)(lucide_react_1.Maximize2, {}) }, "toggle-fullscreen"));
-    }
-    if (currentDisplayMode !== ComponentState_1.LightboxDisplayMode.PIP) {
-        defaultActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Extra controls", disabled: !imageLoaded, onClick: () => toggleShowExtraControls(), icon: showExtraControls ? (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeftToLine, {}) : (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRightToLine, {}) }, "toggle-collapse"));
-    }
-    extraActions.push((0, jsx_runtime_1.jsxs)(react_2.HStack, { gap: "1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip vertical", disabled: !imageLoaded, onClick: () => lightboxState.flipVertical(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipVertical2, {}) }, "flip-vertical"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip horizontal", disabled: !imageLoaded, onClick: () => lightboxState.flipHorisontal(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipHorizontal2, {}) }, "flip-horisontal")] }, "flip-controls"));
-    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Reset image position", disabled: !imageLoaded, onClick: () => lightboxState.resetImageState(containerWidthRef.current, containerHeightRef.current), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RefreshCw, {}) }, "reset-image"));
-    return ((0, jsx_runtime_1.jsx)(Molecules_1.HeaderMolecule, { controls: defaultActions, extraControls: extraActions, showCloseButton: true, showExtraControls: showExtraControls && currentDisplayMode !== ComponentState_1.LightboxDisplayMode.PIP }));
+    return ((0, jsx_runtime_1.jsx)(Molecules_1.HeaderMolecule, { controls: defaultActions, extraControls: extraActions, showCloseButton: true, showExtraControls: showExtraControls }));
 }
 exports.DefaultHeader = DefaultHeader;
 function Modal({ children, hidden, }) {

@@ -1,180 +1,161 @@
-import styled from 'styled-components';
-import { HEADER_Z_INDEX, FOOTER_Z_INDEX, MODAL_Z_INDEX, IMAGE_Z_INDEX } from '../utils/constants';
-import { HStack, VStack } from '@chakra-ui/react';
+import {
+  HEADER_Z_INDEX,
+  FOOTER_Z_INDEX,
+  MODAL_Z_INDEX,
+  IMAGE_Z_INDEX,
+} from "../utils/constants";
 
-export const HiddenPortal = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: -${MODAL_Z_INDEX};
-  background-color: rgba(0, 0, 0, 0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  visibility: hidden;
-`;
+// Portal Components
+export const HiddenPortal = (props: any) => (
+  <div
+    className="fixed inset-0 w-screen h-screen flex items-center justify-center invisible bg-transparent"
+    style={{ zIndex: -MODAL_Z_INDEX }}
+    {...props}
+  />
+);
 
-export const PiPPortal = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: ${MODAL_Z_INDEX};
-  background-color: rgba(0, 0, 0, 0);
-`;
+export const PiPPortal = (props: any) => (
+  <div
+    className="fixed inset-0 w-screen h-screen bg-transparent"
+    style={{ zIndex: MODAL_Z_INDEX }}
+    {...props}
+  />
+);
 
-export const Portal = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: ${MODAL_Z_INDEX};
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+export const Portal = (props: any) => (
+  <div
+    className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-80"
+    style={{ zIndex: MODAL_Z_INDEX }}
+    {...props}
+  />
+);
 
-export const Component = styled(VStack)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 10px;
-`;
+export const Component = (props: any) => (
+  <div
+    className="flex flex-col items-center justify-center overflow-hidden rounded-lg"
+    {...props}
+  />
+);
 
-export const Thumbnail = styled.img<{ active: boolean }>`
-  width: 50px;
-  height: 50px;
-  position: relative;
-  object-fit: cover;
-  border-radius: 0.375rem; /* same as Chakra's "md" */
-  border: 2px solid ${({ active }) => (active ? 'white' : 'transparent')};
-  cursor: pointer;
-  z-index: ${FOOTER_Z_INDEX};
-`;
+// Thumbnail Component
+interface ThumbnailProps {
+  active: boolean;
+  [key: string]: any;
+}
 
-export const CollapsedControls = styled(HStack)`
-  background-color: rgb(196, 196, 196);
-  border-radius: 0.5rem;
-`;
+export const Thumbnail = ({ active, ...props }: ThumbnailProps) => (
+  <img
+    className={`w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer ${
+      active ? "border-white" : "border-transparent"
+    }`}
+    style={{ zIndex: FOOTER_Z_INDEX }}
+    {...props}
+  />
+);
 
-export const ThumnailBar = styled(HStack)`
-  background-color: #f5f5f5;
-  padding: 0.5rem;
-  position: relative;
-  border-radius: 0.5rem;
-  gap: 0.25rem;
-  align-items: center;
-  justify-content: space-between;
-  z-index: ${HEADER_Z_INDEX};
-  min-width: 0;
-  flex-wrap: wrap;
-`;
+// Control Components
+export const CollapsedControls = (props: any) => (
+  <div className="flex items-center rounded-lg" {...props} />
+);
 
-export const Header = styled(HStack)`
-  background-color: #f5f5f5;
-  padding: 0.5rem;
-  position: relative;
-  border-radius: 0.5rem;
-  gap: 0.25rem;
-  align-items: center;
-  justify-content: space-between;
-  z-index: ${HEADER_Z_INDEX};
-  min-width: 0;
-  flex-wrap: wrap;
+export const ThumnailBar = (props: any) => (
+  <div
+    className="bg-gray-100 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
+    style={{ zIndex: HEADER_Z_INDEX }}
+    {...props}
+  />
+);
 
-  /* For very small containers, stack buttons vertically */
-  @container (max-width: 250px) {
-    flex-direction: column;
-    gap: 0.125rem;
-    padding: 0.25rem;
-  }
+export const ThumbnailScroller = (props: any) => (
+  <div
+    className="relative flex overflow-x-auto snap-x snap-mandatory items-center justify-center gap-3 p-4 bg-gray-100 rounded-lg"
+    {...props}
+  />
+);
 
-  /* For medium small containers, reduce spacing */
-  @container (max-width: 400px) {
-    gap: 0.125rem;
-    padding: 0.25rem;
+export const LeftGradientThumbnail = (props: any) => (
+  <div
+    className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-gray-100 via-gray-100/70 to-transparent z-10"
+    {...props}
+  >
+    <Thumbnail {...props} />
+  </div>
+);
 
-    & button {
-      min-width: 24px;
-      min-height: 24px;
-      padding: 0.125rem;
-    }
-  }
-`;
+export const RightGradientThumbnail = (props: any) => (
+  <div
+    className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-gray-100 via-gray-100/70 to-transparent z-10"
+    {...props}
+  >
+    <Thumbnail {...props} />
+  </div>
+);
 
-export const HeaderPiP = styled(HStack)`
-  background-color: #f5f5f5;
-  padding: 0.25rem;
-  position: relative;
-  border-radius: 0.5rem;
-  gap: 0.125rem;
-  align-items: center;
-  justify-content: space-between;
-  z-index: ${HEADER_Z_INDEX};
-  min-width: 0;
-  flex-shrink: 1;
+export const NoGradientThumbnail = (props: any) => (
+  <div
+    className={`snap-center shrink-0 w-40 h-40 bg-white rounded-lg shadow-md scale-75 opacity-60 blur-[1px] rotate-y-12 transform-gpu`}
+  >
+    <Thumbnail {...props} />
+  </div>
+);
 
-  /* Ensure buttons are small and compact */
-  & button {
-    min-width: 20px !important;
-    min-height: 20px !important;
-    width: 20px !important;
-    height: 20px !important;
-    padding: 0 !important;
-    font-size: 12px !important;
+export const Header = (props: any) => (
+  <div
+    className="bg-gray-100 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
+    style={{
+      zIndex: HEADER_Z_INDEX,
+      ...props.style,
+    }}
+    {...props}
+  />
+);
 
-    & svg {
-      width: 12px !important;
-      height: 12px !important;
-    }
-  }
+export const HeaderPiP = (props: any) => (
+  <div
+    className="bg-gray-100 p-1 relative rounded-lg gap-0.5 flex items-center justify-between min-w-0 flex-shrink"
+    style={{
+      zIndex: HEADER_Z_INDEX,
+      ...props.style,
+    }}
+    {...props}
+  />
+);
 
-  /* Hide less critical buttons when space is very limited */
-  @container (max-width: 200px) {
-    & button:not(:first-child):not(:last-child):not([data-critical='true']) {
-      display: none;
-    }
-  }
-`;
+// Image Components
+export const ImageFullscreen = (props: any) => (
+  <img
+    className="relative w-full h-full overflow-auto"
+    style={{ zIndex: IMAGE_Z_INDEX }}
+    {...props}
+  />
+);
 
-export const ImageFullscreen = styled.img`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  z-index: ${IMAGE_Z_INDEX};
-`;
+export const ImageComponent = (props: any) => (
+  <img
+    className="relative overflow-auto block"
+    style={{ zIndex: IMAGE_Z_INDEX }}
+    {...props}
+  />
+);
 
-export const ImageComponent = styled.img`
-  position: relative;
-  overflow: auto;
-  display: block;
-  z-index: ${IMAGE_Z_INDEX};
-`;
+export const ImageContainer = (props: any) => (
+  <div
+    className="relative w-full h-full flex items-center justify-center overflow-scroll"
+    style={{ zIndex: IMAGE_Z_INDEX }}
+    {...props}
+  />
+);
 
-export const ImageContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: scroll;
-  z-index: ${IMAGE_Z_INDEX};
-`;
+export const ImageSpinnerWrapper = (props: any) => (
+  <div
+    className="flex items-center justify-center w-screen h-screen"
+    {...props}
+  />
+);
 
-export const ImageSpinnerWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vh;
-  height: 100vh;
-`;
-
-export const FigureContainerFullScreen = styled.div`
-  height: 80vh;
-  width: 100%;
-  padding: 1rem;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* optional: center content vertically */
-`;
+export const FigureContainerFullScreen = (props: any) => (
+  <div
+    className="h-[80vh] w-full p-4 box-border flex flex-col items-center justify-center"
+    {...props}
+  />
+);

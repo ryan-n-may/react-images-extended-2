@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleReset = exports.rotateManipulation = exports.flipManipulation = exports.zoomManipulation = exports.getImgWidthHeight = exports.getImageCenterXY = void 0;
 const constants_1 = require("./constants");
 const log_1 = require("./log");
+const getWindowSize_1 = require("./getWindowSize");
 const ROTATION_DIRECTION_LEFT = -1;
 const ROTATION_DIRECTION_RIGHT = 1;
 const SCALE_DIRECTION_NEGATIVE = -1;
@@ -11,14 +12,15 @@ const SCALE_DIRECTION_POSITIVE = 1;
 function getImageCenterXY(state) {
     return {
         x: state.left + state.width / constants_1.CENTER_DIVISOR,
-        y: state.top + state.height / constants_1.CENTER_DIVISOR
+        y: state.top + state.height / constants_1.CENTER_DIVISOR,
     };
 }
 exports.getImageCenterXY = getImageCenterXY;
 // Calculate image width and height
-function getImgWidthHeight(imgWidth, imgHeight, containerWidthRef, containerHeightRef, footerHeightRef) {
-    const maxWidth = containerWidthRef.current * constants_1.IMAGE_MAX_SIZE_RATIO;
-    const maxHeight = (containerHeightRef.current - footerHeightRef.current) * constants_1.IMAGE_MAX_SIZE_RATIO;
+function getImgWidthHeight(imgWidth, imgHeight, footerHeightRef) {
+    const { width: windowWidth, height: windowHeight } = (0, getWindowSize_1.getWindowSize)();
+    const maxWidth = windowWidth * constants_1.IMAGE_MAX_SIZE_RATIO;
+    const maxHeight = (windowHeight - footerHeightRef.current) * constants_1.IMAGE_MAX_SIZE_RATIO;
     let calculatedWidth = Math.min(maxWidth, imgWidth);
     let calculatedHeight = (calculatedWidth / imgWidth) * imgHeight;
     if (calculatedHeight > maxHeight) {
@@ -32,7 +34,9 @@ exports.getImgWidthHeight = getImgWidthHeight;
 function zoomManipulation(zoomingIn, state) {
     const { scaleX, scaleY } = state;
     // Which way are we zooming?
-    const direction = zoomingIn ? SCALE_DIRECTION_NEGATIVE : SCALE_DIRECTION_POSITIVE;
+    const direction = zoomingIn
+        ? SCALE_DIRECTION_NEGATIVE
+        : SCALE_DIRECTION_POSITIVE;
     const step = 0.1;
     const scaleChange = direction * step;
     // Scale the image
@@ -42,7 +46,7 @@ function zoomManipulation(zoomingIn, state) {
         return undefined;
     return {
         scaleX: newScaleX,
-        scaleY: newScaleY
+        scaleY: newScaleY,
     };
 }
 exports.zoomManipulation = zoomManipulation;
@@ -54,7 +58,7 @@ function flipManipulation(state, isHorisontal = false) {
     // Use requestAnimationFrame to batch the state update and prevent flashing
     return {
         scaleX: newScaleX,
-        scaleY: newScaleY
+        scaleY: newScaleY,
     };
 }
 exports.flipManipulation = flipManipulation;
@@ -63,19 +67,23 @@ function rotateManipulation(state, isRight = false) {
     (0, log_1.debuginfo)(`Handling rotate: isRight=${isRight}, current rotate=${state.rotate}`);
     // Use requestAnimationFrame to batch the state update and prevent flashing
     return {
-        rotate: (state.rotate + constants_1.ROTATE_STEP * (isRight ? ROTATION_DIRECTION_RIGHT : ROTATION_DIRECTION_LEFT)) % constants_1.FULL_ROTATION
+        rotate: (state.rotate +
+            constants_1.ROTATE_STEP *
+                (isRight ? ROTATION_DIRECTION_RIGHT : ROTATION_DIRECTION_LEFT)) %
+            constants_1.FULL_ROTATION,
     };
 }
 exports.rotateManipulation = rotateManipulation;
-function handleReset(widthRef, heightRef, imageWidth, imageHeight) {
-    (0, log_1.debuginfo)('Handling reset: resetting image state to initial values');
+function handleReset(imageWidth, imageHeight) {
+    (0, log_1.debuginfo)("Handling reset: resetting image state to initial values");
     // Use requestAnimationFrame to batch the state update and prevent flashing
+    const { width: windowWidth, height: windowHeight } = (0, getWindowSize_1.getWindowSize)();
     return {
         rotate: 0,
         scaleX: 1,
         scaleY: 1,
-        top: Math.abs(heightRef / 2 - imageHeight / 2),
-        left: Math.abs(widthRef / 2 - imageWidth / 2)
+        top: Math.abs(windowHeight / 2 - imageHeight / 2),
+        left: Math.abs(windowWidth / 2 - imageWidth / 2),
     };
 }
 exports.handleReset = handleReset;

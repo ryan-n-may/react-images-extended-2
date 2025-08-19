@@ -1,11 +1,5 @@
-import React, { ReactNode } from "react";
+import { ReactNode, FC } from "react";
 import { IImage } from "./utils/types";
-export interface ILightboxPipState {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-}
 export interface ILightboxImageState {
     imageLoaded: boolean;
     error: string | null;
@@ -30,20 +24,12 @@ export declare enum ActionType {
     FLIP_VERTICAL = "FLIP_VERTICAL",
     FLIP_HORIZONTAL = "FLIP_HORIZONTAL",
     RESET_IMAGE = "RESET_IMAGE",
-    SAVE = "SAVE",
-    TOGGLE_PIP = "TOGGLE_PIP",
-    TOGGLE_FULLSCREEN = "TOGGLE_FULLSCREEN"
-}
-export declare enum LightboxDisplayMode {
-    FULLSCREEN = "fullscreen",
-    COMPONENT = "component",
-    PIP = "pip"
+    SAVE = "SAVE"
 }
 export interface ILightboxState {
     images: IImage[];
     currentImage: number;
     imageState: ILightboxImageState;
-    displayMode: LightboxDisplayMode;
     showThumbnails: boolean;
     isLoading: boolean;
     isDraggingImage: boolean;
@@ -102,12 +88,6 @@ export type LightboxAction = {
         imageLoaded: boolean;
     };
 } | {
-    type: "SET_DISPLAY_MODE_PIP";
-    payload: LightboxDisplayMode;
-} | {
-    type: "SET_DISPLAY_MODE_FS";
-    payload: LightboxDisplayMode;
-} | {
     type: "SET_PIP_POSITION";
     payload: {
         left: number;
@@ -129,19 +109,13 @@ export type LightboxAction = {
     type: "SET_PIP_CALLBACK";
     payload: () => void;
 } | {
-    type: "RESET_IMAGE_STATE";
-    payload: {
-        widthRef: number;
-        heightRef: number;
-    };
+    type: "RESET_IMAGE";
 } | {
     type: "RESET_ALL";
 };
 export interface ILightboxContext {
     state: ILightboxState;
     dispatch: React.Dispatch<LightboxAction>;
-    setPiPPosition: (left: number, top: number) => void;
-    setPipCallback: (callback: () => void) => void;
     setState: (state: Partial<ILightboxState>) => void;
     setImages: (images: IImage[]) => void;
     zoomIn: () => void;
@@ -153,16 +127,15 @@ export interface ILightboxContext {
     setCurrentImage: (index: number) => void;
     updateImageState: (updates: Partial<ILightboxImageState>) => void;
     setImageLoaded: (imageLoaded: boolean) => void;
-    setDisplayMode: (mode: LightboxDisplayMode) => void;
     setDraggingImage: (isDragging: boolean) => void;
-    resetImageState: (widthRef: number, heightRed: number) => void;
+    resetImageState: () => void;
     resetAll: () => void;
 }
 interface ILightboxProviderProps {
     children: ReactNode;
     initialState?: Partial<ILightboxState>;
 }
-export declare const LightboxProvider: React.FC<ILightboxProviderProps>;
+export declare const LightboxProvider: FC<ILightboxProviderProps>;
 export declare const useSetupState: (initialState: Partial<ILightboxState>) => void;
 export declare const useLightboxState: () => ILightboxContext;
 export declare const useCurrentImage: () => IImage;
@@ -197,16 +170,9 @@ export declare const useLightboxImages: () => {
 export declare const useLightboxImageState: () => {
     imageState: ILightboxImageState;
     updateImageState: (updates: Partial<ILightboxImageState>) => void;
-    resetImageState: (widthRef: number, heightRed: number) => void;
+    resetImageState: () => void;
     isLoaded: boolean;
     hasError: boolean;
-};
-export declare const useLightboxDisplay: () => {
-    displayMode: LightboxDisplayMode;
-    setDisplayMode: (mode: LightboxDisplayMode) => void;
-    isFullscreen: boolean;
-    isPiP: boolean;
-    isComponent: boolean;
 };
 export declare const useLightboxDrag: () => {
     isDragging: boolean;

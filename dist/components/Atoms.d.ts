@@ -1,8 +1,5 @@
 import React from "react";
-export interface ISpinnerProps {
-    size?: "sm" | "md" | "lg";
-}
-export declare function SpinnerAtom(props: ISpinnerProps): import("react/jsx-runtime").JSX.Element;
+export declare function SpinnerAtom(): import("react/jsx-runtime").JSX.Element;
 export interface IThumbnailAtomProps {
     index: number;
     src: string;
@@ -18,5 +15,5 @@ export interface IActionButtonProps {
     disabled?: boolean;
     tooltip: string;
 }
-export declare function ActionButtonAtom({ onClick, icon, disabled, tooltip, }: IActionButtonProps): import("react/jsx-runtime").JSX.Element;
+export declare function ActionButtonAtom({ onClick, icon, disabled, }: IActionButtonProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=Atoms.d.ts.map

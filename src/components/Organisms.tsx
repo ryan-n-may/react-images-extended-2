@@ -8,29 +8,27 @@ import {
   RefreshCw,
   FlipHorizontal2,
   FlipVertical2,
-  PictureInPicture,
-  Maximize2,
   ArrowRightToLine,
   ArrowLeftToLine,
+  PictureInPicture,
 } from "lucide-react";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiddenPortal, Portal } from "./StyledComponents";
-import { HStack } from "@chakra-ui/react";
-import { LightboxDisplayMode, useCallbackMethods, useLightboxState } from "../ComponentState";
+import { LightboxProvider, useLightboxState } from "../ComponentState";
+import { LightboxDPIP } from "../LightboxFunctional";
 
-export function DefaultHeader({
-  containerWidthRef,
-  containerHeightRef,
-}: {
-  containerWidthRef: MutableRefObject<number>;
-  containerHeightRef: MutableRefObject<number>;
-}) {
+interface IDefaultHeaderProps {
+  pipControls?: {
+    open: (content: JSX.Element) => Promise<void>;
+    isOpen: () => boolean;
+    close: () => void | undefined;
+  };
+}
+
+export function DefaultHeader(props: IDefaultHeaderProps) {
   const lightboxState = useLightboxState();
   const { imageLoaded } = lightboxState.state.imageState;
-  const currentDisplayMode = lightboxState.state.displayMode;
-
-  const callbacks = useCallbackMethods();
 
   const [showExtraControls, setShowExtraControls] = useState<boolean>(true);
   const toggleShowExtraControls = () =>
@@ -40,7 +38,7 @@ export function DefaultHeader({
   const extraActions = [];
 
   defaultActions.push(
-    <HStack key="zoom-buttons" gap="1">
+    <div key="zoom-buttons" className="flex items-center gap-1">
       <ActionButtonAtom
         tooltip="Zoom in"
         key="zoom-in"
@@ -55,11 +53,11 @@ export function DefaultHeader({
         onClick={() => lightboxState.zoomOut()}
         icon={<ZoomOut />}
       />
-    </HStack>
+    </div>
   );
 
   defaultActions.push(
-    <HStack key="rotate-buttons" gap="1">
+    <div key="rotate-buttons" className="flex items-center gap-1">
       <ActionButtonAtom
         tooltip="Rotate left"
         key="rotate-left"
@@ -74,56 +72,21 @@ export function DefaultHeader({
         onClick={() => lightboxState.rotateRight()}
         icon={<RotateCwSquare />}
       />
-    </HStack>
+    </div>
   );
 
-  if (currentDisplayMode !== LightboxDisplayMode.PIP) {
-    defaultActions.push(
-      <ActionButtonAtom
-        tooltip="Enter Picture-in-Picture mode"
-        key="toggle-pip"
-        disabled={!imageLoaded}
-        onClick={() => {
-          lightboxState.setDisplayMode(LightboxDisplayMode.PIP);
-          callbacks.onClickPip?.(); // used to enter DPIP mode on user interaction.
-        }}
-        icon={<PictureInPicture />}
-      />
-    );
-  }
-
-  if (currentDisplayMode !== LightboxDisplayMode.FULLSCREEN) {
-    defaultActions.push(
-      <ActionButtonAtom
-        tooltip="Toggle fullscreen mode"
-        key="toggle-fullscreen"
-        disabled={!imageLoaded}
-        onClick={() => {
-          lightboxState.setDisplayMode(LightboxDisplayMode.FULLSCREEN);
-          lightboxState.resetImageState(
-            containerWidthRef.current,
-            containerHeightRef.current
-          );
-        }}
-        icon={<Maximize2 />}
-      />
-    );
-  }
-
-  if (currentDisplayMode !== LightboxDisplayMode.PIP) {
-    defaultActions.push(
-      <ActionButtonAtom
-        tooltip="Extra controls"
-        key="toggle-collapse"
-        disabled={!imageLoaded}
-        onClick={() => toggleShowExtraControls()}
-        icon={showExtraControls ? <ArrowLeftToLine /> : <ArrowRightToLine />}
-      />
-    );
-  }
+  defaultActions.push(
+    <ActionButtonAtom
+      tooltip="Extra controls"
+      key="toggle-collapse"
+      disabled={!imageLoaded}
+      onClick={() => toggleShowExtraControls()}
+      icon={showExtraControls ? <ArrowLeftToLine /> : <ArrowRightToLine />}
+    />
+  );
 
   extraActions.push(
-    <HStack key="flip-controls" gap="1">
+    <div key="flip-controls" className="flex items-center gap-1">
       <ActionButtonAtom
         tooltip="Flip vertical"
         key="flip-vertical"
@@ -138,7 +101,7 @@ export function DefaultHeader({
         onClick={() => lightboxState.flipHorisontal()}
         icon={<FlipHorizontal2 />}
       />
-    </HStack>
+    </div>
   );
 
   extraActions.push(
@@ -146,24 +109,43 @@ export function DefaultHeader({
       tooltip="Reset image position"
       key="reset-image"
       disabled={!imageLoaded}
-      onClick={() =>
-        lightboxState.resetImageState(
-          containerWidthRef.current,
-          containerHeightRef.current
-        )
-      }
+      onClick={() => lightboxState.resetImageState()}
       icon={<RefreshCw />}
     />
   );
+
+  if (props.pipControls) {
+    const { open, isOpen, close } = props.pipControls;
+    extraActions.push(
+      <button
+        key="pip-button"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => {
+          if (isOpen()) close();
+          else
+            open(
+              <>
+                <LightboxProvider initialState={lightboxState.state}>
+                  <LightboxDPIP />
+                </LightboxProvider>
+              </>
+            ).catch((error) => {
+              console.error("Error opening PiP:", error);
+              close();
+            });
+        }}
+      >
+        <PictureInPicture />
+      </button>
+    );
+  }
 
   return (
     <HeaderMolecule
       controls={defaultActions}
       extraControls={extraActions}
       showCloseButton
-      showExtraControls={
-        showExtraControls && currentDisplayMode !== LightboxDisplayMode.PIP
-      }
+      showExtraControls={showExtraControls}
     />
   );
 }

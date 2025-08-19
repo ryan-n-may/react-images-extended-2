@@ -1,8 +1,9 @@
-import { ILightboxImageState, ILightboxState } from '../ComponentState';
-import { CENTER_DIVISOR } from './constants';
-import { debuginfo } from './log';
-import { getImgWidthHeight } from './manipulation';
-import { IImage } from './types';
+import { ILightboxImageState, ILightboxState } from "../ComponentState";
+import { CENTER_DIVISOR } from "./constants";
+import { getWindowSize } from "./getWindowSize";
+import { debuginfo } from "./log";
+import { getImgWidthHeight } from "./manipulation";
+import { IImage } from "./types";
 
 // consumers sometimes provide incorrect type or casing
 export function normalizeSourceSet(data: IImage) {
@@ -23,8 +24,6 @@ export function normalizeSourceSet(data: IImage) {
 export function preloadImage(
   state: ILightboxState,
   updateImageState: (updates: Partial<ILightboxImageState>) => void,
-  containerWidthRef: React.MutableRefObject<number>,
-  containerHeightRef: React.MutableRefObject<number>,
   footerHeightRef: React.MutableRefObject<number>
 ): HTMLImageElement {
   const { images, currentImage: idx } = state;
@@ -43,12 +42,16 @@ export function preloadImage(
     const [calculatedWidth, calculatedHeight] = getImgWidthHeight(
       imgWidth,
       imgHeight,
-      containerWidthRef,
-      containerHeightRef,
       footerHeightRef
     );
-    const left = (containerWidthRef.current - calculatedWidth) / CENTER_DIVISOR;
-    const top = (containerHeightRef.current - calculatedHeight - footerHeightRef.current) / CENTER_DIVISOR;
+
+    const { height: windowHeight, width: windowWidth } = getWindowSize();
+
+    const left = (windowWidth - calculatedWidth) / CENTER_DIVISOR;
+    const top =
+      (windowHeight - calculatedHeight - footerHeightRef.current) /
+      CENTER_DIVISOR;
+      
     updateImageState({
       width: calculatedWidth,
       height: calculatedHeight,
@@ -60,7 +63,7 @@ export function preloadImage(
       rotate: data.initialRotation || 0,
       scaleX: data.initialZoom || 1,
       scaleY: data.initialZoom || 1,
-      imageLoaded: true
+      imageLoaded: true,
     });
   };
 
@@ -68,7 +71,7 @@ export function preloadImage(
     debuginfo(`Failed to load image at index ${idx}`);
     updateImageState({
       error: `Failed to load image at index ${idx}`,
-      imageLoaded: false
+      imageLoaded: false,
     });
   };
 

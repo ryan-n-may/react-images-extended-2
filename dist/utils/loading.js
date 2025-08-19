@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.preloadImage = exports.normalizeSourceSet = void 0;
 const constants_1 = require("./constants");
+const getWindowSize_1 = require("./getWindowSize");
 const log_1 = require("./log");
 const manipulation_1 = require("./manipulation");
 // consumers sometimes provide incorrect type or casing
@@ -18,7 +19,7 @@ function normalizeSourceSet(data) {
 }
 exports.normalizeSourceSet = normalizeSourceSet;
 // Preload image
-function preloadImage(state, updateImageState, containerWidthRef, containerHeightRef, footerHeightRef) {
+function preloadImage(state, updateImageState, footerHeightRef) {
     const { images, currentImage: idx } = state;
     console.log(`Preloading image at index: ${idx}`); // Debugging log
     const data = images === null || images === void 0 ? void 0 : images[idx];
@@ -28,9 +29,11 @@ function preloadImage(state, updateImageState, containerWidthRef, containerHeigh
         (0, log_1.debuginfo)(`Image loaded at index ${idx}`); // Debugging log
         const imgWidth = img.width;
         const imgHeight = img.height;
-        const [calculatedWidth, calculatedHeight] = (0, manipulation_1.getImgWidthHeight)(imgWidth, imgHeight, containerWidthRef, containerHeightRef, footerHeightRef);
-        const left = (containerWidthRef.current - calculatedWidth) / constants_1.CENTER_DIVISOR;
-        const top = (containerHeightRef.current - calculatedHeight - footerHeightRef.current) / constants_1.CENTER_DIVISOR;
+        const [calculatedWidth, calculatedHeight] = (0, manipulation_1.getImgWidthHeight)(imgWidth, imgHeight, footerHeightRef);
+        const { height: windowHeight, width: windowWidth } = (0, getWindowSize_1.getWindowSize)();
+        const left = (windowWidth - calculatedWidth) / constants_1.CENTER_DIVISOR;
+        const top = (windowHeight - calculatedHeight - footerHeightRef.current) /
+            constants_1.CENTER_DIVISOR;
         updateImageState({
             width: calculatedWidth,
             height: calculatedHeight,
@@ -42,14 +45,14 @@ function preloadImage(state, updateImageState, containerWidthRef, containerHeigh
             rotate: data.initialRotation || 0,
             scaleX: data.initialZoom || 1,
             scaleY: data.initialZoom || 1,
-            imageLoaded: true
+            imageLoaded: true,
         });
     };
     img.onerror = () => {
         (0, log_1.debuginfo)(`Failed to load image at index ${idx}`);
         updateImageState({
             error: `Failed to load image at index ${idx}`,
-            imageLoaded: false
+            imageLoaded: false,
         });
     };
     if (!data || !data.src) {

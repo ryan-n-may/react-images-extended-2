@@ -9,13 +9,15 @@ const loading_1 = require("../utils/loading");
 const ComponentState_1 = require("../ComponentState");
 const canUseDom_1 = __importDefault(require("../utils/canUseDom"));
 const log_1 = require("../utils/log");
-function useLoadImage(containerWidthRef, containerHeightRef, footerHeightRef) {
+function useLoadImage(footerHeightRef) {
     const lightboxContext = (0, ComponentState_1.useLightboxState)();
     (0, react_1.useEffect)(() => {
         (0, log_1.debuginfo)(`useLoadImage: currentImage index is ${lightboxContext.state.currentImage}`);
-        if (!canUseDom_1.default)
+        if (!canUseDom_1.default) {
+            (0, log_1.debuginfo)("useLoadImage: canUseDom is false, skipping image preload.");
             return;
-        (0, loading_1.preloadImage)(lightboxContext.state, lightboxContext.updateImageState, containerWidthRef, containerHeightRef, footerHeightRef);
+        }
+        (0, loading_1.preloadImage)(lightboxContext.state, lightboxContext.updateImageState, footerHeightRef);
     }, [lightboxContext.state.currentImage, loading_1.preloadImage]);
 }
 exports.useLoadImage = useLoadImage;

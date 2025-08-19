@@ -1,11 +1,11 @@
-import { LightboxDisplayMode, ILightboxState } from "./ComponentState";
+import { ILightboxState } from "./ComponentState";
 import { IImage } from "./utils/types";
 export interface ICustomControl {
     label: string;
     icon: string;
-    onClick: (state: ILightboxState) => Partial<ILightboxState>;
-    isDisabled?: (state: ILightboxState) => boolean;
-    isActive?: (state: ILightboxState) => boolean;
+    onClick: (state?: ILightboxState) => Partial<ILightboxState>;
+    isDisabled?: (state?: ILightboxState) => boolean;
+    isActive?: (state?: ILightboxState) => boolean;
 }
 export interface ILightboxProps {
     images: Array<IImage>;
@@ -25,10 +25,8 @@ export interface ILightboxProps {
     onClickThumbnail?: () => void;
     showCloseButton?: boolean;
     showThumbnails?: boolean;
-    displayMode?: LightboxDisplayMode;
-    initialPipWidth?: number;
-    initialPipHeight?: number;
 }
 export declare const Lightbox: (props: ILightboxProps) => import("react/jsx-runtime").JSX.Element;
-export declare const LightboxWrapper: (props: ILightboxProps) => import("react/jsx-runtime").JSX.Element;
+export declare function LightboxWrapper(props: ILightboxProps): import("react/jsx-runtime").JSX.Element;
+export declare function LightboxDPIP(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=LightboxFunctional.d.ts.map

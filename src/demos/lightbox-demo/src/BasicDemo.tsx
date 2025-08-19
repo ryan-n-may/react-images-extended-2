@@ -1,49 +1,42 @@
 import { useState } from 'react';
 import { Box, Button, VStack, Text, Card, CardBody, Heading } from '@chakra-ui/react';
 import { Lightbox, IImage } from 'react-images-extended-2';
+import 'react-images-extended-2/dist/styles.css';
 
 // Demo images from public APIs
 const demoImages: IImage[] = [
   {
-    src: 'https://picsum.photos/1200/800?random=1',
+    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://picsum.photos/1200/800?random=2',
+    src: 'https://i.imgur.com/5G8m4SS.jpeg',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://picsum.photos/1200/800?random=3',
+    src: 'https://i.imgur.com/hrfmeFw.jpeg',
     caption: 'Beautiful Landscape 3',
-  },
-  {
-    src: 'https://picsum.photos/1200/800?random=4',
-    caption: 'Beautiful Landscape 4',
-  },
-  {
-    src: 'https://picsum.photos/1200/800?random=5',
-    caption: 'Beautiful Landscape 5',
   },
 ];
 
 const portraitImages: IImage[] = [
   {
-    src: 'https://picsum.photos/600/900?random=6',
-    caption: 'Portrait Image 1',
+    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://picsum.photos/600/900?random=7',
-    caption: 'Portrait Image 2',
+    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://picsum.photos/600/900?random=8',
-    caption: 'Portrait Image 3',
+    src: 'https://i.imgur.com/hrfmeFw.jpeg',
+    caption: 'Beautiful Landscape 3',
   },
 ];
 
 const singleImage: IImage[] = [
   {
-    src: 'https://picsum.photos/1000/1000?random=9',
+    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
     caption: 'Single Square Image',
   },
 ];
