@@ -1,8 +1,5 @@
 /// <reference types="react" />
-export interface IThumbnailsMoleculeProps {
-    size?: string;
-}
-export declare function ThumbnailsMolecule({ size }: IThumbnailsMoleculeProps): import("react/jsx-runtime").JSX.Element | null;
+export declare function ThumbnailsMolecule(): import("react/jsx-runtime").JSX.Element | null;
 export interface IHeaderProps {
     controls?: Array<JSX.Element>;
     extraControls?: Array<JSX.Element>;
@@ -10,4 +7,5 @@ export interface IHeaderProps {
     showExtraControls?: boolean;
 }
 export declare function HeaderMolecule({ controls, extraControls, showCloseButton, showExtraControls, }: IHeaderProps): import("react/jsx-runtime").JSX.Element;
+export declare const PinnedImagesHeader: () => import("react/jsx-runtime").JSX.Element | null;
 //# sourceMappingURL=Molecules.d.ts.map

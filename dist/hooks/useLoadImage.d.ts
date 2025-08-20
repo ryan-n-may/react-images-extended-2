@@ -1,3 +1,2 @@
-import { MutableRefObject } from "react";
-export declare function useLoadImage(footerHeightRef: MutableRefObject<number>): void;
+export declare function useLoadImage(): void;
 //# sourceMappingURL=useLoadImage.d.ts.map

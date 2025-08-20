@@ -13,11 +13,15 @@ import {
   PictureInPicture,
   CircleArrowOutUpRight,
   Download,
+  BookOpen,
+  Image,
+  Pin,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiddenPortal, Portal } from "./StyledComponents";
-import { useLightboxState } from "../ComponentState";
+import { IImageViewMode, useLightboxState } from "../ComponentState";
+import { pinImage } from "../utils/manipulation";
 
 interface IDefaultHeaderProps {
   pipControls?: {
@@ -49,14 +53,14 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
         key="zoom-in"
         disabled={!imageLoaded}
         onClick={() => lightboxState.zoomIn()}
-        icon={<ZoomIn />}
+        icon={<ZoomIn color="white" />}
       />
       <ActionButtonAtom
         tooltip="Zoom out"
         key="zoom-out"
         disabled={!imageLoaded}
         onClick={() => lightboxState.zoomOut()}
-        icon={<ZoomOut />}
+        icon={<ZoomOut color="white" />}
       />
     </div>
   );
@@ -68,14 +72,14 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
         key="rotate-left"
         disabled={!imageLoaded}
         onClick={() => lightboxState.rotateLeft()}
-        icon={<RotateCcwSquare />}
+        icon={<RotateCcwSquare color="white" />}
       />
       <ActionButtonAtom
         tooltip="Rotate right"
         key="rotate-right"
         disabled={!imageLoaded}
         onClick={() => lightboxState.rotateRight()}
-        icon={<RotateCwSquare />}
+        icon={<RotateCwSquare color="white" />}
       />
     </div>
   );
@@ -86,7 +90,13 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
       key="toggle-collapse"
       disabled={!imageLoaded}
       onClick={() => toggleShowExtraControls()}
-      icon={showExtraControls ? <ArrowLeftToLine /> : <ArrowRightToLine />}
+      icon={
+        showExtraControls ? (
+          <ArrowLeftToLine color="white" />
+        ) : (
+          <ArrowRightToLine color="white" />
+        )
+      }
     />
   );
 
@@ -97,14 +107,14 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
         key="flip-vertical"
         disabled={!imageLoaded}
         onClick={() => lightboxState.flipVertical()}
-        icon={<FlipVertical2 />}
+        icon={<FlipVertical2 color="white" />}
       />
       <ActionButtonAtom
         tooltip="Flip horizontal"
         key="flip-horisontal"
         disabled={!imageLoaded}
         onClick={() => lightboxState.flipHorisontal()}
-        icon={<FlipHorizontal2 />}
+        icon={<FlipHorizontal2 color="white" />}
       />
     </div>
   );
@@ -115,16 +125,17 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
       key="reset-image"
       disabled={!imageLoaded}
       onClick={() => lightboxState.resetImageState()}
-      icon={<RefreshCw />}
+      icon={<RefreshCw color="white" />}
     />
   );
 
   if (props.pipControls) {
     const { open, isOpen, close } = props.pipControls;
     extraActions.push(
-      <button
+      <ActionButtonAtom
+        tooltip="Open PiP"
         key="pip-button"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        disabled={!imageLoaded}
         onClick={() => {
           if (isOpen()) close();
           else
@@ -133,38 +144,70 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
               close();
             });
         }}
-      >
-        <PictureInPicture />
-      </button>
+        icon={<PictureInPicture color="white" />}
+      />
     );
   }
 
   if (props.newTabControls) {
     const { open } = props.newTabControls;
     extraActions.push(
-      <button
-        key="new-tab-button"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      <ActionButtonAtom
+        tooltip="New tab"
+        key="open-new-tab-button"
+        disabled={!imageLoaded}
         onClick={() => {
           open().catch((error) => {
             console.error("Error opening new tab:", error);
-            // we do not elect to control the new open tab; no close handlers 
+            // we do not elect to control the new open tab; no close handlers
           });
         }}
-      >
-        <CircleArrowOutUpRight />
-      </button>
+        icon={<CircleArrowOutUpRight color="white" />}
+      />
     );
   }
 
   extraActions.push(
-    <button
+    <ActionButtonAtom
+      tooltip="Download"
       key="save-image-button"
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      onClick={() => {}} // on save callback must be implemented
-    >
-      <Download />
-    </button>
+      disabled={!imageLoaded}
+      onClick={() => {}}
+      icon={<Download color="white" />}
+    />
+  );
+
+  extraActions.push(
+    <ActionButtonAtom
+      tooltip="Reader mode"
+      key="reader-mode-button"
+      disabled={!imageLoaded}
+      onClick={() => lightboxState.updateViewState(IImageViewMode.READER)}
+      icon={<BookOpen color="white" />}
+    />
+  );
+
+  extraActions.push(
+    <ActionButtonAtom
+      tooltip="Image mode"
+      key="image-mode-button"
+      disabled={!imageLoaded}
+      onClick={() => lightboxState.updateViewState(IImageViewMode.IMAGE)}
+      icon={<Image color="white" />}
+    />
+  );
+
+  extraActions.push(
+    <ActionButtonAtom
+      tooltip="Pin image"
+      key="pin-image-button"
+      disabled={!imageLoaded}
+      onClick={() => {
+        const pinnedImage = pinImage(lightboxState.state);
+        lightboxState.pinImage(pinnedImage);
+      }}
+      icon={<Pin color="white" />}
+    />
   );
 
   return (

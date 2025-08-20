@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.usePipWindow = exports.ActionType = void 0;
+exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.IImageViewMode = exports.ActionType = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = require("react");
 const log_1 = require("./utils/log");
@@ -19,10 +19,18 @@ var ActionType;
     ActionType["RESET_IMAGE"] = "RESET_IMAGE";
     ActionType["SAVE"] = "SAVE";
 })(ActionType || (exports.ActionType = ActionType = {}));
+var IImageViewMode;
+(function (IImageViewMode) {
+    IImageViewMode["READER"] = "READER";
+    IImageViewMode["IMAGE"] = "IMAGE";
+})(IImageViewMode || (exports.IImageViewMode = IImageViewMode = {}));
 // Default state
 const defaultState = {
     images: [],
     currentImage: 0,
+    viewMode: IImageViewMode.IMAGE,
+    pinnedImages: [],
+    currentImageIsPinned: false,
     imageState: {
         imageLoaded: false,
         error: null,
@@ -72,11 +80,16 @@ function lightboxReducer(state, action) {
         case "SET_IMAGES":
             return Object.assign(Object.assign({}, state), { images: action.payload });
         case "SET_CURRENT_IMAGE":
-            return Object.assign(Object.assign({}, state), { currentImage: Math.max(0, Math.min(action.payload, state.images.length - 1)) });
+            return Object.assign(Object.assign({}, state), { currentImageIsPinned: false, currentImage: Math.max(0, Math.min(action.payload, state.images.length - 1)) });
+        case "UPDATE_VIEW_STATE":
+            return Object.assign(Object.assign({}, state), { viewMode: action.payload, isDraggingImage: false });
+        case "PIN_IMAGE":
+            return Object.assign(Object.assign({}, state), { pinnedImages: [...state.pinnedImages, action.payload] });
+        case "UN_PIN_IMAGE":
+            const unpinned = state.pinnedImages.filter((_pin, index) => index !== action.payload);
+            return Object.assign(Object.assign({}, state), { pinnedImages: unpinned });
         case "UPDATE_IMAGE_STATE":
             return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), action.payload) });
-        case "UPDATE_IMAGE_STATE_LOADED":
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), { imageLoaded: action.payload.imageLoaded }) });
         case "SET_SHOW_THUMBNAILS":
             return Object.assign(Object.assign({}, state), { showThumbnails: action.payload });
         case "SET_LOADING":
@@ -85,8 +98,12 @@ function lightboxReducer(state, action) {
             return Object.assign(Object.assign({}, state), { isDraggingImage: action.payload });
         case "RESET_IMAGE":
             (0, log_1.debuginfo)("Resetting image state");
-            const stateOnImageReset = (0, manipulation_1.handleReset)(state.imageState.width, state.imageState.height);
+            const stateOnImageReset = (0, manipulation_1.handleReset)(state);
             return Object.assign(Object.assign({}, state), { isDraggingImage: false, imageState: Object.assign(Object.assign({}, state.imageState), stateOnImageReset) });
+        case "GO_TO_PINNED_IMAGE":
+            (0, log_1.debuginfo)(`Going to pinned image at index: ${action.payload.index}`);
+            const { index, updates } = action.payload;
+            return Object.assign(Object.assign({}, state), { currentImage: index, currentImageIsPinned: true, imageState: Object.assign(Object.assign({}, state.imageState), updates) });
         case "RESET_ALL":
             return defaultState;
         default:
@@ -95,19 +112,10 @@ function lightboxReducer(state, action) {
 }
 // Create context
 const LightboxContext = (0, react_1.createContext)(undefined);
-// Create a context for the PiP window
-const PipWindowContext = (0, react_1.createContext)(undefined);
-const usePipWindow = () => {
-    return (0, react_1.useContext)(PipWindowContext);
-};
-exports.usePipWindow = usePipWindow;
-const LightboxProvider = ({ children, initialState = {}, pipWindow, }) => {
+const LightboxProvider = ({ children, initialState = {}, }) => {
     const [state, dispatch] = (0, react_1.useReducer)(lightboxReducer, Object.assign(Object.assign({}, defaultState), initialState));
     const setState = (0, react_1.useCallback)((newState) => {
         dispatch({ type: "SET_STATE", payload: newState });
-    }, []);
-    const setImageLoaded = (0, react_1.useCallback)((imageLoaded) => {
-        dispatch({ type: "UPDATE_IMAGE_STATE_LOADED", payload: { imageLoaded } });
     }, []);
     // Convenience methods
     const setImages = (0, react_1.useCallback)((images) => {
@@ -152,6 +160,27 @@ const LightboxProvider = ({ children, initialState = {}, pipWindow, }) => {
     const resetAll = (0, react_1.useCallback)(() => {
         dispatch({ type: "RESET_ALL" });
     }, []);
+    const updateViewState = (0, react_1.useCallback)((viewMode) => {
+        (0, log_1.debuginfo)(`Updating view state to: ${viewMode}`);
+        dispatch({ type: "UPDATE_VIEW_STATE", payload: viewMode });
+        dispatch({ type: "RESET_IMAGE" });
+    }, []);
+    const pinImage = (0, react_1.useCallback)((state) => {
+        (0, log_1.debuginfo)(`Pinning image at index: ${state.imageIndex}`);
+        dispatch({ type: "PIN_IMAGE", payload: state });
+    }, []);
+    const unPinImage = (0, react_1.useCallback)((imageIndex) => {
+        (0, log_1.debuginfo)(`Unpinning image at index: ${imageIndex}`);
+        dispatch({ type: "UN_PIN_IMAGE", payload: imageIndex });
+    }, []);
+    const setLoading = (0, react_1.useCallback)((isLoading) => {
+        (0, log_1.debuginfo)(`Setting loading state to: ${isLoading}`);
+        dispatch({ type: "SET_LOADING", payload: isLoading });
+    }, []);
+    const goToPinnedImage = (0, react_1.useCallback)((index, updates) => {
+        (0, log_1.debuginfo)(`Going to pinned image at index: ${index}`);
+        dispatch({ type: "GO_TO_PINNED_IMAGE", payload: { index, updates } });
+    }, []);
     const contextValue = {
         state,
         dispatch,
@@ -165,12 +194,16 @@ const LightboxProvider = ({ children, initialState = {}, pipWindow, }) => {
         rotateLeft,
         rotateRight,
         updateImageState,
-        setImageLoaded,
         setDraggingImage,
         resetImageState,
         resetAll,
+        updateViewState,
+        goToPinnedImage,
+        pinImage,
+        unPinImage,
+        setLoading,
     };
-    return ((0, jsx_runtime_1.jsx)(PipWindowContext.Provider, { value: pipWindow, children: (0, jsx_runtime_1.jsx)(LightboxContext.Provider, { value: contextValue, children: children }) }));
+    return ((0, jsx_runtime_1.jsx)(LightboxContext.Provider, { value: contextValue, children: children }));
 };
 exports.LightboxProvider = LightboxProvider;
 const useSetupState = (initialState) => {

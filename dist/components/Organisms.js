@@ -9,6 +9,7 @@ const react_1 = require("react");
 const react_dom_1 = require("react-dom");
 const StyledComponents_1 = require("./StyledComponents");
 const ComponentState_1 = require("../ComponentState");
+const manipulation_1 = require("../utils/manipulation");
 function DefaultHeader(props) {
     const lightboxState = (0, ComponentState_1.useLightboxState)();
     const { imageLoaded } = lightboxState.state.imageState;
@@ -16,14 +17,14 @@ function DefaultHeader(props) {
     const toggleShowExtraControls = () => setShowExtraControls(!showExtraControls);
     const defaultActions = [];
     const extraActions = [];
-    defaultActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom in", disabled: !imageLoaded, onClick: () => lightboxState.zoomIn(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomIn, {}) }, "zoom-in"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom out", disabled: !imageLoaded, onClick: () => lightboxState.zoomOut(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomOut, {}) }, "zoom-out")] }, "zoom-buttons"));
-    defaultActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate left", disabled: !imageLoaded, onClick: () => lightboxState.rotateLeft(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCcwSquare, {}) }, "rotate-left"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate right", disabled: !imageLoaded, onClick: () => lightboxState.rotateRight(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCwSquare, {}) }, "rotate-right")] }, "rotate-buttons"));
-    defaultActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Extra controls", disabled: !imageLoaded, onClick: () => toggleShowExtraControls(), icon: showExtraControls ? (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeftToLine, {}) : (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRightToLine, {}) }, "toggle-collapse"));
-    extraActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip vertical", disabled: !imageLoaded, onClick: () => lightboxState.flipVertical(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipVertical2, {}) }, "flip-vertical"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip horizontal", disabled: !imageLoaded, onClick: () => lightboxState.flipHorisontal(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipHorizontal2, {}) }, "flip-horisontal")] }, "flip-controls"));
-    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Reset image position", disabled: !imageLoaded, onClick: () => lightboxState.resetImageState(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RefreshCw, {}) }, "reset-image"));
+    defaultActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom in", disabled: !imageLoaded, onClick: () => lightboxState.zoomIn(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomIn, { color: "white" }) }, "zoom-in"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Zoom out", disabled: !imageLoaded, onClick: () => lightboxState.zoomOut(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.ZoomOut, { color: "white" }) }, "zoom-out")] }, "zoom-buttons"));
+    defaultActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate left", disabled: !imageLoaded, onClick: () => lightboxState.rotateLeft(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCcwSquare, { color: "white" }) }, "rotate-left"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Rotate right", disabled: !imageLoaded, onClick: () => lightboxState.rotateRight(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RotateCwSquare, { color: "white" }) }, "rotate-right")] }, "rotate-buttons"));
+    defaultActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Extra controls", disabled: !imageLoaded, onClick: () => toggleShowExtraControls(), icon: showExtraControls ? ((0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeftToLine, { color: "white" })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRightToLine, { color: "white" })) }, "toggle-collapse"));
+    extraActions.push((0, jsx_runtime_1.jsxs)("div", { className: "flex items-center gap-1", children: [(0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip vertical", disabled: !imageLoaded, onClick: () => lightboxState.flipVertical(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipVertical2, { color: "white" }) }, "flip-vertical"), (0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Flip horizontal", disabled: !imageLoaded, onClick: () => lightboxState.flipHorisontal(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.FlipHorizontal2, { color: "white" }) }, "flip-horisontal")] }, "flip-controls"));
+    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Reset image position", disabled: !imageLoaded, onClick: () => lightboxState.resetImageState(), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.RefreshCw, { color: "white" }) }, "reset-image"));
     if (props.pipControls) {
         const { open, isOpen, close } = props.pipControls;
-        extraActions.push((0, jsx_runtime_1.jsx)("button", { className: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded", onClick: () => {
+        extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Open PiP", disabled: !imageLoaded, onClick: () => {
                 if (isOpen())
                     close();
                 else
@@ -31,18 +32,24 @@ function DefaultHeader(props) {
                         console.error("Error opening PiP:", error);
                         close();
                     });
-            }, children: (0, jsx_runtime_1.jsx)(lucide_react_1.PictureInPicture, {}) }, "pip-button"));
+            }, icon: (0, jsx_runtime_1.jsx)(lucide_react_1.PictureInPicture, { color: "white" }) }, "pip-button"));
     }
     if (props.newTabControls) {
         const { open } = props.newTabControls;
-        extraActions.push((0, jsx_runtime_1.jsx)("button", { className: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded", onClick: () => {
+        extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "New tab", disabled: !imageLoaded, onClick: () => {
                 open().catch((error) => {
                     console.error("Error opening new tab:", error);
-                    // we do not elect to control the new open tab; no close handlers 
+                    // we do not elect to control the new open tab; no close handlers
                 });
-            }, children: (0, jsx_runtime_1.jsx)(lucide_react_1.CircleArrowOutUpRight, {}) }, "new-tab-button"));
+            }, icon: (0, jsx_runtime_1.jsx)(lucide_react_1.CircleArrowOutUpRight, { color: "white" }) }, "open-new-tab-button"));
     }
-    extraActions.push((0, jsx_runtime_1.jsx)("button", { className: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded", onClick: () => { }, children: (0, jsx_runtime_1.jsx)(lucide_react_1.Download, {}) }, "save-image-button"));
+    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Download", disabled: !imageLoaded, onClick: () => { }, icon: (0, jsx_runtime_1.jsx)(lucide_react_1.Download, { color: "white" }) }, "save-image-button"));
+    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Reader mode", disabled: !imageLoaded, onClick: () => lightboxState.updateViewState(ComponentState_1.IImageViewMode.READER), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.BookOpen, { color: "white" }) }, "reader-mode-button"));
+    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Image mode", disabled: !imageLoaded, onClick: () => lightboxState.updateViewState(ComponentState_1.IImageViewMode.IMAGE), icon: (0, jsx_runtime_1.jsx)(lucide_react_1.Image, { color: "white" }) }, "image-mode-button"));
+    extraActions.push((0, jsx_runtime_1.jsx)(Atoms_1.ActionButtonAtom, { tooltip: "Pin image", disabled: !imageLoaded, onClick: () => {
+            const pinnedImage = (0, manipulation_1.pinImage)(lightboxState.state);
+            lightboxState.pinImage(pinnedImage);
+        }, icon: (0, jsx_runtime_1.jsx)(lucide_react_1.Pin, { color: "white" }) }, "pin-image-button"));
     return ((0, jsx_runtime_1.jsx)(Molecules_1.HeaderMolecule, { controls: defaultActions, extraControls: extraActions, showCloseButton: true, showExtraControls: showExtraControls }));
 }
 exports.DefaultHeader = DefaultHeader;

@@ -1,8 +1,6 @@
 import { ILightboxImageState, ILightboxState } from "../ComponentState";
-import { CENTER_DIVISOR } from "./constants";
-import { getWindowSize } from "./getWindowSize";
 import { debuginfo } from "./log";
-import { getImgWidthHeight } from "./manipulation";
+import { handleReset } from "./manipulation";
 import { IImage } from "./types";
 
 // consumers sometimes provide incorrect type or casing
@@ -24,7 +22,7 @@ export function normalizeSourceSet(data: IImage) {
 export function preloadImage(
   state: ILightboxState,
   updateImageState: (updates: Partial<ILightboxImageState>) => void,
-  footerHeightRef: React.MutableRefObject<number>
+  resetImageOnLoad: boolean
 ): HTMLImageElement {
   const { images, currentImage: idx } = state;
   console.log(`Preloading image at index: ${idx}`); // Debugging log
@@ -32,39 +30,30 @@ export function preloadImage(
   const data = images?.[idx];
 
   const img = new Image();
+
+  if (!images || idx < 0 || idx >= images.length) {
+    return img; // Return empty image if index is out of bounds
+  }
+
   const sourceSet = normalizeSourceSet(data);
 
   img.onload = () => {
     debuginfo(`Image loaded at index ${idx}`); // Debugging log
-    const imgWidth = img.width;
-    const imgHeight = img.height;
-
-    const [calculatedWidth, calculatedHeight] = getImgWidthHeight(
-      imgWidth,
-      imgHeight,
-      footerHeightRef
-    );
-
-    
-
-    const { height: windowHeight, width: windowWidth } = getWindowSize();
-
-    const left = (windowWidth - calculatedWidth) / CENTER_DIVISOR;
-    const top =
-      (windowHeight - calculatedHeight - footerHeightRef.current) /
-      CENTER_DIVISOR;
-      
+    debuginfo(`Image dimensions: ${img.width}x${img.height}`); // Debugging log
+    const stateIncludingImageAttributes: ILightboxState = {
+      ...state,
+      imageState: {
+        ...state.imageState,
+        imageHeight: img.height,
+        imageWidth: img.width,
+      },
+    };
+    const resetImageState = resetImageOnLoad
+      ? handleReset(stateIncludingImageAttributes)
+      : stateIncludingImageAttributes.imageState;
     updateImageState({
-      width: calculatedWidth,
-      height: calculatedHeight,
-      error: null,
-      left,
-      top,
-      imageWidth: imgWidth,
-      imageHeight: imgHeight,
-      rotate: data.initialRotation || 0,
-      scaleX: data.initialZoom || 1,
-      scaleY: data.initialZoom || 1,
+      ...stateIncludingImageAttributes.imageState,
+      ...resetImageState,
       imageLoaded: true,
     });
   };

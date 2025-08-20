@@ -1,1 +1,1 @@
-{"version":3,"file":"useLoadImage.d.ts","sourceRoot":"","sources":["../../src/hooks/useLoadImage.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAa,MAAM,OAAO,CAAC;AAMpD,wBAAgB,YAAY,CAAC,eAAe,EAAE,gBAAgB,CAAC,MAAM,CAAC,QAkBrE"}
+{"version":3,"file":"useLoadImage.d.ts","sourceRoot":"","sources":["../../src/hooks/useLoadImage.ts"],"names":[],"mappings":"AAMA,wBAAgB,YAAY,SAc3B"}

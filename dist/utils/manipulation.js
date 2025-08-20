@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleReset = exports.rotateManipulation = exports.flipManipulation = exports.zoomManipulation = exports.getImgWidthHeight = exports.getImageCenterXY = void 0;
+exports.handleReset = exports.pinImage = exports.rotateManipulation = exports.flipManipulation = exports.zoomManipulation = exports.getImgWidthHeight = exports.getImageCenterXY = void 0;
+const ComponentState_1 = require("../ComponentState");
 const constants_1 = require("./constants");
 const log_1 = require("./log");
 const getWindowSize_1 = require("./getWindowSize");
@@ -17,10 +18,10 @@ function getImageCenterXY(state) {
 }
 exports.getImageCenterXY = getImageCenterXY;
 // Calculate image width and height
-function getImgWidthHeight(imgWidth, imgHeight, footerHeightRef) {
+function getImgWidthHeight(imgWidth, imgHeight) {
     const { width: windowWidth, height: windowHeight } = (0, getWindowSize_1.getWindowSize)();
     const maxWidth = windowWidth * constants_1.IMAGE_MAX_SIZE_RATIO;
-    const maxHeight = (windowHeight - footerHeightRef.current) * constants_1.IMAGE_MAX_SIZE_RATIO;
+    const maxHeight = windowHeight * constants_1.IMAGE_MAX_SIZE_RATIO;
     let calculatedWidth = Math.min(maxWidth, imgWidth);
     let calculatedHeight = (calculatedWidth / imgWidth) * imgHeight;
     if (calculatedHeight > maxHeight) {
@@ -74,16 +75,39 @@ function rotateManipulation(state, isRight = false) {
     };
 }
 exports.rotateManipulation = rotateManipulation;
-function handleReset(imageWidth, imageHeight) {
+function pinImage(state) {
+    return {
+        imageState: state.imageState,
+        imageIndex: state.currentImage,
+    };
+}
+exports.pinImage = pinImage;
+function handleReset(state) {
     (0, log_1.debuginfo)("Handling reset: resetting image state to initial values");
     // Use requestAnimationFrame to batch the state update and prevent flashing
-    const { width: windowWidth, height: windowHeight } = (0, getWindowSize_1.getWindowSize)();
+    const { height: windowHeight, width: windowWidth } = (0, getWindowSize_1.getWindowSize)();
+    const getImageAspectRatio = () => {
+        if (state.viewMode === ComponentState_1.IImageViewMode.IMAGE) {
+            return state.imageState.imageWidth / state.imageState.imageHeight;
+        }
+        const imageHeight = state.imageState.imageHeight;
+        const imageWidth = state.imageState.imageWidth * 2;
+        return imageWidth / imageHeight;
+    };
+    const imageAspectRatio = getImageAspectRatio();
+    console.log(`Image aspect ratio: ${imageAspectRatio}: ${state.imageState.imageWidth} / ${state.imageState.imageHeight}`);
+    const imageHeightFillingScreen = windowHeight * constants_1.IMAGE_MAX_SIZE_RATIO;
+    const imageWidthFillingScreen = imageAspectRatio * imageHeightFillingScreen;
+    const left = (windowWidth - imageWidthFillingScreen) / 2;
+    const top = (windowHeight - imageHeightFillingScreen) / 2;
     return {
+        height: imageHeightFillingScreen,
+        width: imageWidthFillingScreen,
         rotate: 0,
         scaleX: 1,
         scaleY: 1,
-        top: Math.abs(windowHeight / 2 - imageHeight / 2),
-        left: Math.abs(windowWidth / 2 - imageWidth / 2),
+        top,
+        left,
     };
 }
 exports.handleReset = handleReset;

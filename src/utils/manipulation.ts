@@ -1,5 +1,8 @@
-import { MutableRefObject } from "react";
-import { ILightboxImageState } from "../ComponentState";
+import {
+  IImageViewMode,
+  ILightboxImageState,
+  ILightboxState,
+} from "../ComponentState";
 import {
   CENTER_DIVISOR,
   FULL_ROTATION,
@@ -29,14 +32,12 @@ export function getImageCenterXY(state: ILightboxImageState): {
 // Calculate image width and height
 export function getImgWidthHeight(
   imgWidth: number,
-  imgHeight: number,
-  footerHeightRef: MutableRefObject<number>
+  imgHeight: number
 ): [number, number] {
   const { width: windowWidth, height: windowHeight } = getWindowSize();
 
   const maxWidth = windowWidth * IMAGE_MAX_SIZE_RATIO;
-  const maxHeight =
-    (windowHeight - footerHeightRef.current) * IMAGE_MAX_SIZE_RATIO;
+  const maxHeight = windowHeight * IMAGE_MAX_SIZE_RATIO;
   let calculatedWidth = Math.min(maxWidth, imgWidth);
   let calculatedHeight = (calculatedWidth / imgWidth) * imgHeight;
   if (calculatedHeight > maxHeight) {
@@ -109,18 +110,55 @@ export function rotateManipulation(
   };
 }
 
+export interface IPinnedState {
+  imageState: ILightboxImageState;
+  imageIndex: number;
+}
+
+export function pinImage(
+  state: ILightboxState
+): IPinnedState {
+  return {
+    imageState: state.imageState,
+    imageIndex: state.currentImage,
+  };
+}
+
 export function handleReset(
-  imageWidth: number,
-  imageHeight: number
+  state: ILightboxState
 ): Partial<ILightboxImageState> {
   debuginfo("Handling reset: resetting image state to initial values");
   // Use requestAnimationFrame to batch the state update and prevent flashing
-  const { width: windowWidth, height: windowHeight } = getWindowSize();
+  const { height: windowHeight, width: windowWidth } = getWindowSize();
+
+  const getImageAspectRatio = () => {
+    if (state.viewMode === IImageViewMode.IMAGE) {
+      return state.imageState.imageWidth / state.imageState.imageHeight;
+    }
+
+    const imageHeight = state.imageState.imageHeight;
+    const imageWidth = state.imageState.imageWidth * 2;
+
+    return imageWidth / imageHeight;
+  };
+
+  const imageAspectRatio = getImageAspectRatio();
+
+  console.log(`Image aspect ratio: ${imageAspectRatio}: ${state.imageState.imageWidth} / ${state.imageState.imageHeight}`);
+
+  const imageHeightFillingScreen = windowHeight * IMAGE_MAX_SIZE_RATIO;
+  const imageWidthFillingScreen = imageAspectRatio * imageHeightFillingScreen;
+
+  const left = (windowWidth - imageWidthFillingScreen) / 2;
+  const top = (windowHeight - imageHeightFillingScreen) / 2;
+
   return {
+    height: imageHeightFillingScreen,
+    width: imageWidthFillingScreen,
     rotate: 0,
     scaleX: 1,
     scaleY: 1,
-    top: Math.abs(windowHeight / 2 - imageHeight / 2),
-    left: Math.abs(windowWidth / 2 - imageWidth / 2),
+    top,
+    left,
   };
 }

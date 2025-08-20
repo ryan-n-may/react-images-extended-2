@@ -6,86 +6,52 @@ import 'react-images-extended-2/dist/styles.css';
 // Demo images from public APIs
 const demoImages: IImage[] = [
   {
-    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://i.imgur.com/hrfmeFw.jpeg',
-    caption: 'Beautiful Landscape 3',
-  },
-  {
-    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://i.imgur.com/hrfmeFw.jpeg',
-    caption: 'Beautiful Landscape 3',
-  },
-  {
-    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://i.imgur.com/hrfmeFw.jpeg',
-    caption: 'Beautiful Landscape 3',
-  },
-  {
-    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://i.imgur.com/hrfmeFw.jpeg',
-    caption: 'Beautiful Landscape 3',
-  },
-  {
-    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://i.imgur.com/hrfmeFw.jpeg',
-    caption: 'Beautiful Landscape 3',
-  },
-];
-
-const portraitImages: IImage[] = [
-  {
-    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     caption: 'Beautiful Landscape 2',
-  },
-  {
-    src: 'https://i.imgur.com/hrfmeFw.jpeg',
-    caption: 'Beautiful Landscape 3',
-  },
-];
-
-const singleImage: IImage[] = [
-  {
-    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
-    caption: 'Single Square Image',
   },
 ];
 
@@ -119,7 +85,7 @@ export function BasicDemo() {
             <CardBody>
               <VStack spacing={4}>
                 <Heading as="h3" size="md">
-                  Landscape Gallery (5 images)
+                  Landscape Gallery (15 images)
                 </Heading>
                 <Text color="gray.600" textAlign="center">
                   A collection of beautiful landscape images with zoom, rotate, and navigation features
@@ -134,63 +100,7 @@ export function BasicDemo() {
               </VStack>
             </CardBody>
           </Card>
-
-          <Card width="100%">
-            <CardBody>
-              <VStack spacing={4}>
-                <Heading as="h3" size="md">
-                  Portrait Gallery (3 images)
-                </Heading>
-                <Text color="gray.600" textAlign="center">
-                  Portrait oriented images to test different aspect ratios
-                </Text>
-                <Button
-                  colorScheme="green"
-                  size="lg"
-                  onClick={() => openLightbox(portraitImages)}
-                >
-                  Open Portrait Gallery
-                </Button>
-              </VStack>
-            </CardBody>
-          </Card>
-
-          <Card width="100%">
-            <CardBody>
-              <VStack spacing={4}>
-                <Heading as="h3" size="md">
-                  Single Image
-                </Heading>
-                <Text color="gray.600" textAlign="center">
-                  Test with just one image (square format)
-                </Text>
-                <Button
-                  colorScheme="purple"
-                  size="lg"
-                  onClick={() => openLightbox(singleImage)}
-                >
-                  Open Single Image
-                </Button>
-              </VStack>
-            </CardBody>
-          </Card>
         </VStack>
-
-        <Box>
-          <Heading as="h3" size="md" mb={4}>
-            Features to Test:
-          </Heading>
-          <VStack align="start" spacing={2}>
-            <Text>• ⚡ <strong>Zoom in/out</strong> - Use the zoom buttons or mouse wheel</Text>
-            <Text>• 🔄 <strong>Rotate</strong> - Rotate images left or right</Text>
-            <Text>• ↔️ <strong>Flip</strong> - Flip images horizontally or vertically</Text>
-            <Text>• 📱 <strong>Picture-in-Picture</strong> - Open in a resizable floating window</Text>
-            <Text>• 🖱️ <strong>Drag to pan</strong> - Drag zoomed images around</Text>
-            <Text>• ⌨️ <strong>Keyboard navigation</strong> - Arrow keys to navigate</Text>
-            <Text>• 🖼️ <strong>Thumbnails</strong> - Quick navigation between images</Text>
-            <Text>• 🎯 <strong>Reset</strong> - Reset image position and zoom</Text>
-          </VStack>
-        </Box>
       </VStack>
 
       {/* Lightbox Component */}

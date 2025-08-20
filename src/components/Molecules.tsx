@@ -1,12 +1,17 @@
-import { ActionButtonAtom } from "./Atoms";
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { ActionButtonAtom, IconSwitcherButton } from "./Atoms";
+import { ArrowLeft, ArrowRight, Pin, X, Delete } from "lucide-react";
 import {
   CollapsedControls,
   Header,
+  HeaderGroup,
   LeftGradientThumbnail,
   NoGradientThumbnail,
+  PageCount,
+  PinnedThumbnail,
   RightGradientThumbnail,
+  ThumbnailScroller,
   ThumnailBar,
+  VerticalThumbnailScroller,
 } from "./StyledComponents";
 import {
   useCallbackMethods,
@@ -15,11 +20,7 @@ import {
 } from "../ComponentState";
 import { debuginfo } from "../utils/log";
 
-export interface IThumbnailsMoleculeProps {
-  size?: string;
-}
-
-export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
+export function ThumbnailsMolecule() {
   const imageState = useLightboxImages();
   const callBacks = useCallbackMethods();
 
@@ -28,10 +29,10 @@ export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
 
   if (imageArray.length === 0) return null;
 
-  const minimalBackthumbnail = Math.max(0, currentImage - 2);
+  const minimalBackthumbnail = Math.max(0, currentImage - 5);
   const minimalForwardthumbnail = Math.min(
     imageState.images.length - 1,
-    currentImage + 2
+    currentImage + 5
   );
 
   const noScrollImage = imageArray[currentImage];
@@ -41,39 +42,18 @@ export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
     minimalForwardthumbnail + 1
   );
 
-  // optimising recalculations here...
-  const cacheLeftProgressiveScale = new Map<number, number>();
-  const cacheRightProgressiveScale = new Map<number, number>();
-
   const getLeftProgressiveScale = (
     index: number,
-    currentImage: number,
     minimalBackthumbnail: number
   ) => {
-    const distanceFromCurrent = currentImage - minimalBackthumbnail + index;
-    if (cacheLeftProgressiveScale.has(distanceFromCurrent)) {
-      return cacheLeftProgressiveScale.get(distanceFromCurrent);
-    }
-    const scale = Math.max(25, 100 - distanceFromCurrent * 25);
-    cacheLeftProgressiveScale.set(
-      distanceFromCurrent,
-      Math.max(25, 100 - distanceFromCurrent * 25)
-    );
-    // ie: currentImage = 10, minimalBackthumbnail = 8, index = 0
-    // distanceFromCurrent = 10 - 8 + 0 = 2
-    // ie: currentImage = 20, minimalBackthumbnail = 18, index = 1
-    // distanceFromCurrent = 20 - 18 + 1 = 3
+    const distanceFromCurrent = index - minimalBackthumbnail - 1; // will be negative
+    const scale = Math.max(25, 100 + distanceFromCurrent * 20);
     return scale;
   };
 
   const getRightProgressiveScale = (index: number) => {
-    //const distanceFromCurrent = minimalForwardthumbnail - currentImage - (minimalForwardthumbnail - currentImage + index + 1);
-    const distanceFromCurrentSimplified = index + 1;
-    if (cacheRightProgressiveScale.has(distanceFromCurrentSimplified)) {
-      return cacheRightProgressiveScale.get(distanceFromCurrentSimplified);
-    }
-    const scale = Math.max(100 - distanceFromCurrentSimplified * 25);
-    cacheRightProgressiveScale.set(distanceFromCurrentSimplified, scale);
+    const distanceFromCurrentSimplified = index + 1; // will be positive
+    const scale = Math.max(25, 100 - distanceFromCurrentSimplified * 20);
     return scale;
   };
 
@@ -81,7 +61,7 @@ export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
     <ThumnailBar>
       <ActionButtonAtom
         tooltip="Previous Image"
-        icon={<ArrowLeft />}
+        icon={<ArrowLeft color="white" />}
         onClick={() => {
           debuginfo("Previous image clicked");
           imageState.prevImage();
@@ -90,52 +70,45 @@ export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
         disabled={imageState.currentImage <= 0}
       />
 
-      {leftScrollImage.map((image, index) => (
-        <LeftGradientThumbnail
-          progressiveScale={getLeftProgressiveScale(
-            index,
-            currentImage, 
-            minimalBackthumbnail
-          )}
-          key={`thumbnail-${index}`}
-          index={index}
-          src={image.src}
-          size={size}
-          active={false}
-          onClick={() => {
-            imageState.setCurrentImage(minimalBackthumbnail + index);
-            if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
-          }}
-        />
-      ))}
+      <ThumbnailScroller>
+        {leftScrollImage.map((image, index) => {
+          const lps = getLeftProgressiveScale(index, minimalBackthumbnail);
+          return (
+            <LeftGradientThumbnail
+              progressiveScale={lps}
+              key={`thumbnail-${index}-${lps}`}
+              index={index}
+              src={image.src}
+              onClick={() => {
+                imageState.setCurrentImage(minimalBackthumbnail + index);
+                if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+              }}
+            />
+          );
+        })}
 
-      <NoGradientThumbnail
-        src={noScrollImage.src}
-        size={size}
-        active={true}
-        index={currentImage}
-        key={currentImage}
-        onClick={() => {}} // no navigation to the current image
-      />
+        <NoGradientThumbnail src={noScrollImage.src} />
 
-      {rightScrollImage.map((image, index) => (
-        <RightGradientThumbnail
-          progressiveScale={getRightProgressiveScale(index)}
-          key={`thumbnail-${index}`}
-          index={currentImage + 1 + index}
-          src={image.src}
-          size={size}
-          active={false}
-          onClick={() => {
-            imageState.setCurrentImage(currentImage + 1 + index);
-            if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
-          }}
-        />
-      ))}
+        {rightScrollImage.map((image, index) => {
+          const rps = getRightProgressiveScale(index);
+          return (
+            <RightGradientThumbnail
+              progressiveScale={rps}
+              key={`thumbnail-${index}-${rps}`}
+              index={currentImage + 1 + index}
+              src={image.src}
+              onClick={() => {
+                imageState.setCurrentImage(currentImage + 1 + index);
+                if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+              }}
+            />
+          );
+        })}
+      </ThumbnailScroller>
 
       <ActionButtonAtom
         tooltip="Next Image"
-        icon={<ArrowRight />}
+        icon={<ArrowRight color="white" />}
         onClick={() => {
           debuginfo("Next image clicked");
           imageState.nextImage();
@@ -171,23 +144,69 @@ export function HeaderMolecule({
   return (
     <>
       <Header>
-        {controls && controls}
+        <HeaderGroup>{controls && controls}</HeaderGroup>
         {showExtraControls && (
           <CollapsedControls>
             {extraControls && extraControls}
           </CollapsedControls>
         )}
+
         {!!showCloseButton && (
-          <button
-            onClick={callBacks.onClose}
-            aria-label="Close"
-            className="flex items-center justify-center p-2 rounded hover:bg-gray-200 transition-colors"
-          >
-            <X />
-          </button>
+          <HeaderGroup>
+            <ActionButtonAtom
+              onClick={() => callBacks.onClose?.()}
+              key="close-button"
+              tooltip="Close"
+              icon={<X color="white" />}
+            />
+          </HeaderGroup>
         )}
-        <p> {`${currentImage} / ${imageCount}`} </p>
+        <PageCount>
+          <p> {`${currentImage + 1} / ${imageCount}`} </p>
+        </PageCount>
       </Header>
     </>
   );
 }
+
+export const PinnedImagesHeader = () => {
+  const lightboxContext = useLightboxState();
+  const { state } = lightboxContext;
+  const { images } = state;
+  const pinnedImages = state.pinnedImages || [];
+
+  if (pinnedImages.length === 0) return null;
+
+  return (
+    <VerticalThumbnailScroller>
+      {pinnedImages.map((image, index) => {
+        const currentImage = images[image.imageIndex];
+        return (
+          <div
+            className="flex items-center gap-2"
+            key={`pinned-image-${index}`}
+          >
+            <PinnedThumbnail
+              key={`pinned-thumbnail-${index}`}
+              src={currentImage.src}
+              onClick={() => {
+                lightboxContext.goToPinnedImage(
+                  image.imageIndex,
+                  image.imageState
+                );
+              }}
+            />
+
+            <IconSwitcherButton
+              icon={<Pin color="white" />}
+              iconOnHover={<Delete color="white" />}
+              onClick={() => {
+                lightboxContext.unPinImage(index);
+              }}
+            />
+          </div>
+        );
+      })}
+    </VerticalThumbnailScroller>
+  );
+};

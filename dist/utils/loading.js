@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.preloadImage = exports.normalizeSourceSet = void 0;
-const constants_1 = require("./constants");
-const getWindowSize_1 = require("./getWindowSize");
 const log_1 = require("./log");
 const manipulation_1 = require("./manipulation");
 // consumers sometimes provide incorrect type or casing
@@ -19,34 +17,23 @@ function normalizeSourceSet(data) {
 }
 exports.normalizeSourceSet = normalizeSourceSet;
 // Preload image
-function preloadImage(state, updateImageState, footerHeightRef) {
+function preloadImage(state, updateImageState, resetImageOnLoad) {
     const { images, currentImage: idx } = state;
     console.log(`Preloading image at index: ${idx}`); // Debugging log
     const data = images === null || images === void 0 ? void 0 : images[idx];
     const img = new Image();
+    if (!images || idx < 0 || idx >= images.length) {
+        return img; // Return empty image if index is out of bounds
+    }
     const sourceSet = normalizeSourceSet(data);
     img.onload = () => {
         (0, log_1.debuginfo)(`Image loaded at index ${idx}`); // Debugging log
-        const imgWidth = img.width;
-        const imgHeight = img.height;
-        const [calculatedWidth, calculatedHeight] = (0, manipulation_1.getImgWidthHeight)(imgWidth, imgHeight, footerHeightRef);
-        const { height: windowHeight, width: windowWidth } = (0, getWindowSize_1.getWindowSize)();
-        const left = (windowWidth - calculatedWidth) / constants_1.CENTER_DIVISOR;
-        const top = (windowHeight - calculatedHeight - footerHeightRef.current) /
-            constants_1.CENTER_DIVISOR;
-        updateImageState({
-            width: calculatedWidth,
-            height: calculatedHeight,
-            error: null,
-            left,
-            top,
-            imageWidth: imgWidth,
-            imageHeight: imgHeight,
-            rotate: data.initialRotation || 0,
-            scaleX: data.initialZoom || 1,
-            scaleY: data.initialZoom || 1,
-            imageLoaded: true,
-        });
+        (0, log_1.debuginfo)(`Image dimensions: ${img.width}x${img.height}`); // Debugging log
+        const stateIncludingImageAttributes = Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), { imageHeight: img.height, imageWidth: img.width }) });
+        const resetImageState = resetImageOnLoad
+            ? (0, manipulation_1.handleReset)(stateIncludingImageAttributes)
+            : stateIncludingImageAttributes.imageState;
+        updateImageState(Object.assign(Object.assign(Object.assign({}, stateIncludingImageAttributes.imageState), resetImageState), { imageLoaded: true }));
     };
     img.onerror = () => {
         (0, log_1.debuginfo)(`Failed to load image at index ${idx}`);

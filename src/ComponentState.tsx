@@ -12,6 +12,7 @@ import { debuginfo } from "./utils/log";
 import {
   flipManipulation,
   handleReset,
+  IPinnedState,
   rotateManipulation,
   zoomManipulation,
 } from "./utils/manipulation";
@@ -50,12 +51,24 @@ export enum ActionType {
   SAVE = "SAVE",
 }
 
+export enum IImageViewMode {
+  READER = "READER",
+  IMAGE = "IMAGE",
+}
+
 // State interface for the entire lightbox component
 export interface ILightboxState {
   // Image state
   images: IImage[];
   currentImage: number;
+  currentImageIsPinned: boolean;
   imageState: ILightboxImageState;
+
+  // view modes
+  viewMode: IImageViewMode;
+
+  // pinned images and their states
+  pinnedImages: Array<IPinnedState>;
 
   // UI state
   showThumbnails: boolean;
@@ -95,18 +108,27 @@ export type LightboxAction =
   | { type: "SET_STATE"; payload: Partial<ILightboxState> }
   | { type: "SET_IMAGES"; payload: IImage[] }
   | { type: "SET_CURRENT_IMAGE"; payload: number }
+  | { type: "UPDATE_VIEW_STATE"; payload: IImageViewMode }
   | { type: "UPDATE_IMAGE_STATE"; payload: Partial<ILightboxImageState> }
-  | { type: "UPDATE_IMAGE_STATE_LOADED"; payload: { imageLoaded: boolean } }
   | { type: "SET_SHOW_THUMBNAILS"; payload: boolean }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "RESET_IMAGE" }
+  | { type: "PIN_IMAGE"; payload: IPinnedState }
+  | { type: "UN_PIN_IMAGE"; payload: number }
+  | {
+      type: "GO_TO_PINNED_IMAGE";
+      payload: { index: number; updates: Partial<ILightboxImageState> };
+    }
   | { type: "RESET_ALL" };
 
 // Default state
 const defaultState: ILightboxState = {
   images: [],
   currentImage: 0,
+  viewMode: IImageViewMode.IMAGE,
+  pinnedImages: [],
+  currentImageIsPinned: false,
   imageState: {
     imageLoaded: false,
     error: null,
@@ -212,10 +234,31 @@ function lightboxReducer(
     case "SET_CURRENT_IMAGE":
       return {
         ...state,
+        currentImageIsPinned: false,
         currentImage: Math.max(
           0,
           Math.min(action.payload, state.images.length - 1)
         ),
+      };
+
+    case "UPDATE_VIEW_STATE":
+      return {
+        ...state,
+        viewMode: action.payload,
+        isDraggingImage: false,
+      };
+
+    case "PIN_IMAGE":
+      return {
+        ...state,
+        pinnedImages: [...state.pinnedImages, action.payload],
+      };
+
+    case "UN_PIN_IMAGE":
+      const unpinned = state.pinnedImages.filter((_pin, index) => index !== action.payload); 
+      return {
+        ...state,
+        pinnedImages: unpinned,
       };
 
     case "UPDATE_IMAGE_STATE":
@@ -224,15 +267,6 @@ function lightboxReducer(
         imageState: {
           ...state.imageState,
           ...action.payload,
-        },
-      };
-
-    case "UPDATE_IMAGE_STATE_LOADED":
-      return {
-        ...state,
-        imageState: {
-          ...state.imageState,
-          imageLoaded: action.payload.imageLoaded,
         },
       };
 
@@ -256,16 +290,26 @@ function lightboxReducer(
 
     case "RESET_IMAGE":
       debuginfo("Resetting image state");
-      const stateOnImageReset = handleReset(
-        state.imageState.width,
-        state.imageState.height
-      );
+      const stateOnImageReset = handleReset(state);
       return {
         ...state,
         isDraggingImage: false,
         imageState: {
           ...state.imageState,
           ...stateOnImageReset,
+        },
+      };
+
+    case "GO_TO_PINNED_IMAGE":
+      debuginfo(`Going to pinned image at index: ${action.payload.index}`);
+      const { index, updates } = action.payload;
+      return {
+        ...state,
+        currentImage: index,
+        currentImageIsPinned: true,
+        imageState: {
+          ...state.imageState,
+          ...updates,
         },
       };
 
@@ -286,6 +330,8 @@ export interface ILightboxContext {
   setState: (state: Partial<ILightboxState>) => void;
   setImages: (images: IImage[]) => void;
 
+  setLoading: (isLoading: boolean) => void;
+
   zoomIn: () => void;
   zoomOut: () => void;
 
@@ -297,12 +343,21 @@ export interface ILightboxContext {
 
   setCurrentImage: (index: number) => void;
   updateImageState: (updates: Partial<ILightboxImageState>) => void;
-  setImageLoaded: (imageLoaded: boolean) => void;
+
+  goToPinnedImage: (
+    index: number,
+    updates: Partial<ILightboxImageState>
+  ) => void;
 
   setDraggingImage: (isDragging: boolean) => void;
 
   resetImageState: () => void;
   resetAll: () => void;
+
+  updateViewState: (viewMode: IImageViewMode) => void;
+
+  pinImage: (state: IPinnedState) => void;
+  unPinImage: (imageIndex: number) => void;
 }
 
 // Create context
@@ -325,10 +380,6 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
 
   const setState = useCallback((newState: Partial<ILightboxState>) => {
     dispatch({ type: "SET_STATE", payload: newState });
-  }, []);
-
-  const setImageLoaded = useCallback((imageLoaded: boolean) => {
-    dispatch({ type: "UPDATE_IMAGE_STATE_LOADED", payload: { imageLoaded } });
   }, []);
 
   // Convenience methods
@@ -389,6 +440,35 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "RESET_ALL" });
   }, []);
 
+  const updateViewState = useCallback((viewMode: IImageViewMode) => {
+    debuginfo(`Updating view state to: ${viewMode}`);
+    dispatch({ type: "UPDATE_VIEW_STATE", payload: viewMode });
+    dispatch({ type: "RESET_IMAGE" });
+  }, []);
+
+  const pinImage = useCallback((state: IPinnedState) => {
+    debuginfo(`Pinning image at index: ${state.imageIndex}`);
+    dispatch({ type: "PIN_IMAGE", payload: state });
+  }, []);
+
+  const unPinImage = useCallback((imageIndex: number) => {
+    debuginfo(`Unpinning image at index: ${imageIndex}`);
+    dispatch({ type: "UN_PIN_IMAGE", payload: imageIndex });
+  }, []);
+
+  const setLoading = useCallback((isLoading: boolean) => {
+    debuginfo(`Setting loading state to: ${isLoading}`);
+    dispatch({ type: "SET_LOADING", payload: isLoading });
+  }, []);
+
+  const goToPinnedImage = useCallback(
+    (index: number, updates: Partial<ILightboxImageState>) => {
+      debuginfo(`Going to pinned image at index: ${index}`);
+      dispatch({ type: "GO_TO_PINNED_IMAGE", payload: { index, updates } });
+    },
+    []
+  );
+
   const contextValue = {
     state,
     dispatch,
@@ -402,10 +482,14 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     rotateLeft,
     rotateRight,
     updateImageState,
-    setImageLoaded,
     setDraggingImage,
     resetImageState,
     resetAll,
+    updateViewState,
+    goToPinnedImage,
+    pinImage,
+    unPinImage,
+    setLoading,
   };
 
   return (

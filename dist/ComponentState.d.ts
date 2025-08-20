@@ -1,5 +1,6 @@
 import { ReactNode, FC } from "react";
 import { IImage } from "./utils/types";
+import { IPinnedState } from "./utils/manipulation";
 export interface ILightboxImageState {
     imageLoaded: boolean;
     error: string | null;
@@ -26,10 +27,17 @@ export declare enum ActionType {
     RESET_IMAGE = "RESET_IMAGE",
     SAVE = "SAVE"
 }
+export declare enum IImageViewMode {
+    READER = "READER",
+    IMAGE = "IMAGE"
+}
 export interface ILightboxState {
     images: IImage[];
     currentImage: number;
+    currentImageIsPinned: boolean;
     imageState: ILightboxImageState;
+    viewMode: IImageViewMode;
+    pinnedImages: Array<IPinnedState>;
     showThumbnails: boolean;
     isLoading: boolean;
     isDraggingImage: boolean;
@@ -75,13 +83,11 @@ export type LightboxAction = {
     type: "SET_CURRENT_IMAGE";
     payload: number;
 } | {
+    type: "UPDATE_VIEW_STATE";
+    payload: IImageViewMode;
+} | {
     type: "UPDATE_IMAGE_STATE";
     payload: Partial<ILightboxImageState>;
-} | {
-    type: "UPDATE_IMAGE_STATE_LOADED";
-    payload: {
-        imageLoaded: boolean;
-    };
 } | {
     type: "SET_SHOW_THUMBNAILS";
     payload: boolean;
@@ -94,6 +100,18 @@ export type LightboxAction = {
 } | {
     type: "RESET_IMAGE";
 } | {
+    type: "PIN_IMAGE";
+    payload: IPinnedState;
+} | {
+    type: "UN_PIN_IMAGE";
+    payload: number;
+} | {
+    type: "GO_TO_PINNED_IMAGE";
+    payload: {
+        index: number;
+        updates: Partial<ILightboxImageState>;
+    };
+} | {
     type: "RESET_ALL";
 };
 export interface ILightboxContext {
@@ -101,6 +119,7 @@ export interface ILightboxContext {
     dispatch: React.Dispatch<LightboxAction>;
     setState: (state: Partial<ILightboxState>) => void;
     setImages: (images: IImage[]) => void;
+    setLoading: (isLoading: boolean) => void;
     zoomIn: () => void;
     zoomOut: () => void;
     rotateLeft: () => void;
@@ -109,17 +128,18 @@ export interface ILightboxContext {
     flipHorisontal: () => void;
     setCurrentImage: (index: number) => void;
     updateImageState: (updates: Partial<ILightboxImageState>) => void;
-    setImageLoaded: (imageLoaded: boolean) => void;
+    goToPinnedImage: (index: number, updates: Partial<ILightboxImageState>) => void;
     setDraggingImage: (isDragging: boolean) => void;
     resetImageState: () => void;
     resetAll: () => void;
+    updateViewState: (viewMode: IImageViewMode) => void;
+    pinImage: (state: IPinnedState) => void;
+    unPinImage: (imageIndex: number) => void;
 }
 interface ILightboxProviderProps {
     children: ReactNode;
     initialState?: Partial<ILightboxState>;
-    pipWindow?: Window;
 }
-export declare const usePipWindow: () => Window | undefined;
 export declare const LightboxProvider: FC<ILightboxProviderProps>;
 export declare const useSetupState: (initialState: Partial<ILightboxState>) => void;
 export declare const useLightboxState: () => ILightboxContext;

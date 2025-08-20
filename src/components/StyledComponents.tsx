@@ -14,25 +14,10 @@ export const HiddenPortal = (props: any) => (
   />
 );
 
-export const PiPPortal = (props: any) => (
-  <div
-    className="fixed inset-0 w-screen h-screen bg-transparent"
-    style={{ zIndex: MODAL_Z_INDEX }}
-    {...props}
-  />
-);
-
 export const Portal = (props: any) => (
   <div
-    className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-80"
+    className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-90"
     style={{ zIndex: MODAL_Z_INDEX }}
-    {...props}
-  />
-);
-
-export const Component = (props: any) => (
-  <div
-    className="flex flex-col items-center justify-center overflow-hidden rounded-lg"
     {...props}
   />
 );
@@ -55,43 +40,106 @@ export const Thumbnail = ({ active, ...props }: ThumbnailProps) => (
 
 // Control Components
 export const CollapsedControls = (props: any) => (
-  <div className="flex items-center rounded-lg" {...props} />
+  <div
+    className="bg-neutral-900 bg-opacity-90 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
+    {...props}
+  />
 );
 
 export const ThumnailBar = (props: any) => (
   <div
-    className="bg-gray-100 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
+    className="bg-neutral-900 bg-opacity-90 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
     style={{ zIndex: HEADER_Z_INDEX }}
     {...props}
   />
 );
 
-export const LeftGradientThumbnail = (props: any) => (
-  <img
-    className={`w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-90 transform-gpu`}
-    style={{ transform: `scale(${(props.progressiveScale ?? 100) / 100})` }}
+export const ThumbnailScroller = (props: any) => (
+  <div
+    className="flex items-center justify-center gap-1 min-w-0"
+    style={{ zIndex: HEADER_Z_INDEX }}
     {...props}
   />
 );
 
-export const RightGradientThumbnail = (props: any) => (
-  <img
-    className={`w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-90 transform-gpu`}
-    style={{ transform: `scale(${(props.progressiveScale ?? 100) / 100})` }}
+export const VerticalThumbnailScroller = (props: any) => (
+  <div
+    className="flex flex-col items-center justify-center gap-2 min-w-0 h-full overflow-y-auto"
+    style={{ zIndex: HEADER_Z_INDEX }}
     {...props}
   />
+);
+
+
+export const LeftGradientThumbnail = (props: any) => {
+  const fractionalScale = (props.progressiveScale ?? 100) / 100;
+  return (
+    <img
+      className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-75 transform-gpu`}
+      style={{
+        opacity: fractionalScale,
+      }}
+      {...props}
+    />
+  );
+};
+
+export const RightGradientThumbnail = (props: any) => {
+  const fractionalScale = (props.progressiveScale ?? 100) / 100;
+  return (
+    <img
+      className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-75 transform-gpu`}
+      style={{
+        opacity: fractionalScale,
+      }}
+      {...props}
+    />
+  );
+};
+
+export const PinnedThumbnail = (props: any) => (
+  <div className={"rounded-md border-2 border-white"}>
+    <img
+      className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`}
+      {...props}
+    />
+  </div>
 );
 
 export const NoGradientThumbnail = (props: any) => (
-  <img
-    className={`w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-100 blur-[0px] transform-gpu`}
-    {...props}
-  />
+  <div className={"rounded-md border-2 border-white"}>
+    <img
+      className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`}
+      {...props}
+    />
+  </div>
 );
 
 export const Header = (props: any) => (
   <div
-    className="bg-gray-100 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
+    className="relative gap-2 flex items-center justify-center flex-wrap min-w-0"
+    style={{
+      zIndex: HEADER_Z_INDEX,
+      ...props.style,
+    }}
+    {...props}
+  />
+);
+
+export const HeaderGroup = (props: any) => (
+  <div
+    className="bg-neutral-900 bg-opacity-90 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
+    style={{
+      zIndex: HEADER_Z_INDEX,
+      ...props.style,
+    }}
+    {...props}
+  />
+);
+
+export const PageCount = (props: any) => (
+  <div
+    className="text-white p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0"
     style={{
       zIndex: HEADER_Z_INDEX,
       ...props.style,
@@ -102,7 +150,7 @@ export const Header = (props: any) => (
 
 export const HeaderPiP = (props: any) => (
   <div
-    className="bg-gray-100 p-1 relative rounded-lg gap-0.5 flex items-center justify-between min-w-0 flex-shrink"
+    className="bg-gray-100 bg-opacity-90 p-1 relative rounded-lg gap-0.5 flex items-center justify-between min-w-0 flex-shrink"
     style={{
       zIndex: HEADER_Z_INDEX,
       ...props.style,
@@ -118,6 +166,23 @@ export const ImageFullscreen = (props: any) => (
     style={{ zIndex: IMAGE_Z_INDEX }}
     {...props}
   />
+);
+
+export const ReaderModeImageFullscreen = (props: any) => (
+  <div className="flex w-full h-full gap-2" {...props.manipulation}>
+    <img
+      index={1}
+      className="relative w-full h-full overflow-auto block"
+      style={{ zIndex: IMAGE_Z_INDEX }}
+      {...props.image1}
+    />
+    <img
+      index={2}
+      className="relative w-full h-full overflow-auto block"
+      style={{ zIndex: IMAGE_Z_INDEX }}
+      {...props.image2}
+    />
+  </div>
 );
 
 export const ImageComponent = (props: any) => (
