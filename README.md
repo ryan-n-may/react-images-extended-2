@@ -26,14 +26,6 @@ Compared to the legacy package, this fork is powered by:
 ### Picture-in-Picture Behavior  
 <img width="1000" alt="Demonstration of PiP behaviour" src="https://github.com/user-attachments/assets/e5ce5b06-7418-4a50-80e9-8e2aae227721" />
 
-### 🎥 Interactive Demo
-
-## 🚀 Interactive Demo
-
-Try the library right in your browser:
-
-[![Edit react-images-extended-2-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-images-extended-2-demo-xyz123?fontsize=14&hidenavigation=1&theme=dark)
-
 </div>
 
 ## 🔗 Useful Links (Work in progress)
