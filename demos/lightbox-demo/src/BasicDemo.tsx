@@ -6,52 +6,32 @@ import 'react-images-extended-2/dist/styles.css';
 // Demo images from public APIs
 const demoImages: IImage[] = [
   {
-    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+    src: 'https://raw.githubusercontent.com/ryan-n-may/react-images-extended-2/refs/heads/master/demos/lightbox-demo/src/images/billy-bookcase-with-glass-doors-green__AA-2587918-1-100_page-0001.jpg',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+    src: 'https://raw.githubusercontent.com/ryan-n-may/react-images-extended-2/refs/heads/master/demos/lightbox-demo/src/images/billy-bookcase-with-glass-doors-green__AA-2587918-1-100_page-0002.jpg',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+    src: 'https://raw.githubusercontent.com/ryan-n-may/react-images-extended-2/refs/heads/master/demos/lightbox-demo/src/images/billy-bookcase-with-glass-doors-green__AA-2587918-1-100_page-0003.jpg',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+    src: 'https://raw.githubusercontent.com/ryan-n-may/react-images-extended-2/refs/heads/master/demos/lightbox-demo/src/images/billy-bookcase-with-glass-doors-green__AA-2587918-1-100_page-0004.jpg',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+    src: 'https://raw.githubusercontent.com/ryan-n-may/react-images-extended-2/refs/heads/master/demos/lightbox-demo/src/images/billy-bookcase-with-glass-doors-green__AA-2587918-1-100_page-0005.jpg',
     caption: 'Beautiful Landscape 1',
   },
   {
-    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+    src: 'https://raw.githubusercontent.com/ryan-n-may/react-images-extended-2/refs/heads/master/demos/lightbox-demo/src/images/billy-bookcase-with-glass-doors-green__AA-2587918-1-100_page-0006.jpg',
     caption: 'Beautiful Landscape 2',
   },
   {
-    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+    src: 'https://raw.githubusercontent.com/ryan-n-may/react-images-extended-2/refs/heads/master/demos/lightbox-demo/src/images/billy-bookcase-with-glass-doors-green__AA-2587918-1-100_page-0007.jpg',
     caption: 'Beautiful Landscape 1',
-  },
-  {
-    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
-    caption: 'Beautiful Landscape 2',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
-    caption: 'Beautiful Landscape 1',
-  },
-  {
-    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
-    caption: 'Beautiful Landscape 2',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1609560140261-4efaa689b6c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
-    caption: 'Beautiful Landscape 1',
-  },
-  {
-    src: 'https://plus.unsplash.com/premium_photo-1661962993826-4aef39f4efcb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bmF0dXJlJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
-    caption: 'Beautiful Landscape 2',
   },
 ];
 
