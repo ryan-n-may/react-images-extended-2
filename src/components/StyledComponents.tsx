@@ -66,37 +66,27 @@ export const ThumnailBar = (props: any) => (
   />
 );
 
-export const ThumbnailScroller = (props: any) => (
-  <div
-    className="relative flex overflow-x-auto snap-x snap-mandatory items-center justify-center gap-3 p-4 bg-gray-100 rounded-lg"
+export const LeftGradientThumbnail = (props: any) => (
+  <img
+    className={`w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-90 transform-gpu`}
+    style={{ transform: `scale(${(props.progressiveScale ?? 100) / 100})` }}
     {...props}
   />
 );
 
-export const LeftGradientThumbnail = (props: any) => (
-  <div
-    className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-gray-100 via-gray-100/70 to-transparent z-10"
-    {...props}
-  >
-    <Thumbnail {...props} />
-  </div>
-);
-
 export const RightGradientThumbnail = (props: any) => (
-  <div
-    className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-gray-100 via-gray-100/70 to-transparent z-10"
+  <img
+    className={`w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-90 transform-gpu`}
+    style={{ transform: `scale(${(props.progressiveScale ?? 100) / 100})` }}
     {...props}
-  >
-    <Thumbnail {...props} />
-  </div>
+  />
 );
 
 export const NoGradientThumbnail = (props: any) => (
-  <div
-    className={`snap-center shrink-0 w-40 h-40 bg-white rounded-lg shadow-md scale-75 opacity-60 blur-[1px] rotate-y-12 transform-gpu`}
-  >
-    <Thumbnail {...props} />
-  </div>
+  <img
+    className={`w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-100 blur-[0px] transform-gpu`}
+    {...props}
+  />
 );
 
 export const Header = (props: any) => (

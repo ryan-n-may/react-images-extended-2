@@ -1,1 +1,1 @@
-{"version":3,"file":"useWindowSize.d.ts","sourceRoot":"","sources":["../../src/hooks/useWindowSize.ts"],"names":[],"mappings":"AAEA,wBAAgB,aAAa;;;EAgB5B"}
+{"version":3,"file":"useWindowSize.d.ts","sourceRoot":"","sources":["../../src/hooks/useWindowSize.ts"],"names":[],"mappings":"AAGA,wBAAgB,aAAa,CAAC,YAAY,EAAE,MAAM,GAAG,SAAS;;;EA4B7D;AAED,wBAAgB,oBAAoB,SA+BnC"}

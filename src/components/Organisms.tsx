@@ -11,18 +11,23 @@ import {
   ArrowRightToLine,
   ArrowLeftToLine,
   PictureInPicture,
+  CircleArrowOutUpRight,
+  Download,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiddenPortal, Portal } from "./StyledComponents";
-import { LightboxProvider, useLightboxState } from "../ComponentState";
-import { LightboxDPIP } from "../LightboxFunctional";
+import { useLightboxState } from "../ComponentState";
 
 interface IDefaultHeaderProps {
   pipControls?: {
-    open: (content: JSX.Element) => Promise<void>;
+    open: () => Promise<void>;
     isOpen: () => boolean;
     close: () => void | undefined;
+  };
+
+  newTabControls?: {
+    open: () => Promise<void>;
   };
 }
 
@@ -123,13 +128,7 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
         onClick={() => {
           if (isOpen()) close();
           else
-            open(
-              <>
-                <LightboxProvider initialState={lightboxState.state}>
-                  <LightboxDPIP />
-                </LightboxProvider>
-              </>
-            ).catch((error) => {
+            open().catch((error) => {
               console.error("Error opening PiP:", error);
               close();
             });
@@ -139,6 +138,34 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
       </button>
     );
   }
+
+  if (props.newTabControls) {
+    const { open } = props.newTabControls;
+    extraActions.push(
+      <button
+        key="new-tab-button"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => {
+          open().catch((error) => {
+            console.error("Error opening new tab:", error);
+            // we do not elect to control the new open tab; no close handlers 
+          });
+        }}
+      >
+        <CircleArrowOutUpRight />
+      </button>
+    );
+  }
+
+  extraActions.push(
+    <button
+      key="save-image-button"
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      onClick={() => {}} // on save callback must be implemented
+    >
+      <Download />
+    </button>
+  );
 
   return (
     <HeaderMolecule

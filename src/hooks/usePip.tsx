@@ -4,36 +4,37 @@ import ReactDOM from "react-dom/client";
 export function useDocumentPiP() {
   const pipWinRef = useRef<Window | null>(null);
 
-  const open = useCallback(
-    async (node: React.ReactNode, size = { width: 420, height: 260 }) => {
-      if (!("documentPictureInPicture" in window))
-        throw new Error("DPiP not supported");
+  const open = useCallback(async (node: React.ReactNode, size = { width: 420, height: 260 }) => {
+    if (!("documentPictureInPicture" in window))
+      throw new Error("DPiP not supported");
 
-      // Must be called in a user gesture (click/tap/keydown)
-      const pipWin = await (
-        window as any
-      ).documentPictureInPicture.requestWindow({
+    // Must be called in a user gesture (click/tap/keydown)
+    const pipWin = await (window as any).documentPictureInPicture.requestWindow(
+      {
         width: size.width,
         height: size.height,
         disallowReturnToOpener: false, // show “back to tab” button
         preferInitialWindowPlacement: false,
-      });
+      }
+    );
 
-      // Create a host element and mount React into the PiP window
-      const host = pipWin.document.createElement("div");
-      host.style.all = "unset"; // avoid default margins
-      pipWin.document.body.style.margin = "0";
-      pipWin.document.body.appendChild(host);
+    // Create a host element and mount React into the PiP window
+    const host = pipWin.document.createElement("div");
+    host.style.all = "unset"; // avoid default margins
+    pipWin.document.body.style.margin = "0";
+    pipWin.document.body.appendChild(host);
 
-      // Copy all stylesheets from the main document to the PiP window
-      const stylesheets = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'));
-      stylesheets.forEach((stylesheet) => {
-        const clonedStylesheet = stylesheet.cloneNode(true) as HTMLElement;
-        pipWin.document.head.appendChild(clonedStylesheet);
-      });
+    // Copy all stylesheets from the main document to the PiP window
+    const stylesheets = Array.from(
+      document.querySelectorAll('link[rel="stylesheet"], style')
+    );
+    stylesheets.forEach((stylesheet) => {
+      const clonedStylesheet = stylesheet.cloneNode(true) as HTMLElement;
+      pipWin.document.head.appendChild(clonedStylesheet);
+    });
 
-      // Inject critical Tailwind CSS for the lightbox components
-      const criticalCSS = `
+    // Inject critical Tailwind CSS for the lightbox components
+    const criticalCSS = `
         .fixed { position: fixed !important; }
         .inset-0 { inset: 0 !important; }
         .w-screen { width: 100vw !important; }
@@ -71,31 +72,33 @@ export function useDocumentPiP() {
         .p-4 { padding: 1rem !important; }
         .box-border { box-sizing: border-box !important; }
       `;
-      
-      const style = pipWin.document.createElement('style');
-      style.textContent = criticalCSS;
-      pipWin.document.head.appendChild(style);
 
-      const root = ReactDOM.createRoot(host);
-      root.render(<StrictMode>{node}</StrictMode>);
+    const style = pipWin.document.createElement("style");
+    style.textContent = criticalCSS;
+    pipWin.document.head.appendChild(style);
 
-      // Cleanup when the PiP window closes or opener navigates away
-      const cleanup = () => {
-        try {
-          root.unmount();
-        } catch {}
-        pipWinRef.current = null;
-      };
-      pipWin.addEventListener("pagehide", cleanup, { once: true });
-      window.addEventListener("pagehide", () => pipWin.close(), { once: true });
+    const root = ReactDOM.createRoot(host);
+    root.render(
+      <StrictMode>
+        { node }
+      </StrictMode>
+    );
 
-      pipWinRef.current = pipWin;
-      return pipWin;
-    },
-    []
-  );
+    // Cleanup when the PiP window closes or opener navigates away
+    const cleanup = () => {
+      try {
+        root.unmount();
+      } catch {}
+      pipWinRef.current = null;
+    };
+    pipWin.addEventListener("pagehide", cleanup, { once: true });
+    window.addEventListener("pagehide", () => pipWin.close(), { once: true });
+
+    pipWinRef.current = pipWin;
+    return pipWin;
+  }, []);
 
   const close = React.useCallback(() => pipWinRef.current?.close(), []);
 
-  return { open, close, isOpen: () => !!pipWinRef.current };
+  return { open, close, isOpen: () => !!pipWinRef.current, window: pipWinRef };
 }

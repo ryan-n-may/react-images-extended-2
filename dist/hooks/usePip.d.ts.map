@@ -1,1 +1,1 @@
-{"version":3,"file":"usePip.d.ts","sourceRoot":"","sources":["../../src/hooks/usePip.tsx"],"names":[],"mappings":"AAAA,OAAO,KAA0C,MAAM,OAAO,CAAC;AAG/D,wBAAgB,cAAc;iBAIb,MAAM,SAAS;;;;;;EA6F/B"}
+{"version":3,"file":"usePip.d.ts","sourceRoot":"","sources":["../../src/hooks/usePip.tsx"],"names":[],"mappings":"AAAA,OAAO,KAA0C,MAAM,OAAO,CAAC;AAG/D,wBAAgB,cAAc;iBAGU,MAAM,SAAS;;;;;;;EAiGtD"}

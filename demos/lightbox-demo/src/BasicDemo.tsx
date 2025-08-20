@@ -17,6 +17,54 @@ const demoImages: IImage[] = [
     src: 'https://i.imgur.com/hrfmeFw.jpeg',
     caption: 'Beautiful Landscape 3',
   },
+  {
+    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    caption: 'Beautiful Landscape 1',
+  },
+  {
+    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    caption: 'Beautiful Landscape 2',
+  },
+  {
+    src: 'https://i.imgur.com/hrfmeFw.jpeg',
+    caption: 'Beautiful Landscape 3',
+  },
+  {
+    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    caption: 'Beautiful Landscape 1',
+  },
+  {
+    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    caption: 'Beautiful Landscape 2',
+  },
+  {
+    src: 'https://i.imgur.com/hrfmeFw.jpeg',
+    caption: 'Beautiful Landscape 3',
+  },
+  {
+    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    caption: 'Beautiful Landscape 1',
+  },
+  {
+    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    caption: 'Beautiful Landscape 2',
+  },
+  {
+    src: 'https://i.imgur.com/hrfmeFw.jpeg',
+    caption: 'Beautiful Landscape 3',
+  },
+  {
+    src: 'https://i.imgur.com/thRkbyy_d.webp?maxwidth=1520&fidelity=grand',
+    caption: 'Beautiful Landscape 1',
+  },
+  {
+    src: 'https://i.imgur.com/5G8m4SS.jpeg',
+    caption: 'Beautiful Landscape 2',
+  },
+  {
+    src: 'https://i.imgur.com/hrfmeFw.jpeg',
+    caption: 'Beautiful Landscape 3',
+  },
 ];
 
 const portraitImages: IImage[] = [

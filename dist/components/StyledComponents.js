@@ -11,7 +11,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FigureContainerFullScreen = exports.ImageSpinnerWrapper = exports.ImageContainer = exports.ImageComponent = exports.ImageFullscreen = exports.HeaderPiP = exports.Header = exports.NoGradientThumbnail = exports.RightGradientThumbnail = exports.LeftGradientThumbnail = exports.ThumbnailScroller = exports.ThumnailBar = exports.CollapsedControls = exports.Thumbnail = exports.Component = exports.Portal = exports.PiPPortal = exports.HiddenPortal = void 0;
+exports.FigureContainerFullScreen = exports.ImageSpinnerWrapper = exports.ImageContainer = exports.ImageComponent = exports.ImageFullscreen = exports.HeaderPiP = exports.Header = exports.NoGradientThumbnail = exports.RightGradientThumbnail = exports.LeftGradientThumbnail = exports.ThumnailBar = exports.CollapsedControls = exports.Thumbnail = exports.Component = exports.Portal = exports.PiPPortal = exports.HiddenPortal = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const constants_1 = require("../utils/constants");
 // Portal Components
@@ -33,13 +33,17 @@ const CollapsedControls = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assig
 exports.CollapsedControls = CollapsedControls;
 const ThumnailBar = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "bg-gray-100 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0", style: { zIndex: constants_1.HEADER_Z_INDEX } }, props)));
 exports.ThumnailBar = ThumnailBar;
-const ThumbnailScroller = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "relative flex overflow-x-auto snap-x snap-mandatory items-center justify-center gap-3 p-4 bg-gray-100 rounded-lg" }, props)));
-exports.ThumbnailScroller = ThumbnailScroller;
-const LeftGradientThumbnail = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-gray-100 via-gray-100/70 to-transparent z-10" }, props, { children: (0, jsx_runtime_1.jsx)(exports.Thumbnail, Object.assign({}, props)) })));
+const LeftGradientThumbnail = (props) => {
+    var _a;
+    return ((0, jsx_runtime_1.jsx)("img", Object.assign({ className: `w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-90 transform-gpu`, style: { transform: `scale(${((_a = props.progressiveScale) !== null && _a !== void 0 ? _a : 100) / 100})` } }, props)));
+};
 exports.LeftGradientThumbnail = LeftGradientThumbnail;
-const RightGradientThumbnail = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-gray-100 via-gray-100/70 to-transparent z-10" }, props, { children: (0, jsx_runtime_1.jsx)(exports.Thumbnail, Object.assign({}, props)) })));
+const RightGradientThumbnail = (props) => {
+    var _a;
+    return ((0, jsx_runtime_1.jsx)("img", Object.assign({ className: `w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-90 transform-gpu`, style: { transform: `scale(${((_a = props.progressiveScale) !== null && _a !== void 0 ? _a : 100) / 100})` } }, props)));
+};
 exports.RightGradientThumbnail = RightGradientThumbnail;
-const NoGradientThumbnail = (props) => ((0, jsx_runtime_1.jsx)("div", { className: `snap-center shrink-0 w-40 h-40 bg-white rounded-lg shadow-md scale-75 opacity-60 blur-[1px] rotate-y-12 transform-gpu`, children: (0, jsx_runtime_1.jsx)(exports.Thumbnail, Object.assign({}, props)) }));
+const NoGradientThumbnail = (props) => ((0, jsx_runtime_1.jsx)("img", Object.assign({ className: `w-12 h-12 relative object-cover rounded-md border-2 cursor-pointer shadow-md opacity-100 blur-[0px] transform-gpu` }, props)));
 exports.NoGradientThumbnail = NoGradientThumbnail;
 const Header = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "bg-gray-100 p-2 relative rounded-lg gap-1 flex items-center justify-between flex-wrap min-w-0", style: Object.assign({ zIndex: constants_1.HEADER_Z_INDEX }, props.style) }, props)));
 exports.Header = Header;

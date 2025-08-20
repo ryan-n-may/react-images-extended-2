@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.ActionType = void 0;
+exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.usePipWindow = exports.ActionType = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = require("react");
 const log_1 = require("./utils/log");
@@ -36,7 +36,6 @@ const defaultState = {
         scaleX: 1,
         scaleY: 1,
     },
-    pipPosition: { left: 0, top: 0 },
     showThumbnails: false,
     isLoading: false,
     isDraggingImage: false,
@@ -68,19 +67,12 @@ function lightboxReducer(state, action) {
             (0, log_1.debuginfo)("Handling flip vertical");
             const stateOnFlipVertical = (0, manipulation_1.flipManipulation)(state.imageState, false);
             return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), stateOnFlipVertical) });
-        case "SET_PIP_POSITION":
-            return Object.assign(Object.assign({}, state), { pipPosition: {
-                    left: action.payload.left,
-                    top: action.payload.top,
-                } });
         case "SET_STATE":
             return Object.assign(Object.assign({}, state), action.payload);
         case "SET_IMAGES":
             return Object.assign(Object.assign({}, state), { images: action.payload });
         case "SET_CURRENT_IMAGE":
             return Object.assign(Object.assign({}, state), { currentImage: Math.max(0, Math.min(action.payload, state.images.length - 1)) });
-        case "SET_PIP_CALLBACK":
-            return Object.assign(Object.assign({}, state), { onClickPip: action.payload });
         case "UPDATE_IMAGE_STATE":
             return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), action.payload) });
         case "UPDATE_IMAGE_STATE_LOADED":
@@ -93,7 +85,7 @@ function lightboxReducer(state, action) {
             return Object.assign(Object.assign({}, state), { isDraggingImage: action.payload });
         case "RESET_IMAGE":
             (0, log_1.debuginfo)("Resetting image state");
-            const stateOnImageReset = (0, manipulation_1.handleReset)(state.imageState.imageWidth, state.imageState.imageHeight);
+            const stateOnImageReset = (0, manipulation_1.handleReset)(state.imageState.width, state.imageState.height);
             return Object.assign(Object.assign({}, state), { isDraggingImage: false, imageState: Object.assign(Object.assign({}, state.imageState), stateOnImageReset) });
         case "RESET_ALL":
             return defaultState;
@@ -103,7 +95,13 @@ function lightboxReducer(state, action) {
 }
 // Create context
 const LightboxContext = (0, react_1.createContext)(undefined);
-const LightboxProvider = ({ children, initialState = {}, }) => {
+// Create a context for the PiP window
+const PipWindowContext = (0, react_1.createContext)(undefined);
+const usePipWindow = () => {
+    return (0, react_1.useContext)(PipWindowContext);
+};
+exports.usePipWindow = usePipWindow;
+const LightboxProvider = ({ children, initialState = {}, pipWindow, }) => {
     const [state, dispatch] = (0, react_1.useReducer)(lightboxReducer, Object.assign(Object.assign({}, defaultState), initialState));
     const setState = (0, react_1.useCallback)((newState) => {
         dispatch({ type: "SET_STATE", payload: newState });
@@ -172,7 +170,7 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
         resetImageState,
         resetAll,
     };
-    return ((0, jsx_runtime_1.jsx)(LightboxContext.Provider, { value: contextValue, children: children }));
+    return ((0, jsx_runtime_1.jsx)(PipWindowContext.Provider, { value: pipWindow, children: (0, jsx_runtime_1.jsx)(LightboxContext.Provider, { value: contextValue, children: children }) }));
 };
 exports.LightboxProvider = LightboxProvider;
 const useSetupState = (initialState) => {
@@ -204,7 +202,7 @@ const useCurrentImage = () => {
 exports.useCurrentImage = useCurrentImage;
 const useCallbackMethods = () => {
     const { state } = (0, exports.useLightboxState)();
-    const { onClickImage, onClickNext, onClickPrev, onClose, onRotateLeft, onRotateRight, onZoomIn, onZoomOut, onSave, onClickThumbnail, onClickPip, } = state;
+    const { onClickImage, onClickNext, onClickPrev, onClose, onRotateLeft, onRotateRight, onZoomIn, onZoomOut, onSave, onClickThumbnail, } = state;
     return {
         onClickImage,
         onClickNext,
@@ -216,7 +214,6 @@ const useCallbackMethods = () => {
         onZoomOut,
         onSave,
         onClickThumbnail,
-        onClickPip,
     };
 };
 exports.useCallbackMethods = useCallbackMethods;

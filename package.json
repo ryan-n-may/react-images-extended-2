@@ -1,6 +1,6 @@
 {
   "name": "react-images-extended-2",
-  "version": "1.0.26",
+  "version": "1.0.43",
   "description": "A simple, responsive lightbox component for displaying an array of images with React.js with extended features",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

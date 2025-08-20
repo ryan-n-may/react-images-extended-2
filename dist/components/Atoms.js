@@ -12,6 +12,6 @@ function ThumbnailAtom({ index, src, active, onClick, }) {
 }
 exports.ThumbnailAtom = ThumbnailAtom;
 function ActionButtonAtom({ onClick, icon, disabled = false, }) {
-    return ((0, jsx_runtime_1.jsx)("button", { onClick: onClick, "aria-label": "action-button", disabled: disabled, className: "flex items-center justify-center p-2 rounded hover:bg-gray-200 transition-colors", children: icon }));
+    return ((0, jsx_runtime_1.jsx)("button", { onClick: onClick, "aria-label": "action-button", disabled: disabled, className: "flex items-center justify-center p-2 rounded hover:bg-gray-200 transition-colors", style: { opacity: disabled ? 0.5 : 1 }, children: icon }));
 }
 exports.ActionButtonAtom = ActionButtonAtom;

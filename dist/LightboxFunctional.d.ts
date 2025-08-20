@@ -25,8 +25,9 @@ export interface ILightboxProps {
     onClickThumbnail?: () => void;
     showCloseButton?: boolean;
     showThumbnails?: boolean;
+    initialPipWidth?: number;
+    initialPipHeight?: number;
 }
 export declare const Lightbox: (props: ILightboxProps) => import("react/jsx-runtime").JSX.Element;
 export declare function LightboxWrapper(props: ILightboxProps): import("react/jsx-runtime").JSX.Element;
-export declare function LightboxDPIP(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=LightboxFunctional.d.ts.map

@@ -6,7 +6,6 @@ import {
   LeftGradientThumbnail,
   NoGradientThumbnail,
   RightGradientThumbnail,
-  ThumbnailScroller,
   ThumnailBar,
 } from "./StyledComponents";
 import {
@@ -14,6 +13,7 @@ import {
   useLightboxImages,
   useLightboxState,
 } from "../ComponentState";
+import { debuginfo } from "../utils/log";
 
 export interface IThumbnailsMoleculeProps {
   size?: string;
@@ -24,9 +24,9 @@ export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
   const callBacks = useCallbackMethods();
 
   const currentImage = imageState.currentImage;
-  if (imageState.images.length === 0) return null;
-
   const imageArray = imageState.images;
+
+  if (imageArray.length === 0) return null;
 
   const minimalBackthumbnail = Math.max(0, currentImage - 2);
   const minimalForwardthumbnail = Math.min(
@@ -41,65 +41,107 @@ export function ThumbnailsMolecule({ size = "sm" }: IThumbnailsMoleculeProps) {
     minimalForwardthumbnail + 1
   );
 
+  // optimising recalculations here...
+  const cacheLeftProgressiveScale = new Map<number, number>();
+  const cacheRightProgressiveScale = new Map<number, number>();
+
+  const getLeftProgressiveScale = (
+    index: number,
+    currentImage: number,
+    minimalBackthumbnail: number
+  ) => {
+    const distanceFromCurrent = currentImage - minimalBackthumbnail + index;
+    if (cacheLeftProgressiveScale.has(distanceFromCurrent)) {
+      return cacheLeftProgressiveScale.get(distanceFromCurrent);
+    }
+    const scale = Math.max(25, 100 - distanceFromCurrent * 25);
+    cacheLeftProgressiveScale.set(
+      distanceFromCurrent,
+      Math.max(25, 100 - distanceFromCurrent * 25)
+    );
+    // ie: currentImage = 10, minimalBackthumbnail = 8, index = 0
+    // distanceFromCurrent = 10 - 8 + 0 = 2
+    // ie: currentImage = 20, minimalBackthumbnail = 18, index = 1
+    // distanceFromCurrent = 20 - 18 + 1 = 3
+    return scale;
+  };
+
+  const getRightProgressiveScale = (index: number) => {
+    //const distanceFromCurrent = minimalForwardthumbnail - currentImage - (minimalForwardthumbnail - currentImage + index + 1);
+    const distanceFromCurrentSimplified = index + 1;
+    if (cacheRightProgressiveScale.has(distanceFromCurrentSimplified)) {
+      return cacheRightProgressiveScale.get(distanceFromCurrentSimplified);
+    }
+    const scale = Math.max(100 - distanceFromCurrentSimplified * 25);
+    cacheRightProgressiveScale.set(distanceFromCurrentSimplified, scale);
+    return scale;
+  };
+
   return (
     <ThumnailBar>
       <ActionButtonAtom
         tooltip="Previous Image"
         icon={<ArrowLeft />}
         onClick={() => {
+          debuginfo("Previous image clicked");
           imageState.prevImage();
           if (callBacks.onClickPrev) callBacks.onClickPrev();
         }}
-        disabled={imageState.currentImage === 0}
+        disabled={imageState.currentImage <= 0}
       />
 
-      <ThumbnailScroller>
-        {leftScrollImage.map((image, index) => (
-          <LeftGradientThumbnail
-            key={`thumbnail-${index}`}
-            index={index}
-            src={image.src}
-            size={size}
-            active={false}
-            onClick={() => {
-              imageState.setCurrentImage(minimalBackthumbnail + index);
-              if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
-            }}
-          />
-        ))}
-
-        <NoGradientThumbnail
-          src={noScrollImage.src}
+      {leftScrollImage.map((image, index) => (
+        <LeftGradientThumbnail
+          progressiveScale={getLeftProgressiveScale(
+            index,
+            currentImage, 
+            minimalBackthumbnail
+          )}
+          key={`thumbnail-${index}`}
+          index={index}
+          src={image.src}
           size={size}
-          active={true}
-          index={currentImage}
-          key={currentImage}
-          onClick={() => {}} // no navigation to the current image
+          active={false}
+          onClick={() => {
+            imageState.setCurrentImage(minimalBackthumbnail + index);
+            if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+          }}
         />
+      ))}
 
-        {rightScrollImage.map((image, index) => (
-          <RightGradientThumbnail
-            key={`thumbnail-${index}`}
-            index={currentImage + 1 + index}
-            src={image.src}
-            size={size}
-            active={false}
-            onClick={() => {
-              imageState.setCurrentImage(currentImage + 1 + index);
-              if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
-            }}
-          />
-        ))}
-      </ThumbnailScroller>
+      <NoGradientThumbnail
+        src={noScrollImage.src}
+        size={size}
+        active={true}
+        index={currentImage}
+        key={currentImage}
+        onClick={() => {}} // no navigation to the current image
+      />
+
+      {rightScrollImage.map((image, index) => (
+        <RightGradientThumbnail
+          progressiveScale={getRightProgressiveScale(index)}
+          key={`thumbnail-${index}`}
+          index={currentImage + 1 + index}
+          src={image.src}
+          size={size}
+          active={false}
+          onClick={() => {
+            imageState.setCurrentImage(currentImage + 1 + index);
+            if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+          }}
+        />
+      ))}
 
       <ActionButtonAtom
         tooltip="Next Image"
         icon={<ArrowRight />}
         onClick={() => {
+          debuginfo("Next image clicked");
           imageState.nextImage();
           if (callBacks.onClickNext) callBacks.onClickNext();
         }}
-        disabled={imageState.currentImage !== imageState.images.length - 1}
+        disabled={currentImage >= imageArray.length - 1}
       />
     </ThumnailBar>
   );

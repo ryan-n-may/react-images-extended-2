@@ -33,11 +33,6 @@ export interface ILightboxState {
     showThumbnails: boolean;
     isLoading: boolean;
     isDraggingImage: boolean;
-    pipPosition: {
-        left: number;
-        top: number;
-    };
-    onClickPip?: () => void;
     onClickImage?: () => void;
     onClickNext?: () => void;
     onClickPrev?: () => void;
@@ -88,12 +83,6 @@ export type LightboxAction = {
         imageLoaded: boolean;
     };
 } | {
-    type: "SET_PIP_POSITION";
-    payload: {
-        left: number;
-        top: number;
-    };
-} | {
     type: "SET_SHOW_THUMBNAILS";
     payload: boolean;
 } | {
@@ -102,12 +91,6 @@ export type LightboxAction = {
 } | {
     type: "SET_DRAGGING";
     payload: boolean;
-} | {
-    type: "SET_DRAGGING_PIP";
-    payload: boolean;
-} | {
-    type: "SET_PIP_CALLBACK";
-    payload: () => void;
 } | {
     type: "RESET_IMAGE";
 } | {
@@ -134,7 +117,9 @@ export interface ILightboxContext {
 interface ILightboxProviderProps {
     children: ReactNode;
     initialState?: Partial<ILightboxState>;
+    pipWindow?: Window;
 }
+export declare const usePipWindow: () => Window | undefined;
 export declare const LightboxProvider: FC<ILightboxProviderProps>;
 export declare const useSetupState: (initialState: Partial<ILightboxState>) => void;
 export declare const useLightboxState: () => ILightboxContext;
@@ -153,7 +138,6 @@ export declare const useCallbackMethods: () => {
         rotation: number;
     }) => void) | undefined;
     onClickThumbnail: (() => void) | undefined;
-    onClickPip: (() => void) | undefined;
 };
 export declare const useLightboxImages: () => {
     images: IImage[];

@@ -45,6 +45,8 @@ export function preloadImage(
       footerHeightRef
     );
 
+    
+
     const { height: windowHeight, width: windowWidth } = getWindowSize();
 
     const left = (windowWidth - calculatedWidth) / CENTER_DIVISOR;

@@ -64,12 +64,7 @@ export interface ILightboxState {
   // Drag state
   isDraggingImage: boolean;
 
-  pipPosition: { left: number; top: number };
-
   // Callbacks
-
-  onClickPip?: () => void;
-
   onClickImage?: () => void;
   onClickNext?: () => void;
   onClickPrev?: () => void;
@@ -102,12 +97,9 @@ export type LightboxAction =
   | { type: "SET_CURRENT_IMAGE"; payload: number }
   | { type: "UPDATE_IMAGE_STATE"; payload: Partial<ILightboxImageState> }
   | { type: "UPDATE_IMAGE_STATE_LOADED"; payload: { imageLoaded: boolean } }
-  | { type: "SET_PIP_POSITION"; payload: { left: number; top: number } }
   | { type: "SET_SHOW_THUMBNAILS"; payload: boolean }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_DRAGGING"; payload: boolean }
-  | { type: "SET_DRAGGING_PIP"; payload: boolean }
-  | { type: "SET_PIP_CALLBACK"; payload: () => void }
   | { type: "RESET_IMAGE" }
   | { type: "RESET_ALL" };
 
@@ -128,7 +120,6 @@ const defaultState: ILightboxState = {
     scaleX: 1,
     scaleY: 1,
   },
-  pipPosition: { left: 0, top: 0 },
   showThumbnails: false,
   isLoading: false,
   isDraggingImage: false,
@@ -206,15 +197,6 @@ function lightboxReducer(
         },
       };
 
-    case "SET_PIP_POSITION":
-      return {
-        ...state,
-        pipPosition: {
-          left: action.payload.left,
-          top: action.payload.top,
-        },
-      };
-
     case "SET_STATE":
       return {
         ...state,
@@ -234,12 +216,6 @@ function lightboxReducer(
           0,
           Math.min(action.payload, state.images.length - 1)
         ),
-      };
-
-    case "SET_PIP_CALLBACK":
-      return {
-        ...state,
-        onClickPip: action.payload,
       };
 
     case "UPDATE_IMAGE_STATE":
@@ -281,8 +257,8 @@ function lightboxReducer(
     case "RESET_IMAGE":
       debuginfo("Resetting image state");
       const stateOnImageReset = handleReset(
-        state.imageState.imageWidth,
-        state.imageState.imageHeight
+        state.imageState.width,
+        state.imageState.height
       );
       return {
         ...state,
@@ -336,11 +312,20 @@ const LightboxContext = createContext<ILightboxContext | undefined>(undefined);
 interface ILightboxProviderProps {
   children: ReactNode;
   initialState?: Partial<ILightboxState>;
+  pipWindow?: Window;
 }
+
+// Create a context for the PiP window
+const PipWindowContext = createContext<Window | undefined>(undefined);
+
+export const usePipWindow = () => {
+  return useContext(PipWindowContext);
+};
 
 export const LightboxProvider: FC<ILightboxProviderProps> = ({
   children,
   initialState = {},
+  pipWindow,
 }) => {
   const [state, dispatch] = useReducer(lightboxReducer, {
     ...defaultState,
@@ -433,9 +418,11 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
   };
 
   return (
-    <LightboxContext.Provider value={contextValue}>
-      {children}
-    </LightboxContext.Provider>
+    <PipWindowContext.Provider value={pipWindow}>
+      <LightboxContext.Provider value={contextValue}>
+        {children}
+      </LightboxContext.Provider>
+    </PipWindowContext.Provider>
   );
 };
 
@@ -482,7 +469,6 @@ export const useCallbackMethods = () => {
     onZoomOut,
     onSave,
     onClickThumbnail,
-    onClickPip,
   } = state;
   return {
     onClickImage,
@@ -495,7 +481,6 @@ export const useCallbackMethods = () => {
     onZoomOut,
     onSave,
     onClickThumbnail,
-    onClickPip,
   };
 };
 

@@ -52,6 +52,7 @@ export function ActionButtonAtom({
       aria-label="action-button"
       disabled={disabled}
       className="flex items-center justify-center p-2 rounded hover:bg-gray-200 transition-colors"
+      style={{ opacity: disabled ? 0.5 : 1 }}
     >
       {icon}
     </button>

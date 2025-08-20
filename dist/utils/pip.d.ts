@@ -1,10 +1,1 @@
-import React from "react";
-export declare function useDocumentPiP(): {
-    open: (node: React.ReactNode, size?: {
-        width: number;
-        height: number;
-    }) => Promise<any>;
-    close: () => void | undefined;
-    isOpen: () => boolean;
-};
 //# sourceMappingURL=pip.d.ts.map

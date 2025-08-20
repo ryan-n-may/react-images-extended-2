@@ -9,7 +9,6 @@ const react_1 = require("react");
 const react_dom_1 = require("react-dom");
 const StyledComponents_1 = require("./StyledComponents");
 const ComponentState_1 = require("../ComponentState");
-const LightboxFunctional_1 = require("../LightboxFunctional");
 function DefaultHeader(props) {
     const lightboxState = (0, ComponentState_1.useLightboxState)();
     const { imageLoaded } = lightboxState.state.imageState;
@@ -28,12 +27,22 @@ function DefaultHeader(props) {
                 if (isOpen())
                     close();
                 else
-                    open((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: (0, jsx_runtime_1.jsx)(ComponentState_1.LightboxProvider, { initialState: lightboxState.state, children: (0, jsx_runtime_1.jsx)(LightboxFunctional_1.LightboxDPIP, {}) }) })).catch((error) => {
+                    open().catch((error) => {
                         console.error("Error opening PiP:", error);
                         close();
                     });
             }, children: (0, jsx_runtime_1.jsx)(lucide_react_1.PictureInPicture, {}) }, "pip-button"));
     }
+    if (props.newTabControls) {
+        const { open } = props.newTabControls;
+        extraActions.push((0, jsx_runtime_1.jsx)("button", { className: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded", onClick: () => {
+                open().catch((error) => {
+                    console.error("Error opening new tab:", error);
+                    // we do not elect to control the new open tab; no close handlers 
+                });
+            }, children: (0, jsx_runtime_1.jsx)(lucide_react_1.CircleArrowOutUpRight, {}) }, "new-tab-button"));
+    }
+    extraActions.push((0, jsx_runtime_1.jsx)("button", { className: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded", onClick: () => { }, children: (0, jsx_runtime_1.jsx)(lucide_react_1.Download, {}) }, "save-image-button"));
     return ((0, jsx_runtime_1.jsx)(Molecules_1.HeaderMolecule, { controls: defaultActions, extraControls: extraActions, showCloseButton: true, showExtraControls: showExtraControls }));
 }
 exports.DefaultHeader = DefaultHeader;

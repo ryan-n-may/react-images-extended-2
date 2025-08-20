@@ -101,7 +101,7 @@ function useDocumentPiP() {
         .p-4 { padding: 1rem !important; }
         .box-border { box-sizing: border-box !important; }
       `;
-        const style = pipWin.document.createElement('style');
+        const style = pipWin.document.createElement("style");
         style.textContent = criticalCSS;
         pipWin.document.head.appendChild(style);
         const root = client_1.default.createRoot(host);
@@ -120,6 +120,6 @@ function useDocumentPiP() {
         return pipWin;
     }), []);
     const close = react_1.default.useCallback(() => { var _a; return (_a = pipWinRef.current) === null || _a === void 0 ? void 0 : _a.close(); }, []);
-    return { open, close, isOpen: () => !!pipWinRef.current };
+    return { open, close, isOpen: () => !!pipWinRef.current, window: pipWinRef };
 }
 exports.useDocumentPiP = useDocumentPiP;

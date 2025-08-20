@@ -6,5 +6,6 @@ export declare function useDocumentPiP(): {
     }) => Promise<any>;
     close: () => void | undefined;
     isOpen: () => boolean;
+    window: React.MutableRefObject<Window | null>;
 };
 //# sourceMappingURL=usePip.d.ts.map

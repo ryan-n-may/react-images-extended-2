@@ -9,7 +9,6 @@ interface ThumbnailProps {
 export declare const Thumbnail: ({ active, ...props }: ThumbnailProps) => import("react/jsx-runtime").JSX.Element;
 export declare const CollapsedControls: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const ThumnailBar: (props: any) => import("react/jsx-runtime").JSX.Element;
-export declare const ThumbnailScroller: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const LeftGradientThumbnail: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const RightGradientThumbnail: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const NoGradientThumbnail: (props: any) => import("react/jsx-runtime").JSX.Element;

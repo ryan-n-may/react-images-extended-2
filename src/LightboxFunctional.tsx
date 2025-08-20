@@ -1,21 +1,11 @@
-import { useRef, useMemo } from "react";
-import { SpinnerAtom } from "./components/Atoms";
-import { ThumbnailsMolecule } from "./components/Molecules";
-import { DefaultHeader, Modal } from "./components/Organisms";
-import { FOOTER_HEIGHT } from "./utils/constants";
-import { FigureContainerFullScreen } from "./components/StyledComponents";
+import { useMemo } from "react";
 import {
-  useLightboxState,
   LightboxProvider,
   useSetupState,
-  useLightboxImageState,
   ILightboxState,
 } from "./ComponentState";
 import { IImage } from "./utils/types";
-import { DraggableImageFullScreen } from "./components/Draggable";
-import { useLoadImage } from "./hooks/loadImage";
-import { debuginfo } from "./utils/log";
-import { useDocumentPiP } from "./hooks/usePip";
+import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
 
 export interface ICustomControl {
   label: string;
@@ -49,6 +39,9 @@ export interface ILightboxProps {
   // Optional configurations
   showCloseButton?: boolean;
   showThumbnails?: boolean;
+
+  initialPipWidth?: number; // todo: implement this, currently hardcoded
+  initialPipHeight?: number; // todo: implement this, current hardcoded
 }
 
 export const Lightbox = (props: ILightboxProps) => {
@@ -100,112 +93,7 @@ export function LightboxWrapper(props: ILightboxProps) {
   // transfer props to state
   useSetupState(initialState);
 
-  return <LightboxFunctional />;
+  return <LightboxFullScreenPage />;
 }
 
-export function LightboxDPIP() {
-  const lightboxState = useLightboxState();
-  const { images, currentImage, showThumbnails } = lightboxState.state;
-  const { imageState } = useLightboxImageState();
-  const { imageLoaded } = imageState;
 
-  // Refs to replace instance variables
-  const footerHeightRef = useRef(FOOTER_HEIGHT);
-  const imageRef = useRef(null);
-
-  useLoadImage(footerHeightRef);
-
-  const ImageElementFullscreen = useMemo(() => {
-    debuginfo(
-      `Rendering ImageElementFullscreen for currentImage: ${currentImage}`
-    );
-    if (!images[currentImage]) return null;
-    return <DraggableImageFullScreen imageRef={imageRef} />;
-  }, [images, currentImage, imageRef]);
-
-  const ImageCourasselFullscreen = useMemo(() => {
-    debuginfo(`Rendering ImageCourassel for currentImage: ${currentImage}`);
-    return <figure>{ImageElementFullscreen}</figure>;
-  }, [ImageElementFullscreen]);
-
-  // TO DO: keep the image position when resizing the PiP.... not implemented yet.
-  //const { width: windowWidth, height: windowHeight } = useWindowSize(); // will update on window resize
-
-  return (
-    <>
-      <div className="sticky top-0 z-10">
-        <DefaultHeader />
-      </div>
-      {imageLoaded && (
-        <FigureContainerFullScreen>
-          {ImageCourasselFullscreen}
-        </FigureContainerFullScreen>
-      )}
-      {!imageLoaded && <SpinnerAtom />}
-      <div className="sticky bottom-0 z-10">
-        {showThumbnails && <ThumbnailsMolecule size={"sm"} />}
-      </div>
-    </>
-  );
-}
-
-const LightboxFunctional = () => {
-  const lightboxState = useLightboxState();
-  const { images, currentImage, showThumbnails } = lightboxState.state;
-  const { imageState } = useLightboxImageState();
-  const { imageLoaded } = imageState;
-
-  // Refs to replace instance variables
-  const footerHeightRef = useRef(FOOTER_HEIGHT);
-  const imageRef = useRef(null);
-
-  useLoadImage(footerHeightRef);
-
-  const ImageElementFullscreen = useMemo(() => {
-    debuginfo(
-      `Rendering ImageElementFullscreen for currentImage: ${currentImage}`
-    );
-    if (!images[currentImage]) return null;
-    return (
-      <DraggableImageFullScreen
-        key="image-draggable-fullscreen"
-        imageRef={imageRef}
-      />
-    );
-  }, [images, currentImage, imageRef]);
-
-  const ImageCourasselFullscreen = useMemo(() => {
-    debuginfo(`Rendering ImageCourassel for currentImage: ${currentImage}`);
-    return (
-      <figure key="image-courassel-fullscreen">{ImageElementFullscreen}</figure>
-    );
-  }, [ImageElementFullscreen]);
-
-  const { open, close, isOpen } = useDocumentPiP();
-
-  return (
-    <>
-      <Modal key="lightbox-fullscreen-modal" hidden={false}>
-        <div key="lightbox-fullscreen">
-          <div className="sticky top-0 z-10">
-            <DefaultHeader
-              key="default-header"
-              pipControls={{ open, close, isOpen }}
-            />
-          </div>
-          {imageLoaded && (
-            <FigureContainerFullScreen key="figure-container-fullscreen">
-              {ImageCourasselFullscreen}
-            </FigureContainerFullScreen>
-          )}
-          {!imageLoaded && <SpinnerAtom key="document-preview-spinner" />}
-          <div className="sticky bottom-0 z-10">
-            {showThumbnails && (
-              <ThumbnailsMolecule key="thumbnails" size={"sm"} />
-            )}
-          </div>
-        </div>
-      </Modal>
-    </>
-  );
-};
