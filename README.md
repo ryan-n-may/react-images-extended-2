@@ -31,7 +31,7 @@ https://github.com/user-attachments/assets/1b23c4e2-5945-4084-a43d-6ca8d9e38e14
 
 </div>
 
-## 🔗 Useful Links
+## 🔗 Useful Links (Work in progress)
 
 | Resource | Description |
 |----------|-------------|
