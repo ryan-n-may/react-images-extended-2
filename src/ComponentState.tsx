@@ -312,20 +312,11 @@ const LightboxContext = createContext<ILightboxContext | undefined>(undefined);
 interface ILightboxProviderProps {
   children: ReactNode;
   initialState?: Partial<ILightboxState>;
-  pipWindow?: Window;
 }
-
-// Create a context for the PiP window
-const PipWindowContext = createContext<Window | undefined>(undefined);
-
-export const usePipWindow = () => {
-  return useContext(PipWindowContext);
-};
 
 export const LightboxProvider: FC<ILightboxProviderProps> = ({
   children,
   initialState = {},
-  pipWindow,
 }) => {
   const [state, dispatch] = useReducer(lightboxReducer, {
     ...defaultState,
@@ -418,11 +409,9 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
   };
 
   return (
-    <PipWindowContext.Provider value={pipWindow}>
-      <LightboxContext.Provider value={contextValue}>
-        {children}
-      </LightboxContext.Provider>
-    </PipWindowContext.Provider>
+    <LightboxContext.Provider value={contextValue}>
+      {children}
+    </LightboxContext.Provider>
   );
 };
 
