@@ -92,6 +92,6 @@ function App() {
 
 <div align="center">
 
-**Made with ❤️ by [Your Name](https://github.com/yourusername)**
+**Made with ❤️ by [Isla](https://github.com/ryan-n-may)**
 
 </div>
