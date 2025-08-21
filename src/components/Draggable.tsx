@@ -3,23 +3,20 @@ import {
   useCurrentImage,
   useLightboxState,
 } from "../ComponentState";
-import { ImageFullscreen, ReaderModeImageFullscreen } from "./StyledComponents";
+import {
+  ImageFullscreen,
+  PdfFullscreen,
+  ReaderModeImageFullscreen,
+} from "./StyledComponents";
 import { Draggable } from "./Wrappers";
 
-interface IDraggableImageFullScreen {
-  imageRef: React.RefObject<HTMLImageElement>;
-}
-
-export function DraggableImageFullScreen({
-  imageRef,
-}: IDraggableImageFullScreen) {
+export function DraggableImageFullScreen() {
   const currentImage = useCurrentImage();
   const { onClickImage } = useCallbackMethods();
 
   return (
     <Draggable>
       <ImageFullscreen
-        ref={imageRef}
         onClick={onClickImage}
         alt={currentImage.alt}
         src={currentImage.src}
@@ -54,6 +51,18 @@ export function DraggableReaderFullScreen() {
           src: nextImage.src,
         }}
       />
+    </Draggable>
+  );
+}
+
+export function DraggablePdfFullscreen() {
+  const currentImage = useCurrentImage();
+  const { state } = useLightboxState();
+  const { currentImage: index } = state;
+
+  return (
+    <Draggable>
+      <PdfFullscreen file={currentImage.src} pageNumber={index} />
     </Draggable>
   );
 }

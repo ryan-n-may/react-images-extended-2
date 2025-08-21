@@ -1,24 +1,17 @@
 import { useRef, useMemo } from "react";
 import { SpinnerAtom } from "../components/Atoms";
 import {
-  DraggableImageFullScreen,
-  DraggableReaderFullScreen,
-} from "../components/Draggable";
-import {
   PinnedImagesHeader,
   ThumbnailsMolecule,
 } from "../components/Molecules";
 import { Modal, DefaultHeader } from "../components/Organisms";
 import { FigureContainerFullScreen } from "../components/StyledComponents";
-import {
-  useLightboxState,
-  useLightboxImageState,
-  IImageViewMode,
-} from "../ComponentState";
+import { useLightboxState, useLightboxImageState } from "../ComponentState";
 import { useLoadImage } from "../hooks/useLoadImage";
 import { debuginfo } from "../utils/log";
 import { useOpenPip } from "../hooks/useOpenPip";
 import { useOpenTab } from "../hooks/useOpenTab";
+import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
 
 export const LightboxFullScreenPage = () => {
   const lightboxState = useLightboxState();
@@ -32,30 +25,18 @@ export const LightboxFullScreenPage = () => {
 
   useLoadImage();
 
-  const ImageElementFullscreen = useMemo(() => {
-    debuginfo(
-      `Rendering ImageElementFullscreen for currentImage: ${currentImage}`
-    );
-    if (!images[currentImage]) return null;
-
-    if (viewMode === IImageViewMode.READER) {
-      return (
-        <DraggableReaderFullScreen key="image-reader-draggable-fullscreen" />
-      );
-    }
-
-    return (
-      <DraggableImageFullScreen
-        imageRef={imageRef}
-        key="image-draggable-fullscreen"
-      />
-    );
+  const MemoImageElementFullscreen = useMemo(() => {
+    return ImageElementFullscreen({
+      state: lightboxState.state,
+    });
   }, [images, currentImage, imageRef, viewMode, imageLoaded]);
 
   const ImageCourasselFullscreen = useMemo(() => {
     debuginfo(`Rendering ImageCourassel for currentImage: ${currentImage}`);
     return (
-      <figure key="image-courassel-fullscreen">{ImageElementFullscreen}</figure>
+      <figure key="image-courassel-fullscreen">
+        {MemoImageElementFullscreen}
+      </figure>
     );
   }, [ImageElementFullscreen]);
 

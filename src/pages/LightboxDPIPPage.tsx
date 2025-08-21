@@ -26,7 +26,7 @@ export function LightboxDPIPPage(props: {
       `Rendering ImageElementFullscreen for currentImage: ${currentImage}`
     );
     if (!images[currentImage]) return null;
-    return <DraggableImageFullScreen imageRef={imageRef} />;
+    return <DraggableImageFullScreen />;
   }, [images, currentImage, imageRef]);
 
   const ImageCourasselFullscreen = useMemo(() => {

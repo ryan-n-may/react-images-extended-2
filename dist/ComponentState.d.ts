@@ -31,11 +31,17 @@ export declare enum IImageViewMode {
     READER = "READER",
     IMAGE = "IMAGE"
 }
+export declare enum ILightboxImageType {
+    IMAGE = "IMAGE",
+    PDF = "PDF"
+}
 export interface ILightboxState {
     images: IImage[];
     currentImage: number;
     currentImageIsPinned: boolean;
     imageState: ILightboxImageState;
+    pdfDocumentSrc: string;
+    sourceType: ILightboxImageType;
     viewMode: IImageViewMode;
     pinnedImages: Array<IPinnedState>;
     showThumbnails: boolean;
@@ -86,6 +92,9 @@ export type LightboxAction = {
     type: "UPDATE_VIEW_STATE";
     payload: IImageViewMode;
 } | {
+    type: "SET_SOURCE_TYPE";
+    payload: ILightboxImageType;
+} | {
     type: "UPDATE_IMAGE_STATE";
     payload: Partial<ILightboxImageState>;
 } | {
@@ -133,6 +142,7 @@ export interface ILightboxContext {
     resetImageState: () => void;
     resetAll: () => void;
     updateViewState: (viewMode: IImageViewMode) => void;
+    setSourceType: (sourceType: ILightboxImageType) => void;
     pinImage: (state: IPinnedState) => void;
     unPinImage: (imageIndex: number) => void;
 }

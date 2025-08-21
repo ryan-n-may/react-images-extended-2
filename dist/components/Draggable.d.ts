@@ -1,8 +1,4 @@
-/// <reference types="react" />
-interface IDraggableImageFullScreen {
-    imageRef: React.RefObject<HTMLImageElement>;
-}
-export declare function DraggableImageFullScreen({ imageRef, }: IDraggableImageFullScreen): import("react/jsx-runtime").JSX.Element;
+export declare function DraggableImageFullScreen(): import("react/jsx-runtime").JSX.Element;
 export declare function DraggableReaderFullScreen(): import("react/jsx-runtime").JSX.Element;
-export {};
+export declare function DraggablePdfFullscreen(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=Draggable.d.ts.map

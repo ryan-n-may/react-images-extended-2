@@ -4,6 +4,7 @@ import {
   MODAL_Z_INDEX,
   IMAGE_Z_INDEX,
 } from "../utils/constants";
+import { Document, Page } from "react-pdf";
 
 // Portal Components
 export const HiddenPortal = (props: any) => (
@@ -69,7 +70,6 @@ export const VerticalThumbnailScroller = (props: any) => (
     {...props}
   />
 );
-
 
 export const LeftGradientThumbnail = (props: any) => {
   const fractionalScale = (props.progressiveScale ?? 100) / 100;
@@ -183,6 +183,15 @@ export const ReaderModeImageFullscreen = (props: any) => (
       {...props.image2}
     />
   </div>
+);
+
+export const PdfFullscreen = (props: any) => (
+  <Document file={props.file}>
+    <Page
+      pageNumber={props.pageNumber}
+      className="relative w-full h-full overflow-auto"
+    />
+  </Document>
 );
 
 export const ImageComponent = (props: any) => (

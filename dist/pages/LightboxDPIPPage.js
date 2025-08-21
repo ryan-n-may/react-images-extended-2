@@ -24,7 +24,7 @@ function LightboxDPIPPage(props) {
         (0, log_1.debuginfo)(`Rendering ImageElementFullscreen for currentImage: ${currentImage}`);
         if (!images[currentImage])
             return null;
-        return (0, jsx_runtime_1.jsx)(Draggable_1.DraggableImageFullScreen, { imageRef: imageRef });
+        return (0, jsx_runtime_1.jsx)(Draggable_1.DraggableImageFullScreen, {});
     }, [images, currentImage, imageRef]);
     const ImageCourasselFullscreen = (0, react_1.useMemo)(() => {
         (0, log_1.debuginfo)(`Rendering ImageCourassel for currentImage: ${currentImage}`);

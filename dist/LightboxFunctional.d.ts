@@ -8,7 +8,8 @@ export interface ICustomControl {
     isActive?: (state?: ILightboxState) => boolean;
 }
 export interface ILightboxProps {
-    images: Array<IImage>;
+    pdfSource?: string;
+    images?: Array<IImage>;
     customControls?: Array<ICustomControl>;
     onClickImage?: () => void;
     onClickNext?: () => void;
@@ -25,8 +26,6 @@ export interface ILightboxProps {
     onClickThumbnail?: () => void;
     showCloseButton?: boolean;
     showThumbnails?: boolean;
-    initialPipWidth?: number;
-    initialPipHeight?: number;
 }
 export declare const Lightbox: (props: ILightboxProps) => import("react/jsx-runtime").JSX.Element;
 export declare function LightboxWrapper(props: ILightboxProps): import("react/jsx-runtime").JSX.Element;

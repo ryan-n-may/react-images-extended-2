@@ -11,9 +11,10 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FigureContainerFullScreen = exports.ImageSpinnerWrapper = exports.ImageContainer = exports.ImageComponent = exports.ReaderModeImageFullscreen = exports.ImageFullscreen = exports.HeaderPiP = exports.PageCount = exports.HeaderGroup = exports.Header = exports.NoGradientThumbnail = exports.PinnedThumbnail = exports.RightGradientThumbnail = exports.LeftGradientThumbnail = exports.VerticalThumbnailScroller = exports.ThumbnailScroller = exports.ThumnailBar = exports.CollapsedControls = exports.Thumbnail = exports.Portal = exports.HiddenPortal = void 0;
+exports.FigureContainerFullScreen = exports.ImageSpinnerWrapper = exports.ImageContainer = exports.ImageComponent = exports.PdfFullscreen = exports.ReaderModeImageFullscreen = exports.ImageFullscreen = exports.HeaderPiP = exports.PageCount = exports.HeaderGroup = exports.Header = exports.NoGradientThumbnail = exports.PinnedThumbnail = exports.RightGradientThumbnail = exports.LeftGradientThumbnail = exports.VerticalThumbnailScroller = exports.ThumbnailScroller = exports.ThumnailBar = exports.CollapsedControls = exports.Thumbnail = exports.Portal = exports.HiddenPortal = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const constants_1 = require("../utils/constants");
+const react_pdf_1 = require("react-pdf");
 // Portal Components
 const HiddenPortal = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "fixed inset-0 w-screen h-screen flex items-center justify-center invisible bg-transparent", style: { zIndex: -constants_1.MODAL_Z_INDEX } }, props)));
 exports.HiddenPortal = HiddenPortal;
@@ -66,6 +67,8 @@ const ImageFullscreen = (props) => ((0, jsx_runtime_1.jsx)("img", Object.assign(
 exports.ImageFullscreen = ImageFullscreen;
 const ReaderModeImageFullscreen = (props) => ((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex w-full h-full gap-2" }, props.manipulation, { children: [(0, jsx_runtime_1.jsx)("img", Object.assign({ index: 1, className: "relative w-full h-full overflow-auto block", style: { zIndex: constants_1.IMAGE_Z_INDEX } }, props.image1)), (0, jsx_runtime_1.jsx)("img", Object.assign({ index: 2, className: "relative w-full h-full overflow-auto block", style: { zIndex: constants_1.IMAGE_Z_INDEX } }, props.image2))] })));
 exports.ReaderModeImageFullscreen = ReaderModeImageFullscreen;
+const PdfFullscreen = (props) => ((0, jsx_runtime_1.jsx)(react_pdf_1.Document, { file: props.file, children: (0, jsx_runtime_1.jsx)(react_pdf_1.Page, { pageNumber: props.pageNumber, className: "relative w-full h-full overflow-auto" }) }));
+exports.PdfFullscreen = PdfFullscreen;
 const ImageComponent = (props) => ((0, jsx_runtime_1.jsx)("img", Object.assign({ className: "relative overflow-auto block", style: { zIndex: constants_1.IMAGE_Z_INDEX } }, props)));
 exports.ImageComponent = ImageComponent;
 const ImageContainer = (props) => ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "relative w-full h-full flex items-center justify-center overflow-scroll", style: { zIndex: constants_1.IMAGE_Z_INDEX } }, props)));

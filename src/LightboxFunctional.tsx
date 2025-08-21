@@ -3,6 +3,7 @@ import {
   LightboxProvider,
   useSetupState,
   ILightboxState,
+  ILightboxImageType,
 } from "./ComponentState";
 import { IImage } from "./utils/types";
 import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
@@ -16,7 +17,8 @@ export interface ICustomControl {
 }
 
 export interface ILightboxProps {
-  images: Array<IImage>;
+  pdfSource?: string;
+  images?: Array<IImage>;
 
   // Optional custom controls @todo: implement this.
   customControls?: Array<ICustomControl>;
@@ -39,9 +41,6 @@ export interface ILightboxProps {
   // Optional configurations
   showCloseButton?: boolean;
   showThumbnails?: boolean;
-
-  initialPipWidth?: number; // todo: implement this, currently hardcoded
-  initialPipHeight?: number; // todo: implement this, current hardcoded
 }
 
 export const Lightbox = (props: ILightboxProps) => {
@@ -56,6 +55,7 @@ export function LightboxWrapper(props: ILightboxProps) {
   // Might need to tweak requirements
   const {
     images,
+    pdfSource,
     onClickImage,
     onClickNext,
     onClickPrev,
@@ -64,6 +64,17 @@ export function LightboxWrapper(props: ILightboxProps) {
     showThumbnails,
     onClickThumbnail,
   } = props;
+
+  if (images && images.length > 0 && Boolean(pdfSource)) {
+    throw new Error(
+      "Cannot use pdfSource with images. Please provide either images or pdfSource."
+    );
+  }
+
+  // DETERMINE THE APPROPRIATE SOURCE TYPE FOR PDF OR IMAGE.
+  const sourceType = pdfSource
+    ? ILightboxImageType.PDF
+    : ILightboxImageType.IMAGE;
 
   // Memoize the initial state to prevent function reference changes
   const initialState = useMemo(
@@ -76,6 +87,8 @@ export function LightboxWrapper(props: ILightboxProps) {
       onClose,
       onSave,
       images: images || [],
+      pdfSource: pdfSource || "",
+      sourceType,
       currentImage: 0, // Default to first image
     }),
     [
@@ -87,6 +100,7 @@ export function LightboxWrapper(props: ILightboxProps) {
       onClose,
       onSave,
       images,
+      sourceType,
     ]
   );
 
@@ -95,5 +109,3 @@ export function LightboxWrapper(props: ILightboxProps) {
 
   return <LightboxFullScreenPage />;
 }
-
-

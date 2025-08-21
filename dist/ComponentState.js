@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.IImageViewMode = exports.ActionType = void 0;
+exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.ILightboxImageType = exports.IImageViewMode = exports.ActionType = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = require("react");
 const log_1 = require("./utils/log");
@@ -24,10 +24,17 @@ var IImageViewMode;
     IImageViewMode["READER"] = "READER";
     IImageViewMode["IMAGE"] = "IMAGE";
 })(IImageViewMode || (exports.IImageViewMode = IImageViewMode = {}));
+var ILightboxImageType;
+(function (ILightboxImageType) {
+    ILightboxImageType["IMAGE"] = "IMAGE";
+    ILightboxImageType["PDF"] = "PDF";
+})(ILightboxImageType || (exports.ILightboxImageType = ILightboxImageType = {}));
 // Default state
 const defaultState = {
     images: [],
+    pdfDocumentSrc: "",
     currentImage: 0,
+    sourceType: ILightboxImageType.IMAGE,
     viewMode: IImageViewMode.IMAGE,
     pinnedImages: [],
     currentImageIsPinned: false,
@@ -83,6 +90,8 @@ function lightboxReducer(state, action) {
             return Object.assign(Object.assign({}, state), { currentImageIsPinned: false, currentImage: Math.max(0, Math.min(action.payload, state.images.length - 1)) });
         case "UPDATE_VIEW_STATE":
             return Object.assign(Object.assign({}, state), { viewMode: action.payload, isDraggingImage: false });
+        case "SET_SOURCE_TYPE":
+            return Object.assign(Object.assign({}, state), { sourceType: action.payload, isDraggingImage: false });
         case "PIN_IMAGE":
             return Object.assign(Object.assign({}, state), { pinnedImages: [...state.pinnedImages, action.payload] });
         case "UN_PIN_IMAGE":
@@ -165,6 +174,11 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
         dispatch({ type: "UPDATE_VIEW_STATE", payload: viewMode });
         dispatch({ type: "RESET_IMAGE" });
     }, []);
+    const setSourceType = (0, react_1.useCallback)((sourceType) => {
+        (0, log_1.debuginfo)(`Updating view state to: ${sourceType}`);
+        dispatch({ type: "SET_SOURCE_TYPE", payload: sourceType });
+        dispatch({ type: "RESET_IMAGE" });
+    }, []);
     const pinImage = (0, react_1.useCallback)((state) => {
         (0, log_1.debuginfo)(`Pinning image at index: ${state.imageIndex}`);
         dispatch({ type: "PIN_IMAGE", payload: state });
@@ -202,6 +216,7 @@ const LightboxProvider = ({ children, initialState = {}, }) => {
         pinImage,
         unPinImage,
         setLoading,
+        setSourceType
     };
     return ((0, jsx_runtime_1.jsx)(LightboxContext.Provider, { value: contextValue, children: children }));
 };

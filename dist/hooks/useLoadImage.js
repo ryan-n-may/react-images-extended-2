@@ -19,6 +19,9 @@ function useLoadImage() {
             (0, log_1.debuginfo)("useLoadImage: canUseDom is false, skipping image preload.");
             return;
         }
+        // We do not need to preload pdf sources
+        if (state.sourceType === ComponentState_1.ILightboxImageType.PDF)
+            return;
         (0, loading_1.preloadImage)(state, lightboxContext.updateImageState, !currentImageIsPinned);
     }, [currentImage, loading_1.preloadImage, images]);
 }

@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DraggableReaderFullScreen = exports.DraggableImageFullScreen = void 0;
+exports.DraggablePdfFullscreen = exports.DraggableReaderFullScreen = exports.DraggableImageFullScreen = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const ComponentState_1 = require("../ComponentState");
 const StyledComponents_1 = require("./StyledComponents");
 const Wrappers_1 = require("./Wrappers");
-function DraggableImageFullScreen({ imageRef, }) {
+function DraggableImageFullScreen() {
     const currentImage = (0, ComponentState_1.useCurrentImage)();
     const { onClickImage } = (0, ComponentState_1.useCallbackMethods)();
-    return ((0, jsx_runtime_1.jsx)(Wrappers_1.Draggable, { children: (0, jsx_runtime_1.jsx)(StyledComponents_1.ImageFullscreen, { ref: imageRef, onClick: onClickImage, alt: currentImage.alt, src: currentImage.src }) }));
+    return ((0, jsx_runtime_1.jsx)(Wrappers_1.Draggable, { children: (0, jsx_runtime_1.jsx)(StyledComponents_1.ImageFullscreen, { onClick: onClickImage, alt: currentImage.alt, src: currentImage.src }) }));
 }
 exports.DraggableImageFullScreen = DraggableImageFullScreen;
 function DraggableReaderFullScreen() {
@@ -32,3 +32,10 @@ function DraggableReaderFullScreen() {
             } }) }));
 }
 exports.DraggableReaderFullScreen = DraggableReaderFullScreen;
+function DraggablePdfFullscreen() {
+    const currentImage = (0, ComponentState_1.useCurrentImage)();
+    const { state } = (0, ComponentState_1.useLightboxState)();
+    const { currentImage: index } = state;
+    return ((0, jsx_runtime_1.jsx)(Wrappers_1.Draggable, { children: (0, jsx_runtime_1.jsx)(StyledComponents_1.PdfFullscreen, { file: currentImage.src, pageNumber: index }) }));
+}
+exports.DraggablePdfFullscreen = DraggablePdfFullscreen;

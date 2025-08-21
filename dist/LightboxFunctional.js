@@ -11,7 +11,14 @@ const Lightbox = (props) => {
 exports.Lightbox = Lightbox;
 function LightboxWrapper(props) {
     // Might need to tweak requirements
-    const { images, onClickImage, onClickNext, onClickPrev, onClose, onSave, showThumbnails, onClickThumbnail, } = props;
+    const { images, pdfSource, onClickImage, onClickNext, onClickPrev, onClose, onSave, showThumbnails, onClickThumbnail, } = props;
+    if (images && images.length > 0 && Boolean(pdfSource)) {
+        throw new Error("Cannot use pdfSource with images. Please provide either images or pdfSource.");
+    }
+    // DETERMINE THE APPROPRIATE SOURCE TYPE FOR PDF OR IMAGE.
+    const sourceType = pdfSource
+        ? ComponentState_1.ILightboxImageType.PDF
+        : ComponentState_1.ILightboxImageType.IMAGE;
     // Memoize the initial state to prevent function reference changes
     const initialState = (0, react_1.useMemo)(() => ({
         showThumbnails,
@@ -22,6 +29,8 @@ function LightboxWrapper(props) {
         onClose,
         onSave,
         images: images || [],
+        pdfSource: pdfSource || "",
+        sourceType,
         currentImage: 0, // Default to first image
     }), [
         showThumbnails,
@@ -32,6 +41,7 @@ function LightboxWrapper(props) {
         onClose,
         onSave,
         images,
+        sourceType,
     ]);
     // transfer props to state
     (0, ComponentState_1.useSetupState)(initialState);

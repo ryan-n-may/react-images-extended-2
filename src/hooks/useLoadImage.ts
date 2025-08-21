@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { preloadImage } from "../utils/loading";
-import { useLightboxState } from "../ComponentState";
+import { ILightboxImageType, useLightboxState } from "../ComponentState";
 import canUseDom from "../utils/canUseDom";
 import { debuginfo } from "../utils/log";
 
@@ -16,6 +16,13 @@ export function useLoadImage() {
       return;
     }
 
-    preloadImage(state, lightboxContext.updateImageState, !currentImageIsPinned);
+    // We do not need to preload pdf sources
+    if (state.sourceType === ILightboxImageType.PDF) return;
+
+    preloadImage(
+      state,
+      lightboxContext.updateImageState,
+      !currentImageIsPinned
+    );
   }, [currentImage, preloadImage, images]);
 }

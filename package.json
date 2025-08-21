@@ -17,13 +17,15 @@
   "dependencies": {
     "lucide-react": "0.536.0",
     "ts": "0.2.2",
-    "typescript": "5.4.3"
+    "typescript": "5.4.3",
+    "react-pdf": "^5.0.0"
   },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/react-pdf": "^5.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.21",

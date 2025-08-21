@@ -56,6 +56,11 @@ export enum IImageViewMode {
   IMAGE = "IMAGE",
 }
 
+export enum ILightboxImageType {
+  IMAGE = "IMAGE",
+  PDF = "PDF",
+}
+
 // State interface for the entire lightbox component
 export interface ILightboxState {
   // Image state
@@ -64,8 +69,13 @@ export interface ILightboxState {
   currentImageIsPinned: boolean;
   imageState: ILightboxImageState;
 
+  // PDF state
+  pdfDocumentSrc: string;
+  // currentPage is currentImage
+
   // view modes
-  viewMode: IImageViewMode;
+  sourceType: ILightboxImageType; // controls the type of image (IMAGE or PDF)
+  viewMode: IImageViewMode; // controls how the images are displayed
 
   // pinned images and their states
   pinnedImages: Array<IPinnedState>;
@@ -109,6 +119,7 @@ export type LightboxAction =
   | { type: "SET_IMAGES"; payload: IImage[] }
   | { type: "SET_CURRENT_IMAGE"; payload: number }
   | { type: "UPDATE_VIEW_STATE"; payload: IImageViewMode }
+  | { type: "SET_SOURCE_TYPE"; payload: ILightboxImageType }
   | { type: "UPDATE_IMAGE_STATE"; payload: Partial<ILightboxImageState> }
   | { type: "SET_SHOW_THUMBNAILS"; payload: boolean }
   | { type: "SET_LOADING"; payload: boolean }
@@ -125,7 +136,9 @@ export type LightboxAction =
 // Default state
 const defaultState: ILightboxState = {
   images: [],
+  pdfDocumentSrc: "",
   currentImage: 0,
+  sourceType: ILightboxImageType.IMAGE,
   viewMode: IImageViewMode.IMAGE,
   pinnedImages: [],
   currentImageIsPinned: false,
@@ -248,6 +261,13 @@ function lightboxReducer(
         isDraggingImage: false,
       };
 
+    case "SET_SOURCE_TYPE":
+      return {
+        ...state,
+        sourceType: action.payload,
+        isDraggingImage: false,
+      };
+
     case "PIN_IMAGE":
       return {
         ...state,
@@ -255,7 +275,9 @@ function lightboxReducer(
       };
 
     case "UN_PIN_IMAGE":
-      const unpinned = state.pinnedImages.filter((_pin, index) => index !== action.payload); 
+      const unpinned = state.pinnedImages.filter(
+        (_pin, index) => index !== action.payload
+      );
       return {
         ...state,
         pinnedImages: unpinned,
@@ -356,6 +378,8 @@ export interface ILightboxContext {
 
   updateViewState: (viewMode: IImageViewMode) => void;
 
+  setSourceType: (sourceType: ILightboxImageType) => void;
+
   pinImage: (state: IPinnedState) => void;
   unPinImage: (imageIndex: number) => void;
 }
@@ -446,6 +470,12 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "RESET_IMAGE" });
   }, []);
 
+  const setSourceType = useCallback((sourceType: ILightboxImageType) => {
+    debuginfo(`Updating view state to: ${sourceType}`);
+    dispatch({ type: "SET_SOURCE_TYPE", payload: sourceType });
+    dispatch({ type: "RESET_IMAGE" });
+  }, []);
+
   const pinImage = useCallback((state: IPinnedState) => {
     debuginfo(`Pinning image at index: ${state.imageIndex}`);
     dispatch({ type: "PIN_IMAGE", payload: state });
@@ -490,6 +520,7 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     pinImage,
     unPinImage,
     setLoading,
+    setSourceType
   };
 
   return (
