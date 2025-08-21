@@ -24,16 +24,14 @@ export function ThumbnailsMolecule() {
   const imageState = useLightboxImages();
   const callBacks = useCallbackMethods();
 
-  const currentImage = imageState.currentImage;
+  const currentImage = imageState.currentIndex;
   const imageArray = imageState.images;
+  const pageCount = imageState.pageCount;
 
-  if (imageArray.length === 0) return null;
+  if (pageCount === 0) return null;
 
   const minimalBackthumbnail = Math.max(0, currentImage - 5);
-  const minimalForwardthumbnail = Math.min(
-    imageState.images.length - 1,
-    currentImage + 5
-  );
+  const minimalForwardthumbnail = Math.min(pageCount - 1, currentImage + 5);
 
   const noScrollImage = imageArray[currentImage];
   const leftScrollImage = imageArray.slice(minimalBackthumbnail, currentImage);
@@ -67,44 +65,46 @@ export function ThumbnailsMolecule() {
           imageState.prevImage();
           if (callBacks.onClickPrev) callBacks.onClickPrev();
         }}
-        disabled={imageState.currentImage <= 0}
+        disabled={imageState.currentIndex <= 0}
       />
 
-      <ThumbnailScroller>
-        {leftScrollImage.map((image, index) => {
-          const lps = getLeftProgressiveScale(index, minimalBackthumbnail);
-          return (
-            <LeftGradientThumbnail
-              progressiveScale={lps}
-              key={`thumbnail-${index}-${lps}`}
-              index={index}
-              src={image.src}
-              onClick={() => {
-                imageState.setCurrentImage(minimalBackthumbnail + index);
-                if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
-              }}
-            />
-          );
-        })}
+      {imageArray.length > 0 && (
+        <ThumbnailScroller>
+          {leftScrollImage.map((image, index) => {
+            const lps = getLeftProgressiveScale(index, minimalBackthumbnail);
+            return (
+              <LeftGradientThumbnail
+                progressiveScale={lps}
+                key={`thumbnail-${index}-${lps}`}
+                index={index}
+                src={image.src}
+                onClick={() => {
+                  imageState.setCurrentIndex(minimalBackthumbnail + index);
+                  if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+                }}
+              />
+            );
+          })}
 
-        <NoGradientThumbnail src={noScrollImage.src} />
+          <NoGradientThumbnail src={noScrollImage.src} />
 
-        {rightScrollImage.map((image, index) => {
-          const rps = getRightProgressiveScale(index);
-          return (
-            <RightGradientThumbnail
-              progressiveScale={rps}
-              key={`thumbnail-${index}-${rps}`}
-              index={currentImage + 1 + index}
-              src={image.src}
-              onClick={() => {
-                imageState.setCurrentImage(currentImage + 1 + index);
-                if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
-              }}
-            />
-          );
-        })}
-      </ThumbnailScroller>
+          {rightScrollImage.map((image, index) => {
+            const rps = getRightProgressiveScale(index);
+            return (
+              <RightGradientThumbnail
+                progressiveScale={rps}
+                key={`thumbnail-${index}-${rps}`}
+                index={currentImage + 1 + index}
+                src={image.src}
+                onClick={() => {
+                  imageState.setCurrentIndex(currentImage + 1 + index);
+                  if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
+                }}
+              />
+            );
+          })}
+        </ThumbnailScroller>
+      )}
 
       <ActionButtonAtom
         tooltip="Next Image"
@@ -114,7 +114,7 @@ export function ThumbnailsMolecule() {
           imageState.nextImage();
           if (callBacks.onClickNext) callBacks.onClickNext();
         }}
-        disabled={currentImage >= imageArray.length - 1}
+        disabled={currentImage >= pageCount - 1}
       />
     </ThumnailBar>
   );
@@ -136,10 +136,8 @@ export function HeaderMolecule({
   const callBacks = useCallbackMethods();
 
   const lightboxState = useLightboxState();
-  const currentImage = lightboxState.state.currentImage ?? 0;
-  const images = lightboxState.state.images;
-
-  const imageCount = images?.length ?? 0;
+  const currentImage = lightboxState.state.currentIndex ?? 0;
+  const imageCount = lightboxState.state.pageCount;
 
   return (
     <>
@@ -173,7 +171,7 @@ export const PinnedImagesHeader = () => {
   const lightboxContext = useLightboxState();
   const { state } = lightboxContext;
   const { images } = state;
-  const pinnedImages = state.pinnedImages || [];
+  const pinnedImages = state.pinnedFigureStates || [];
 
   if (pinnedImages.length === 0) return null;
 
@@ -190,7 +188,7 @@ export const PinnedImagesHeader = () => {
               key={`pinned-thumbnail-${index}`}
               src={currentImage.src}
               onClick={() => {
-                lightboxContext.goToPinnedImage(
+                lightboxContext.goToPinnedFigure(
                   image.imageIndex,
                   image.imageState
                 );
@@ -201,7 +199,7 @@ export const PinnedImagesHeader = () => {
               icon={<Pin color="white" />}
               iconOnHover={<Delete color="white" />}
               onClick={() => {
-                lightboxContext.unPinImage(index);
+                lightboxContext.unPinFigure(index);
               }}
             />
           </div>

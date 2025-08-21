@@ -7,9 +7,9 @@ import { debuginfo } from "../utils/log";
 export function useLoadImage() {
   const lightboxContext = useLightboxState();
   const { state } = lightboxContext;
-  const { currentImage, images, currentImageIsPinned } = state;
+  const { currentIndex, images, currentIndexIsPinned } = state;
   useEffect(() => {
-    debuginfo(`useLoadImage: currentImage index is ${currentImage}`);
+    debuginfo(`useLoadImage: currentImage index is ${currentIndex}`);
 
     if (!canUseDom) {
       debuginfo("useLoadImage: canUseDom is false, skipping image preload.");
@@ -17,12 +17,16 @@ export function useLoadImage() {
     }
 
     // We do not need to preload pdf sources
-    if (state.sourceType === ILightboxImageType.PDF) return;
+    if (state.sourceType === ILightboxImageType.PDF) {
+      lightboxContext.updateFigureManipulation({
+        imageLoaded: true,
+      });
+    }
 
     preloadImage(
       state,
-      lightboxContext.updateImageState,
-      !currentImageIsPinned
+      lightboxContext.updateFigureManipulation,
+      !currentIndexIsPinned
     );
-  }, [currentImage, preloadImage, images]);
+  }, [currentIndex, preloadImage, images]);
 }

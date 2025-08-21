@@ -1,5 +1,6 @@
 import { ILightboxState } from "./ComponentState";
 import { IImage } from "./utils/types";
+import "./pdf";
 export interface ICustomControl {
     label: string;
     icon: string;

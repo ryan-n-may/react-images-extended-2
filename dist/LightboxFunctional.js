@@ -1,15 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LightboxWrapper = exports.Lightbox = void 0;
-const jsx_runtime_1 = require("react/jsx-runtime");
-const react_1 = require("react");
-const ComponentState_1 = require("./ComponentState");
-const LightboxFullScreenPage_1 = require("./pages/LightboxFullScreenPage");
-const Lightbox = (props) => {
-    return ((0, jsx_runtime_1.jsx)(ComponentState_1.LightboxProvider, { children: (0, jsx_runtime_1.jsx)(LightboxWrapper, Object.assign({}, props)) }));
+import { jsx as _jsx } from "react/jsx-runtime";
+import { useMemo } from "react";
+import { LightboxProvider, useSetupState, ILightboxImageType, } from "./ComponentState";
+import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
+import "./pdf";
+export const Lightbox = (props) => {
+    return (_jsx(LightboxProvider, { children: _jsx(LightboxWrapper, { ...props }) }));
 };
-exports.Lightbox = Lightbox;
-function LightboxWrapper(props) {
+export function LightboxWrapper(props) {
     // Might need to tweak requirements
     const { images, pdfSource, onClickImage, onClickNext, onClickPrev, onClose, onSave, showThumbnails, onClickThumbnail, } = props;
     if (images && images.length > 0 && Boolean(pdfSource)) {
@@ -17,10 +14,18 @@ function LightboxWrapper(props) {
     }
     // DETERMINE THE APPROPRIATE SOURCE TYPE FOR PDF OR IMAGE.
     const sourceType = pdfSource
-        ? ComponentState_1.ILightboxImageType.PDF
-        : ComponentState_1.ILightboxImageType.IMAGE;
+        ? ILightboxImageType.PDF
+        : ILightboxImageType.IMAGE;
+    console.log(`Lightbox initialized with sourceType: ${sourceType}`); // Debugging log
+    let pageCount = 0;
+    if (sourceType === ILightboxImageType.PDF) {
+        pageCount = 0;
+    }
+    else {
+        pageCount = images ? images.length : 0;
+    }
     // Memoize the initial state to prevent function reference changes
-    const initialState = (0, react_1.useMemo)(() => ({
+    const initialState = useMemo(() => ({
         showThumbnails,
         onClickThumbnail,
         onClickImage,
@@ -28,12 +33,14 @@ function LightboxWrapper(props) {
         onClickPrev,
         onClose,
         onSave,
+        pageCount,
         images: images || [],
-        pdfSource: pdfSource || "",
+        pdfDocumentSrc: pdfSource || "",
         sourceType,
         currentImage: 0, // Default to first image
     }), [
         showThumbnails,
+        pageCount,
         onClickThumbnail,
         onClickImage,
         onClickNext,
@@ -44,7 +51,6 @@ function LightboxWrapper(props) {
         sourceType,
     ]);
     // transfer props to state
-    (0, ComponentState_1.useSetupState)(initialState);
-    return (0, jsx_runtime_1.jsx)(LightboxFullScreenPage_1.LightboxFullScreenPage, {});
+    useSetupState(initialState);
+    return _jsx(LightboxFullScreenPage, {});
 }
-exports.LightboxWrapper = LightboxWrapper;

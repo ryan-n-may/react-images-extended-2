@@ -1,23 +1,8 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useNewTab = void 0;
-const jsx_runtime_1 = require("react/jsx-runtime");
-const react_1 = require("react");
-const client_1 = __importDefault(require("react-dom/client"));
-function useNewTab() {
-    const open = (0, react_1.useCallback)((node) => __awaiter(this, void 0, void 0, function* () {
+import { jsx as _jsx } from "react/jsx-runtime";
+import { useCallback, StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+export function useNewTab() {
+    const open = useCallback(async (node) => {
         const newTab = window.open("", "_blank");
         if (!newTab) {
             throw new Error("Failed to open new tab - popup blocked?");
@@ -81,8 +66,8 @@ function useNewTab() {
         newTab.document.head.appendChild(style);
         let root = undefined;
         try {
-            root = client_1.default.createRoot(host);
-            root.render((0, jsx_runtime_1.jsx)(react_1.StrictMode, { children: node }));
+            root = ReactDOM.createRoot(host);
+            root.render(_jsx(StrictMode, { children: node }));
         }
         catch (error) {
             newTab.close();
@@ -95,7 +80,6 @@ function useNewTab() {
             }
         }
         return newTab;
-    }), []);
+    }, []);
     return { open };
 }
-exports.useNewTab = useNewTab;

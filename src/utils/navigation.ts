@@ -1,6 +1,5 @@
-import { ILightboxImageState } from "../ComponentState";
+import { ILightboxManipulationState } from "../ComponentState";
 import { IImage } from "./types";
-
 
 // Navigation functions
 export function goToThumbnail(
@@ -24,7 +23,7 @@ export function goToThumbnail(
 
 // Navigation functions
 export function goToNext(
-  state: ILightboxImageState,
+  state: ILightboxManipulationState,
   setCurrentImage: React.Dispatch<React.SetStateAction<number>>,
   images: Array<IImage>,
   currentImage: number,
@@ -42,13 +41,13 @@ export function goToNext(
     event.stopPropagation();
   }
 
-  setCurrentImage(prev => prev + 1);
+  setCurrentImage((prev) => prev + 1);
 
   if (onClickNext) onClickNext();
 }
 
 export function goToPrev(
-  state: ILightboxImageState,
+  state: ILightboxManipulationState,
   setCurrentImage: React.Dispatch<React.SetStateAction<number>>,
   images: Array<IImage>,
   currentImage: number,
@@ -66,7 +65,7 @@ export function goToPrev(
     event.stopPropagation();
   }
 
-  setCurrentImage(prev => prev - 1);
+  setCurrentImage((prev) => prev - 1);
 
   if (onClickPrev) onClickPrev();
 }

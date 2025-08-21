@@ -7,6 +7,7 @@ import {
 } from "./ComponentState";
 import { IImage } from "./utils/types";
 import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
+import "./pdf";
 
 export interface ICustomControl {
   label: string;
@@ -76,23 +77,35 @@ export function LightboxWrapper(props: ILightboxProps) {
     ? ILightboxImageType.PDF
     : ILightboxImageType.IMAGE;
 
+  console.log(`Lightbox initialized with sourceType: ${sourceType}`); // Debugging log
+
+  let pageCount = 0;
+  if (sourceType === ILightboxImageType.PDF) {
+    pageCount = 0;
+  } else {
+    pageCount = images ? images.length : 0;
+  }
+
   // Memoize the initial state to prevent function reference changes
   const initialState = useMemo(
-    () => ({
-      showThumbnails,
-      onClickThumbnail,
-      onClickImage,
-      onClickNext,
-      onClickPrev,
-      onClose,
-      onSave,
-      images: images || [],
-      pdfSource: pdfSource || "",
-      sourceType,
-      currentImage: 0, // Default to first image
-    }),
+    () =>
+      ({
+        showThumbnails,
+        onClickThumbnail,
+        onClickImage,
+        onClickNext,
+        onClickPrev,
+        onClose,
+        onSave,
+        pageCount,
+        images: images || [],
+        pdfDocumentSrc: pdfSource || "",
+        sourceType,
+        currentImage: 0, // Default to first image
+      } as Partial<ILightboxState>),
     [
       showThumbnails,
+      pageCount,
       onClickThumbnail,
       onClickImage,
       onClickNext,

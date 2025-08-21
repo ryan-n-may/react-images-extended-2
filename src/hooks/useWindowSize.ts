@@ -33,7 +33,7 @@ export function useWindowSize(targetWindow: Window | undefined) {
 
 export function useMoveImageOnResize() {
   // The window object will be the PiP window when this hook runs inside PiP
-  const { resetImageState } = useLightboxState();
+  const { resetMaipulationState } = useLightboxState();
   const currentWindow = typeof window !== "undefined" ? window : null;
 
   const [size, setSize] = useState(() => {
@@ -60,6 +60,6 @@ export function useMoveImageOnResize() {
 
   // center image whenever window resizes
   useEffect(() => {
-    resetImageState();
+    resetMaipulationState();
   }, [size.width, size.height]);
 }

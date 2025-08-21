@@ -1,7 +1,7 @@
 import { ReactNode, FC } from "react";
 import { IImage } from "./utils/types";
 import { IPinnedState } from "./utils/manipulation";
-export interface ILightboxImageState {
+export interface ILightboxManipulationState {
     imageLoaded: boolean;
     error: string | null;
     left: number;
@@ -14,40 +14,29 @@ export interface ILightboxImageState {
     scaleX: number;
     scaleY: number;
 }
-export declare enum ActionType {
-    CLOSE = "CLOSE",
-    NEXT = "NEXT",
-    PREVIOUS = "PREVIOUS",
-    ZOOM_IN = "ZOOM_IN",
-    ZOOM_OUT = "ZOOM_OUT",
-    ROTATE_LEFT = "ROTATE_LEFT",
-    ROTATE_RIGHT = "ROTATE_RIGHT",
-    FLIP_VERTICAL = "FLIP_VERTICAL",
-    FLIP_HORIZONTAL = "FLIP_HORIZONTAL",
-    RESET_IMAGE = "RESET_IMAGE",
-    SAVE = "SAVE"
-}
 export declare enum IImageViewMode {
     READER = "READER",
     IMAGE = "IMAGE"
 }
 export declare enum ILightboxImageType {
     IMAGE = "IMAGE",
-    PDF = "PDF"
+    PDF = "PDF",
+    UNINITIALISED = "UNINITIALISED"
 }
 export interface ILightboxState {
     images: IImage[];
-    currentImage: number;
-    currentImageIsPinned: boolean;
-    imageState: ILightboxImageState;
     pdfDocumentSrc: string;
+    pageCount: number;
+    currentIndex: number;
+    currentIndexIsPinned: boolean;
+    figureManipulation: ILightboxManipulationState;
+    pinnedFigureStates: Array<IPinnedState>;
+    isDraggingFigure: boolean;
     sourceType: ILightboxImageType;
     viewMode: IImageViewMode;
-    pinnedImages: Array<IPinnedState>;
     showThumbnails: boolean;
     isLoading: boolean;
-    isDraggingImage: boolean;
-    onClickImage?: () => void;
+    onCLickFigure?: () => void;
     onClickNext?: () => void;
     onClickPrev?: () => void;
     onClickThumbnail?: () => void;
@@ -80,23 +69,11 @@ export type LightboxAction = {
     type: "FLIP_HORIZONTAL";
     payload: null;
 } | {
-    type: "SET_STATE";
-    payload: Partial<ILightboxState>;
-} | {
-    type: "SET_IMAGES";
-    payload: IImage[];
-} | {
-    type: "SET_CURRENT_IMAGE";
-    payload: number;
-} | {
     type: "UPDATE_VIEW_STATE";
     payload: IImageViewMode;
 } | {
     type: "SET_SOURCE_TYPE";
     payload: ILightboxImageType;
-} | {
-    type: "UPDATE_IMAGE_STATE";
-    payload: Partial<ILightboxImageState>;
 } | {
     type: "SET_SHOW_THUMBNAILS";
     payload: boolean;
@@ -104,24 +81,42 @@ export type LightboxAction = {
     type: "SET_LOADING";
     payload: boolean;
 } | {
+    type: "SET_STATE";
+    payload: Partial<ILightboxState>;
+} | {
+    type: "RESET_ALL";
+} | {
+    type: "SET_IMAGES";
+    payload: IImage[];
+} | {
+    type: "SET_PDF_DOCUMENT";
+    payload: string;
+} | {
+    type: "SET_PAGE_COUNT";
+    payload: number;
+} | {
+    type: "SET_CURRENT_INDEX";
+    payload: number;
+} | {
+    type: "UPDATE_FIGURE_STATE";
+    payload: Partial<ILightboxManipulationState>;
+} | {
     type: "SET_DRAGGING";
     payload: boolean;
 } | {
     type: "RESET_IMAGE";
 } | {
-    type: "PIN_IMAGE";
+    type: "PIN_FIGURE_STATE";
     payload: IPinnedState;
 } | {
-    type: "UN_PIN_IMAGE";
+    type: "UNPIN_FIGURE_STATE";
     payload: number;
 } | {
-    type: "GO_TO_PINNED_IMAGE";
+    type: "GO_TO_PINNED_FIGURE_STATE";
     payload: {
         index: number;
-        updates: Partial<ILightboxImageState>;
+        updates: Partial<ILightboxManipulationState>;
     };
-} | {
-    type: "RESET_ALL";
 };
 export interface ILightboxContext {
     state: ILightboxState;
@@ -135,16 +130,17 @@ export interface ILightboxContext {
     rotateRight: () => void;
     flipVertical: () => void;
     flipHorisontal: () => void;
-    setCurrentImage: (index: number) => void;
-    updateImageState: (updates: Partial<ILightboxImageState>) => void;
-    goToPinnedImage: (index: number, updates: Partial<ILightboxImageState>) => void;
-    setDraggingImage: (isDragging: boolean) => void;
-    resetImageState: () => void;
+    setCurrentIndex: (index: number) => void;
+    updateFigureManipulation: (updates: Partial<ILightboxManipulationState>) => void;
+    goToPinnedFigure: (index: number, updates: Partial<ILightboxManipulationState>) => void;
+    setDraggingFigure: (isDragging: boolean) => void;
+    resetMaipulationState: () => void;
     resetAll: () => void;
     updateViewState: (viewMode: IImageViewMode) => void;
     setSourceType: (sourceType: ILightboxImageType) => void;
-    pinImage: (state: IPinnedState) => void;
-    unPinImage: (imageIndex: number) => void;
+    pinFigure: (state: IPinnedState) => void;
+    unPinFigure: (imageIndex: number) => void;
+    setPageCount: (pages: number) => void;
 }
 interface ILightboxProviderProps {
     children: ReactNode;
@@ -155,7 +151,7 @@ export declare const useSetupState: (initialState: Partial<ILightboxState>) => v
 export declare const useLightboxState: () => ILightboxContext;
 export declare const useCurrentImage: () => IImage;
 export declare const useCallbackMethods: () => {
-    onClickImage: (() => void) | undefined;
+    onCLickFigure: (() => void) | undefined;
     onClickNext: (() => void) | undefined;
     onClickPrev: (() => void) | undefined;
     onClose: (() => void) | undefined;
@@ -171,26 +167,27 @@ export declare const useCallbackMethods: () => {
 };
 export declare const useLightboxImages: () => {
     images: IImage[];
-    currentImage: number;
-    currentImageData: IImage;
+    currentIndex: number;
+    pageCount: number;
+    currentFigureData: IImage;
     setImages: (images: IImage[]) => void;
-    setCurrentImage: (index: number) => void;
+    setCurrentIndex: (index: number) => void;
     nextImage: () => void;
     prevImage: () => void;
     toImage: (index: number) => void;
     hasNext: boolean;
     hasPrev: boolean;
 };
-export declare const useLightboxImageState: () => {
-    imageState: ILightboxImageState;
-    updateImageState: (updates: Partial<ILightboxImageState>) => void;
-    resetImageState: () => void;
+export declare const useLightboxManipulationState: () => {
+    manipulationState: ILightboxManipulationState;
+    updateFigureManipulation: (updates: Partial<ILightboxManipulationState>) => void;
+    resetMaipulationState: () => void;
     isLoaded: boolean;
     hasError: boolean;
 };
 export declare const useLightboxDrag: () => {
     isDragging: boolean;
-    setDraggingImage: (isDragging: boolean) => void;
+    setDraggingFigure: (isDragging: boolean) => void;
     isAnyDragging: boolean;
 };
 export {};

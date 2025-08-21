@@ -1,24 +1,28 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ImageElementFullscreen = void 0;
-const jsx_runtime_1 = require("react/jsx-runtime");
-const Draggable_1 = require("../../components/Draggable");
-const ComponentState_1 = require("../../ComponentState");
-function ImageElementFullscreen(props) {
+import { jsx as _jsx } from "react/jsx-runtime";
+import { DraggableImageFullScreen, DraggablePdfFullScreen, DraggableReaderFullScreen, } from "../../components/Draggable";
+import { IImageViewMode, ILightboxImageType, } from "../../ComponentState";
+import { debuginfo } from "../../utils/log";
+export function ImageElementFullscreen(props) {
     const { state } = props;
-    const { images, currentImage, viewMode, sourceType, pdfDocumentSrc } = state;
-    if (sourceType === ComponentState_1.ILightboxImageType.PDF) {
-        if (!pdfDocumentSrc)
+    const { images, currentIndex, viewMode, sourceType, pdfDocumentSrc } = state;
+    if (sourceType === ILightboxImageType.PDF) {
+        if (!pdfDocumentSrc) {
+            console.error("PDF source is not provided.");
             return null;
-        return (0, jsx_runtime_1.jsx)(Draggable_1.DraggablePdfFullscreen, {});
-    }
-    if (sourceType === ComponentState_1.ILightboxImageType.IMAGE) {
-        if (!images[currentImage])
-            return null;
-        if (viewMode === ComponentState_1.IImageViewMode.READER) {
-            return ((0, jsx_runtime_1.jsx)(Draggable_1.DraggableReaderFullScreen, {}, "image-reader-draggable-fullscreen"));
         }
-        return (0, jsx_runtime_1.jsx)(Draggable_1.DraggableImageFullScreen, {}, "image-draggable-fullscreen");
+        debuginfo(`Rendering DraggablePdfFullscreen for currentImage: ${currentIndex}, ${pdfDocumentSrc}`);
+        return _jsx(DraggablePdfFullScreen, {}, "pdf-reader-draggable-fullscreen");
+    }
+    else if (sourceType === ILightboxImageType.IMAGE) {
+        if (!images[currentIndex]) {
+            console.error("Image source is not provided.");
+            return null;
+        }
+        if (viewMode === IImageViewMode.READER) {
+            debuginfo(`Rendering DraggableReaderFullScreen for currentImage: ${currentIndex}`);
+            return (_jsx(DraggableReaderFullScreen, {}, "image-reader-draggable-fullscreen"));
+        }
+        debuginfo(`Rendering DraggableImageFullScreen for currentImage: ${currentIndex}`);
+        return _jsx(DraggableImageFullScreen, {}, "image-draggable-fullscreen");
     }
 }
-exports.ImageElementFullscreen = ImageElementFullscreen;

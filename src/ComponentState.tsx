@@ -16,8 +16,9 @@ import {
   rotateManipulation,
   zoomManipulation,
 } from "./utils/manipulation";
+import { PageCount } from "./components/StyledComponents";
 
-export interface ILightboxImageState {
+export interface ILightboxManipulationState {
   imageLoaded: boolean;
   error: string | null;
   left: number;
@@ -31,26 +32,6 @@ export interface ILightboxImageState {
   scaleY: number;
 }
 
-export enum ActionType {
-  CLOSE = "CLOSE",
-
-  NEXT = "NEXT",
-  PREVIOUS = "PREVIOUS",
-
-  ZOOM_IN = "ZOOM_IN",
-  ZOOM_OUT = "ZOOM_OUT",
-
-  ROTATE_LEFT = "ROTATE_LEFT",
-  ROTATE_RIGHT = "ROTATE_RIGHT",
-
-  FLIP_VERTICAL = "FLIP_VERTICAL",
-  FLIP_HORIZONTAL = "FLIP_HORIZONTAL",
-
-  RESET_IMAGE = "RESET_IMAGE",
-
-  SAVE = "SAVE",
-}
-
 export enum IImageViewMode {
   READER = "READER",
   IMAGE = "IMAGE",
@@ -59,36 +40,33 @@ export enum IImageViewMode {
 export enum ILightboxImageType {
   IMAGE = "IMAGE",
   PDF = "PDF",
+  UNINITIALISED = "UNINITIALISED",
 }
 
 // State interface for the entire lightbox component
 export interface ILightboxState {
-  // Image state
+  // Figure sources:
   images: IImage[];
-  currentImage: number;
-  currentImageIsPinned: boolean;
-  imageState: ILightboxImageState;
-
-  // PDF state
   pdfDocumentSrc: string;
-  // currentPage is currentImage
 
-  // view modes
+  // Figure state:
+  pageCount: number;
+  currentIndex: number;
+  currentIndexIsPinned: boolean;
+  figureManipulation: ILightboxManipulationState;
+  pinnedFigureStates: Array<IPinnedState>;
+  isDraggingFigure: boolean;
+
+  // View mode flags
   sourceType: ILightboxImageType; // controls the type of image (IMAGE or PDF)
   viewMode: IImageViewMode; // controls how the images are displayed
 
-  // pinned images and their states
-  pinnedImages: Array<IPinnedState>;
-
-  // UI state
+  // UI configuration
   showThumbnails: boolean;
   isLoading: boolean;
 
-  // Drag state
-  isDraggingImage: boolean;
-
   // Callbacks
-  onClickImage?: () => void;
+  onCLickFigure?: () => void;
   onClickNext?: () => void;
   onClickPrev?: () => void;
   onClickThumbnail?: () => void;
@@ -109,40 +87,67 @@ export interface ILightboxState {
 
 // Action types for state mutations
 export type LightboxAction =
+  // Basic figure manipulation methods
   | { type: "ZOOM_IN"; payload: null }
   | { type: "ZOOM_OUT"; payload: null }
   | { type: "ROTATE_LEFT"; payload: null }
   | { type: "ROTATE_RIGHT"; payload: null }
   | { type: "FLIP_VERTICAL"; payload: null }
   | { type: "FLIP_HORIZONTAL"; payload: null }
-  | { type: "SET_STATE"; payload: Partial<ILightboxState> }
-  | { type: "SET_IMAGES"; payload: IImage[] }
-  | { type: "SET_CURRENT_IMAGE"; payload: number }
+
+  // Setting view mode flags
   | { type: "UPDATE_VIEW_STATE"; payload: IImageViewMode }
   | { type: "SET_SOURCE_TYPE"; payload: ILightboxImageType }
-  | { type: "UPDATE_IMAGE_STATE"; payload: Partial<ILightboxImageState> }
+
+  // Setting UI flags
   | { type: "SET_SHOW_THUMBNAILS"; payload: boolean }
   | { type: "SET_LOADING"; payload: boolean }
+
+  // Setting overall lightbox state
+  | { type: "SET_STATE"; payload: Partial<ILightboxState> }
+  | { type: "RESET_ALL" }
+
+  // Setting figure sources
+  | { type: "SET_IMAGES"; payload: IImage[] }
+  | { type: "SET_PDF_DOCUMENT"; payload: string }
+
+  // Setting figure state
+  | { type: "SET_PAGE_COUNT"; payload: number }
+  | { type: "SET_CURRENT_INDEX"; payload: number }
+  | {
+      type: "UPDATE_FIGURE_STATE";
+      payload: Partial<ILightboxManipulationState>;
+    }
   | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "RESET_IMAGE" }
-  | { type: "PIN_IMAGE"; payload: IPinnedState }
-  | { type: "UN_PIN_IMAGE"; payload: number }
+
+  // Pinning figure states
+  | { type: "PIN_FIGURE_STATE"; payload: IPinnedState }
+  | { type: "UNPIN_FIGURE_STATE"; payload: number }
   | {
-      type: "GO_TO_PINNED_IMAGE";
-      payload: { index: number; updates: Partial<ILightboxImageState> };
-    }
-  | { type: "RESET_ALL" };
+      type: "GO_TO_PINNED_FIGURE_STATE";
+      payload: { index: number; updates: Partial<ILightboxManipulationState> };
+    };
 
 // Default state
 const defaultState: ILightboxState = {
+  // Figure sources:
   images: [],
   pdfDocumentSrc: "",
-  currentImage: 0,
-  sourceType: ILightboxImageType.IMAGE,
+
+  // Figure state:
+  currentIndex: 0,
+  pageCount: 0,
+  pinnedFigureStates: [],
+  currentIndexIsPinned: false,
+
+  // View mode flags:
+  sourceType: ILightboxImageType.UNINITIALISED,
   viewMode: IImageViewMode.IMAGE,
-  pinnedImages: [],
-  currentImageIsPinned: false,
-  imageState: {
+
+  // Figure manipulation state
+  isDraggingFigure: false,
+  figureManipulation: {
     imageLoaded: false,
     error: null,
     left: 0,
@@ -155,9 +160,9 @@ const defaultState: ILightboxState = {
     scaleX: 1,
     scaleY: 1,
   },
+
   showThumbnails: false,
   isLoading: false,
-  isDraggingImage: false,
 };
 
 // Reducer function for state mutations
@@ -168,66 +173,78 @@ function lightboxReducer(
   switch (action.type) {
     case "ZOOM_IN":
       debuginfo("Handling zoom in");
-      const stateOnZoomIn = zoomManipulation(false, state.imageState);
+      const stateOnZoomIn = zoomManipulation(false, state.figureManipulation);
       return {
         ...state,
-        imageState: {
-          ...state.imageState,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...stateOnZoomIn,
         },
       };
 
     case "ZOOM_OUT":
       debuginfo("Handling zoom out");
-      const stateOnZoomOut = zoomManipulation(true, state.imageState);
+      const stateOnZoomOut = zoomManipulation(true, state.figureManipulation);
       return {
         ...state,
-        imageState: {
-          ...state.imageState,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...stateOnZoomOut,
         },
       };
 
     case "ROTATE_LEFT":
       debuginfo("Handling rotate left");
-      const stateOnRotateLeft = rotateManipulation(state.imageState, false);
+      const stateOnRotateLeft = rotateManipulation(
+        state.figureManipulation,
+        false
+      );
       return {
         ...state,
-        imageState: {
-          ...state.imageState,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...stateOnRotateLeft,
         },
       };
 
     case "ROTATE_RIGHT":
       debuginfo("Handling rotate right");
-      const stateOnRotateRight = rotateManipulation(state.imageState, true);
+      const stateOnRotateRight = rotateManipulation(
+        state.figureManipulation,
+        true
+      );
       return {
         ...state,
-        imageState: {
-          ...state.imageState,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...stateOnRotateRight,
         },
       };
 
     case "FLIP_HORIZONTAL":
       debuginfo("Handling flip horizontal");
-      const stateOnFlipHorisontal = flipManipulation(state.imageState, true);
+      const stateOnFlipHorisontal = flipManipulation(
+        state.figureManipulation,
+        true
+      );
       return {
         ...state,
-        imageState: {
-          ...state.imageState,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...stateOnFlipHorisontal,
         },
       };
 
     case "FLIP_VERTICAL":
       debuginfo("Handling flip vertical");
-      const stateOnFlipVertical = flipManipulation(state.imageState, false);
+      const stateOnFlipVertical = flipManipulation(
+        state.figureManipulation,
+        false
+      );
       return {
         ...state,
-        imageState: {
-          ...state.imageState,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...stateOnFlipVertical,
         },
       };
@@ -244,50 +261,53 @@ function lightboxReducer(
         images: action.payload,
       };
 
-    case "SET_CURRENT_IMAGE":
+    case "SET_CURRENT_INDEX":
       return {
         ...state,
-        currentImageIsPinned: false,
-        currentImage: Math.max(
-          0,
-          Math.min(action.payload, state.images.length - 1)
-        ),
+        currentIndexIsPinned: false,
+        currentIndex: Math.max(0, Math.min(action.payload, state.pageCount - 1)),
+      };
+
+    case "SET_PAGE_COUNT":
+      return {
+        ...state,
+        pageCount: action.payload,
       };
 
     case "UPDATE_VIEW_STATE":
       return {
         ...state,
         viewMode: action.payload,
-        isDraggingImage: false,
+        isDraggingFigure: false,
       };
 
     case "SET_SOURCE_TYPE":
       return {
         ...state,
         sourceType: action.payload,
-        isDraggingImage: false,
+        isDraggingFigure: false,
       };
 
-    case "PIN_IMAGE":
+    case "PIN_FIGURE_STATE":
       return {
         ...state,
-        pinnedImages: [...state.pinnedImages, action.payload],
+        pinnedFigureStates: [...state.pinnedFigureStates, action.payload],
       };
 
-    case "UN_PIN_IMAGE":
-      const unpinned = state.pinnedImages.filter(
+    case "UNPIN_FIGURE_STATE":
+      const unpinned = state.pinnedFigureStates.filter(
         (_pin, index) => index !== action.payload
       );
       return {
         ...state,
-        pinnedImages: unpinned,
+        pinnedFigureStates: unpinned,
       };
 
-    case "UPDATE_IMAGE_STATE":
+    case "UPDATE_FIGURE_STATE":
       return {
         ...state,
-        imageState: {
-          ...state.imageState,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...action.payload,
         },
       };
@@ -307,7 +327,7 @@ function lightboxReducer(
     case "SET_DRAGGING":
       return {
         ...state,
-        isDraggingImage: action.payload,
+        isDraggingFigure: action.payload,
       };
 
     case "RESET_IMAGE":
@@ -315,22 +335,22 @@ function lightboxReducer(
       const stateOnImageReset = handleReset(state);
       return {
         ...state,
-        isDraggingImage: false,
-        imageState: {
-          ...state.imageState,
+        isDraggingFigure: false,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...stateOnImageReset,
         },
       };
 
-    case "GO_TO_PINNED_IMAGE":
+    case "GO_TO_PINNED_FIGURE_STATE":
       debuginfo(`Going to pinned image at index: ${action.payload.index}`);
       const { index, updates } = action.payload;
       return {
         ...state,
-        currentImage: index,
-        currentImageIsPinned: true,
-        imageState: {
-          ...state.imageState,
+        currentIndex: index,
+        currentIndexIsPinned: true,
+        figureManipulation: {
+          ...state.figureManipulation,
           ...updates,
         },
       };
@@ -363,25 +383,29 @@ export interface ILightboxContext {
   flipVertical: () => void;
   flipHorisontal: () => void;
 
-  setCurrentImage: (index: number) => void;
-  updateImageState: (updates: Partial<ILightboxImageState>) => void;
-
-  goToPinnedImage: (
-    index: number,
-    updates: Partial<ILightboxImageState>
+  setCurrentIndex: (index: number) => void;
+  updateFigureManipulation: (
+    updates: Partial<ILightboxManipulationState>
   ) => void;
 
-  setDraggingImage: (isDragging: boolean) => void;
+  goToPinnedFigure: (
+    index: number,
+    updates: Partial<ILightboxManipulationState>
+  ) => void;
 
-  resetImageState: () => void;
+  setDraggingFigure: (isDragging: boolean) => void;
+
+  resetMaipulationState: () => void;
   resetAll: () => void;
 
   updateViewState: (viewMode: IImageViewMode) => void;
 
   setSourceType: (sourceType: ILightboxImageType) => void;
 
-  pinImage: (state: IPinnedState) => void;
-  unPinImage: (imageIndex: number) => void;
+  pinFigure: (state: IPinnedState) => void;
+  unPinFigure: (imageIndex: number) => void;
+
+  setPageCount: (pages: number) => void;
 }
 
 // Create context
@@ -411,13 +435,17 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "SET_IMAGES", payload: images });
   }, []);
 
-  const setCurrentImage = useCallback((index: number) => {
-    dispatch({ type: "SET_CURRENT_IMAGE", payload: index });
+  const setCurrentIndex = useCallback((index: number) => {
+    dispatch({ type: "SET_CURRENT_INDEX", payload: index });
   }, []);
 
-  const updateImageState = useCallback(
-    (updates: Partial<ILightboxImageState>) => {
-      dispatch({ type: "UPDATE_IMAGE_STATE", payload: updates });
+  const setPageCount = useCallback((pages: number) => {
+    dispatch({ type: "SET_PAGE_COUNT", payload: pages });
+  }, []);
+
+  const updateFigureManipulation = useCallback(
+    (updates: Partial<ILightboxManipulationState>) => {
+      dispatch({ type: "UPDATE_FIGURE_STATE", payload: updates });
     },
     []
   );
@@ -452,11 +480,11 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "ROTATE_RIGHT", payload: null });
   }, []);
 
-  const setDraggingImage = useCallback((isDragging: boolean) => {
+  const setDraggingFigure = useCallback((isDragging: boolean) => {
     dispatch({ type: "SET_DRAGGING", payload: isDragging });
   }, []);
 
-  const resetImageState = useCallback(() => {
+  const resetMaipulationState = useCallback(() => {
     dispatch({ type: "RESET_IMAGE" });
   }, []);
 
@@ -476,14 +504,14 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "RESET_IMAGE" });
   }, []);
 
-  const pinImage = useCallback((state: IPinnedState) => {
+  const pinFigure = useCallback((state: IPinnedState) => {
     debuginfo(`Pinning image at index: ${state.imageIndex}`);
-    dispatch({ type: "PIN_IMAGE", payload: state });
+    dispatch({ type: "PIN_FIGURE_STATE", payload: state });
   }, []);
 
-  const unPinImage = useCallback((imageIndex: number) => {
+  const unPinFigure = useCallback((imageIndex: number) => {
     debuginfo(`Unpinning image at index: ${imageIndex}`);
-    dispatch({ type: "UN_PIN_IMAGE", payload: imageIndex });
+    dispatch({ type: "UNPIN_FIGURE_STATE", payload: imageIndex });
   }, []);
 
   const setLoading = useCallback((isLoading: boolean) => {
@@ -491,10 +519,13 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "SET_LOADING", payload: isLoading });
   }, []);
 
-  const goToPinnedImage = useCallback(
-    (index: number, updates: Partial<ILightboxImageState>) => {
+  const goToPinnedFigure = useCallback(
+    (index: number, updates: Partial<ILightboxManipulationState>) => {
       debuginfo(`Going to pinned image at index: ${index}`);
-      dispatch({ type: "GO_TO_PINNED_IMAGE", payload: { index, updates } });
+      dispatch({
+        type: "GO_TO_PINNED_FIGURE_STATE",
+        payload: { index, updates },
+      });
     },
     []
   );
@@ -504,23 +535,24 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch,
     setState,
     setImages,
-    setCurrentImage,
+    setCurrentIndex,
     zoomIn,
     zoomOut,
     flipVertical,
     flipHorisontal,
     rotateLeft,
     rotateRight,
-    updateImageState,
-    setDraggingImage,
-    resetImageState,
+    updateFigureManipulation,
+    setDraggingFigure,
+    resetMaipulationState,
     resetAll,
     updateViewState,
-    goToPinnedImage,
-    pinImage,
-    unPinImage,
+    goToPinnedFigure,
+    pinFigure,
+    unPinFigure,
     setLoading,
-    setSourceType
+    setSourceType,
+    setPageCount,
   };
 
   return (
@@ -556,14 +588,14 @@ export const useLightboxState = (): ILightboxContext => {
 // Custom hooks for specific state slices
 export const useCurrentImage = () => {
   const { state } = useLightboxState();
-  const { images, currentImage } = state;
-  return images[currentImage];
+  const { images, currentIndex } = state;
+  return images[currentIndex];
 };
 
 export const useCallbackMethods = () => {
   const { state } = useLightboxState();
   const {
-    onClickImage,
+    onCLickFigure,
     onClickNext,
     onClickPrev,
     onClose,
@@ -575,7 +607,7 @@ export const useCallbackMethods = () => {
     onClickThumbnail,
   } = state;
   return {
-    onClickImage,
+    onCLickFigure,
     onClickNext,
     onClickPrev,
     onClose,
@@ -590,37 +622,39 @@ export const useCallbackMethods = () => {
 
 // Custom hooks for specific state slices
 export const useLightboxImages = () => {
-  const { state, setImages, setCurrentImage } = useLightboxState();
+  const { state, setImages, setCurrentIndex } = useLightboxState();
   return {
     images: state.images,
-    currentImage: state.currentImage,
-    currentImageData: state.images[state.currentImage],
+    currentIndex: state.currentIndex,
+    pageCount: state.pageCount,
+    currentFigureData: state.images[state.currentIndex],
     setImages,
-    setCurrentImage,
-    nextImage: () => setCurrentImage(state.currentImage + 1),
-    prevImage: () => setCurrentImage(state.currentImage - 1),
-    toImage: (index: number) => setCurrentImage(index),
-    hasNext: state.currentImage < state.images.length - 1,
-    hasPrev: state.currentImage > 0,
+    setCurrentIndex,
+    nextImage: () => setCurrentIndex(state.currentIndex + 1),
+    prevImage: () => setCurrentIndex(state.currentIndex - 1),
+    toImage: (index: number) => setCurrentIndex(index),
+    hasNext: state.currentIndex < state.images.length - 1,
+    hasPrev: state.currentIndex > 0,
   };
 };
 
-export const useLightboxImageState = () => {
-  const { state, updateImageState, resetImageState } = useLightboxState();
+export const useLightboxManipulationState = () => {
+  const { state, updateFigureManipulation, resetMaipulationState } =
+    useLightboxState();
   return {
-    imageState: state.imageState,
-    updateImageState,
-    resetImageState,
-    isLoaded: state.imageState.imageLoaded,
-    hasError: !!state.imageState.error,
+    manipulationState: state.figureManipulation,
+    updateFigureManipulation,
+    resetMaipulationState,
+    isLoaded: state.figureManipulation.imageLoaded,
+    hasError: !!state.figureManipulation.error,
   };
 };
 
 export const useLightboxDrag = () => {
-  const { state, setDraggingImage } = useLightboxState();
+  const { state, setDraggingFigure } = useLightboxState();
   return {
-    isDragging: state.isDraggingImage,
-    setDraggingImage,
-    isAnyDragging: state.isDraggingImage,
+    isDragging: state.isDraggingFigure,
+    setDraggingFigure,
+    isAnyDragging: state.isDraggingFigure,
   };
 };

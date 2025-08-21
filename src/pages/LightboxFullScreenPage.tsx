@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useMemo } from "react";
 import { SpinnerAtom } from "../components/Atoms";
 import {
   PinnedImagesHeader,
@@ -6,39 +6,35 @@ import {
 } from "../components/Molecules";
 import { Modal, DefaultHeader } from "../components/Organisms";
 import { FigureContainerFullScreen } from "../components/StyledComponents";
-import { useLightboxState, useLightboxImageState } from "../ComponentState";
+import {
+  useLightboxState,
+  useLightboxManipulationState,
+} from "../ComponentState";
 import { useLoadImage } from "../hooks/useLoadImage";
 import { debuginfo } from "../utils/log";
 import { useOpenPip } from "../hooks/useOpenPip";
 import { useOpenTab } from "../hooks/useOpenTab";
 import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
+import { usePdfMetadata } from "../hooks/usePdfMetadata";
 
 export const LightboxFullScreenPage = () => {
   const lightboxState = useLightboxState();
-  const { images, currentImage, showThumbnails, viewMode } =
+  const { images, currentIndex, showThumbnails, viewMode, sourceType } =
     lightboxState.state;
-  const { imageState } = useLightboxImageState();
-  const { imageLoaded } = imageState;
+  const { manipulationState } = useLightboxManipulationState();
+  const { imageLoaded } = manipulationState;
 
-  // Refs to replace instance variables
-  const imageRef = useRef(null);
-
+  usePdfMetadata();
   useLoadImage();
 
-  const MemoImageElementFullscreen = useMemo(() => {
-    return ImageElementFullscreen({
-      state: lightboxState.state,
-    });
-  }, [images, currentImage, imageRef, viewMode, imageLoaded]);
-
   const ImageCourasselFullscreen = useMemo(() => {
-    debuginfo(`Rendering ImageCourassel for currentImage: ${currentImage}`);
+    debuginfo(`Rendering ImageCourassel for currentImage: ${currentIndex}`);
     return (
-      <figure key="image-courassel-fullscreen">
-        {MemoImageElementFullscreen}
+      <figure role="image-courassel-fullscreen">
+        <ImageElementFullscreen state={lightboxState.state} />
       </figure>
     );
-  }, [ImageElementFullscreen]);
+  }, [images, currentIndex, viewMode, imageLoaded, sourceType]);
 
   const {
     open: handlePipOpen,

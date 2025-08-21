@@ -7,7 +7,10 @@ import {
   useMemo,
   useEffect,
 } from "react";
-import { useLightboxImageState, useLightboxState } from "../ComponentState";
+import {
+  useLightboxManipulationState,
+  useLightboxState,
+} from "../ComponentState";
 import { debuginfo } from "../utils/log";
 
 export function Draggable({ children }: { children: ReactNode }) {
@@ -15,10 +18,10 @@ export function Draggable({ children }: { children: ReactNode }) {
   const dragOffsetRef = useRef({ x: 0, y: 0 });
 
   const lightboxState = useLightboxState();
-  const { isDraggingImage } = lightboxState.state;
+  const { isDraggingFigure } = lightboxState.state;
 
-  const { imageState } = useLightboxImageState();
-  const { top, left } = imageState;
+  const { manipulationState } = useLightboxManipulationState();
+  const { top, left } = manipulationState;
 
   useEffect(() => {
     debuginfo(`image state left updated to ${left}`);
@@ -26,24 +29,24 @@ export function Draggable({ children }: { children: ReactNode }) {
 
   const wrapperStyle = useMemo(
     () => ({
-      border: isDraggingImage ? "1px solid #ccc" : "none",
-      width: `${imageState.width}px`,
-      minWidth: `${imageState.width}px`,
-      maxWidth: `${imageState.width}px`,
+      border: isDraggingFigure ? "1px solid #ccc" : "none",
+      width: `${manipulationState.width}px`,
+      minWidth: `${manipulationState.width}px`,
+      maxWidth: `${manipulationState.width}px`,
       height: "auto",
-      transform: `rotate(${imageState.rotate}deg) scaleX(${imageState.scaleX}) scaleY(${imageState.scaleY})`,
+      transform: `rotate(${manipulationState.rotate}deg) scaleX(${manipulationState.scaleX}) scaleY(${manipulationState.scaleY})`,
       transformOrigin: "center",
       willChange: "transform",
       transition: "none", // Remove transition to prevent flashing
       backfaceVisibility: "hidden" as const, // Prevent flashing on transform
       WebkitBackfaceVisibility: "hidden" as const,
-      WebkitTransform: `rotate(${imageState.rotate}deg) scaleX(${imageState.scaleX}) scaleY(${imageState.scaleY})`,
+      WebkitTransform: `rotate(${manipulationState.rotate}deg) scaleX(${manipulationState.scaleX}) scaleY(${manipulationState.scaleY})`,
       position: "absolute" as const,
       display: "block",
 
       left: `${left || 0}px`,
       top: `${top || 0}px`,
-      cursor: isDraggingImage ? "grabbing" : "grab",
+      cursor: isDraggingFigure ? "grabbing" : "grab",
       // Additional properties to reduce flashing
       imageRendering: "crisp-edges" as const,
       WebkitFontSmoothing: "antialiased" as const,
@@ -56,20 +59,20 @@ export function Draggable({ children }: { children: ReactNode }) {
       flexShrink: 0, // Prevent flexbox from shrinking the image
     }),
     [
-      imageState.left,
-      imageState.top,
-      isDraggingImage,
-      imageState.width,
-      imageState.rotate,
-      imageState.scaleX,
-      imageState.scaleY,
+      manipulationState.left,
+      manipulationState.top,
+      manipulationState.height,
+      manipulationState.width,
+      manipulationState.rotate,
+      manipulationState.scaleX,
+      manipulationState.scaleY,
     ]
   );
 
   const handleMouseDown: MouseEventHandler = useCallback(
     (event: MouseEvent<Element>) => {
       event.preventDefault();
-      lightboxState.setDraggingImage(true);
+      lightboxState.setDraggingFigure(true);
 
       //debuginfo(`Mouse down position at (${event.clientX}, ${event.clientY})`);
 
@@ -77,18 +80,18 @@ export function Draggable({ children }: { children: ReactNode }) {
         x: event.clientX,
         y: event.clientY,
       };
-      const { left, top } = imageState;
+      const { left, top } = manipulationState;
       dragOffsetRef.current = {
         x: left || 0,
         y: top || 0,
       };
     },
-    [isDraggingImage, imageState.left, imageState.top]
+    [isDraggingFigure, manipulationState.left, manipulationState.top]
   );
 
   const handleMouseMove = useCallback(
     (event: MouseEvent<Element>) => {
-      if (!isDraggingImage) return;
+      if (!isDraggingFigure) return;
       event.preventDefault();
 
       //debuginfo(`Screen coordinates: (${event.clientX}, ${event.clientY})`);
@@ -99,29 +102,24 @@ export function Draggable({ children }: { children: ReactNode }) {
       const newLeft = dragOffsetRef.current.x + deltaX;
       const newTop = dragOffsetRef.current.y + deltaY;
 
-      // Add debugging for right edge behavior
-      const viewportWidth = window.innerWidth;
-      debuginfo(
-        `New left: ${newLeft}, Viewport width: ${viewportWidth}, Image width: ${imageState.width}`
-      );
-
       const updatedImageState = {
         left: newLeft,
         top: newTop,
       };
 
-      lightboxState.updateImageState(updatedImageState);
+      lightboxState.updateFigureManipulation(updatedImageState);
     },
-    [isDraggingImage, dragOffsetRef, dragStartRef]
+    [isDraggingFigure, dragOffsetRef, dragStartRef]
   );
 
   const handleMouseUp = useCallback(() => {
     //debuginfo("Mouse up event detected, stopping drag");
-    lightboxState.setDraggingImage(false);
+    lightboxState.setDraggingFigure(false);
   }, [lightboxState]);
 
   return (
     <div
+      role="draggable-wrapper"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}

@@ -1,44 +1,34 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useLightboxDrag = exports.useLightboxImageState = exports.useLightboxImages = exports.useCallbackMethods = exports.useCurrentImage = exports.useLightboxState = exports.useSetupState = exports.LightboxProvider = exports.ILightboxImageType = exports.IImageViewMode = exports.ActionType = void 0;
-const jsx_runtime_1 = require("react/jsx-runtime");
-const react_1 = require("react");
-const log_1 = require("./utils/log");
-const manipulation_1 = require("./utils/manipulation");
-var ActionType;
-(function (ActionType) {
-    ActionType["CLOSE"] = "CLOSE";
-    ActionType["NEXT"] = "NEXT";
-    ActionType["PREVIOUS"] = "PREVIOUS";
-    ActionType["ZOOM_IN"] = "ZOOM_IN";
-    ActionType["ZOOM_OUT"] = "ZOOM_OUT";
-    ActionType["ROTATE_LEFT"] = "ROTATE_LEFT";
-    ActionType["ROTATE_RIGHT"] = "ROTATE_RIGHT";
-    ActionType["FLIP_VERTICAL"] = "FLIP_VERTICAL";
-    ActionType["FLIP_HORIZONTAL"] = "FLIP_HORIZONTAL";
-    ActionType["RESET_IMAGE"] = "RESET_IMAGE";
-    ActionType["SAVE"] = "SAVE";
-})(ActionType || (exports.ActionType = ActionType = {}));
-var IImageViewMode;
+import { jsx as _jsx } from "react/jsx-runtime";
+import { createContext, useContext, useReducer, useCallback, useEffect, } from "react";
+import { debuginfo } from "./utils/log";
+import { flipManipulation, handleReset, rotateManipulation, zoomManipulation, } from "./utils/manipulation";
+export var IImageViewMode;
 (function (IImageViewMode) {
     IImageViewMode["READER"] = "READER";
     IImageViewMode["IMAGE"] = "IMAGE";
-})(IImageViewMode || (exports.IImageViewMode = IImageViewMode = {}));
-var ILightboxImageType;
+})(IImageViewMode || (IImageViewMode = {}));
+export var ILightboxImageType;
 (function (ILightboxImageType) {
     ILightboxImageType["IMAGE"] = "IMAGE";
     ILightboxImageType["PDF"] = "PDF";
-})(ILightboxImageType || (exports.ILightboxImageType = ILightboxImageType = {}));
+    ILightboxImageType["UNINITIALISED"] = "UNINITIALISED";
+})(ILightboxImageType || (ILightboxImageType = {}));
 // Default state
 const defaultState = {
+    // Figure sources:
     images: [],
     pdfDocumentSrc: "",
-    currentImage: 0,
-    sourceType: ILightboxImageType.IMAGE,
+    // Figure state:
+    currentIndex: 0,
+    pageCount: 0,
+    pinnedFigureStates: [],
+    currentIndexIsPinned: false,
+    // View mode flags:
+    sourceType: ILightboxImageType.UNINITIALISED,
     viewMode: IImageViewMode.IMAGE,
-    pinnedImages: [],
-    currentImageIsPinned: false,
-    imageState: {
+    // Figure manipulation state
+    isDraggingFigure: false,
+    figureManipulation: {
         imageLoaded: false,
         error: null,
         left: 0,
@@ -53,66 +43,160 @@ const defaultState = {
     },
     showThumbnails: false,
     isLoading: false,
-    isDraggingImage: false,
 };
 // Reducer function for state mutations
 function lightboxReducer(state, action) {
     switch (action.type) {
         case "ZOOM_IN":
-            (0, log_1.debuginfo)("Handling zoom in");
-            const stateOnZoomIn = (0, manipulation_1.zoomManipulation)(false, state.imageState);
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), stateOnZoomIn) });
+            debuginfo("Handling zoom in");
+            const stateOnZoomIn = zoomManipulation(false, state.figureManipulation);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnZoomIn,
+                },
+            };
         case "ZOOM_OUT":
-            (0, log_1.debuginfo)("Handling zoom out");
-            const stateOnZoomOut = (0, manipulation_1.zoomManipulation)(true, state.imageState);
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), stateOnZoomOut) });
+            debuginfo("Handling zoom out");
+            const stateOnZoomOut = zoomManipulation(true, state.figureManipulation);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnZoomOut,
+                },
+            };
         case "ROTATE_LEFT":
-            (0, log_1.debuginfo)("Handling rotate left");
-            const stateOnRotateLeft = (0, manipulation_1.rotateManipulation)(state.imageState, false);
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), stateOnRotateLeft) });
+            debuginfo("Handling rotate left");
+            const stateOnRotateLeft = rotateManipulation(state.figureManipulation, false);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnRotateLeft,
+                },
+            };
         case "ROTATE_RIGHT":
-            (0, log_1.debuginfo)("Handling rotate right");
-            const stateOnRotateRight = (0, manipulation_1.rotateManipulation)(state.imageState, true);
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), stateOnRotateRight) });
+            debuginfo("Handling rotate right");
+            const stateOnRotateRight = rotateManipulation(state.figureManipulation, true);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnRotateRight,
+                },
+            };
         case "FLIP_HORIZONTAL":
-            (0, log_1.debuginfo)("Handling flip horizontal");
-            const stateOnFlipHorisontal = (0, manipulation_1.flipManipulation)(state.imageState, true);
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), stateOnFlipHorisontal) });
+            debuginfo("Handling flip horizontal");
+            const stateOnFlipHorisontal = flipManipulation(state.figureManipulation, true);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnFlipHorisontal,
+                },
+            };
         case "FLIP_VERTICAL":
-            (0, log_1.debuginfo)("Handling flip vertical");
-            const stateOnFlipVertical = (0, manipulation_1.flipManipulation)(state.imageState, false);
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), stateOnFlipVertical) });
+            debuginfo("Handling flip vertical");
+            const stateOnFlipVertical = flipManipulation(state.figureManipulation, false);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnFlipVertical,
+                },
+            };
         case "SET_STATE":
-            return Object.assign(Object.assign({}, state), action.payload);
+            return {
+                ...state,
+                ...action.payload,
+            };
         case "SET_IMAGES":
-            return Object.assign(Object.assign({}, state), { images: action.payload });
-        case "SET_CURRENT_IMAGE":
-            return Object.assign(Object.assign({}, state), { currentImageIsPinned: false, currentImage: Math.max(0, Math.min(action.payload, state.images.length - 1)) });
+            return {
+                ...state,
+                images: action.payload,
+            };
+        case "SET_CURRENT_INDEX":
+            return {
+                ...state,
+                currentIndexIsPinned: false,
+                currentIndex: Math.max(0, Math.min(action.payload, state.pageCount - 1)),
+            };
+        case "SET_PAGE_COUNT":
+            return {
+                ...state,
+                pageCount: action.payload,
+            };
         case "UPDATE_VIEW_STATE":
-            return Object.assign(Object.assign({}, state), { viewMode: action.payload, isDraggingImage: false });
+            return {
+                ...state,
+                viewMode: action.payload,
+                isDraggingFigure: false,
+            };
         case "SET_SOURCE_TYPE":
-            return Object.assign(Object.assign({}, state), { sourceType: action.payload, isDraggingImage: false });
-        case "PIN_IMAGE":
-            return Object.assign(Object.assign({}, state), { pinnedImages: [...state.pinnedImages, action.payload] });
-        case "UN_PIN_IMAGE":
-            const unpinned = state.pinnedImages.filter((_pin, index) => index !== action.payload);
-            return Object.assign(Object.assign({}, state), { pinnedImages: unpinned });
-        case "UPDATE_IMAGE_STATE":
-            return Object.assign(Object.assign({}, state), { imageState: Object.assign(Object.assign({}, state.imageState), action.payload) });
+            return {
+                ...state,
+                sourceType: action.payload,
+                isDraggingFigure: false,
+            };
+        case "PIN_FIGURE_STATE":
+            return {
+                ...state,
+                pinnedFigureStates: [...state.pinnedFigureStates, action.payload],
+            };
+        case "UNPIN_FIGURE_STATE":
+            const unpinned = state.pinnedFigureStates.filter((_pin, index) => index !== action.payload);
+            return {
+                ...state,
+                pinnedFigureStates: unpinned,
+            };
+        case "UPDATE_FIGURE_STATE":
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...action.payload,
+                },
+            };
         case "SET_SHOW_THUMBNAILS":
-            return Object.assign(Object.assign({}, state), { showThumbnails: action.payload });
+            return {
+                ...state,
+                showThumbnails: action.payload,
+            };
         case "SET_LOADING":
-            return Object.assign(Object.assign({}, state), { isLoading: action.payload });
+            return {
+                ...state,
+                isLoading: action.payload,
+            };
         case "SET_DRAGGING":
-            return Object.assign(Object.assign({}, state), { isDraggingImage: action.payload });
+            return {
+                ...state,
+                isDraggingFigure: action.payload,
+            };
         case "RESET_IMAGE":
-            (0, log_1.debuginfo)("Resetting image state");
-            const stateOnImageReset = (0, manipulation_1.handleReset)(state);
-            return Object.assign(Object.assign({}, state), { isDraggingImage: false, imageState: Object.assign(Object.assign({}, state.imageState), stateOnImageReset) });
-        case "GO_TO_PINNED_IMAGE":
-            (0, log_1.debuginfo)(`Going to pinned image at index: ${action.payload.index}`);
+            debuginfo("Resetting image state");
+            const stateOnImageReset = handleReset(state);
+            return {
+                ...state,
+                isDraggingFigure: false,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnImageReset,
+                },
+            };
+        case "GO_TO_PINNED_FIGURE_STATE":
+            debuginfo(`Going to pinned image at index: ${action.payload.index}`);
             const { index, updates } = action.payload;
-            return Object.assign(Object.assign({}, state), { currentImage: index, currentImageIsPinned: true, imageState: Object.assign(Object.assign({}, state.imageState), updates) });
+            return {
+                ...state,
+                currentIndex: index,
+                currentIndexIsPinned: true,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...updates,
+                },
+            };
         case "RESET_ALL":
             return defaultState;
         default:
@@ -120,139 +204,145 @@ function lightboxReducer(state, action) {
     }
 }
 // Create context
-const LightboxContext = (0, react_1.createContext)(undefined);
-const LightboxProvider = ({ children, initialState = {}, }) => {
-    const [state, dispatch] = (0, react_1.useReducer)(lightboxReducer, Object.assign(Object.assign({}, defaultState), initialState));
-    const setState = (0, react_1.useCallback)((newState) => {
+const LightboxContext = createContext(undefined);
+export const LightboxProvider = ({ children, initialState = {}, }) => {
+    const [state, dispatch] = useReducer(lightboxReducer, {
+        ...defaultState,
+        ...initialState,
+    });
+    const setState = useCallback((newState) => {
         dispatch({ type: "SET_STATE", payload: newState });
     }, []);
     // Convenience methods
-    const setImages = (0, react_1.useCallback)((images) => {
+    const setImages = useCallback((images) => {
         dispatch({ type: "SET_IMAGES", payload: images });
     }, []);
-    const setCurrentImage = (0, react_1.useCallback)((index) => {
-        dispatch({ type: "SET_CURRENT_IMAGE", payload: index });
+    const setCurrentIndex = useCallback((index) => {
+        dispatch({ type: "SET_CURRENT_INDEX", payload: index });
     }, []);
-    const updateImageState = (0, react_1.useCallback)((updates) => {
-        dispatch({ type: "UPDATE_IMAGE_STATE", payload: updates });
+    const setPageCount = useCallback((pages) => {
+        dispatch({ type: "SET_PAGE_COUNT", payload: pages });
     }, []);
-    const zoomIn = (0, react_1.useCallback)(() => {
-        (0, log_1.debuginfo)("Zoom in callback triggered");
+    const updateFigureManipulation = useCallback((updates) => {
+        dispatch({ type: "UPDATE_FIGURE_STATE", payload: updates });
+    }, []);
+    const zoomIn = useCallback(() => {
+        debuginfo("Zoom in callback triggered");
         dispatch({ type: "ZOOM_IN", payload: null });
     }, []);
-    const zoomOut = (0, react_1.useCallback)(() => {
-        (0, log_1.debuginfo)("Zoom out callback triggered");
+    const zoomOut = useCallback(() => {
+        debuginfo("Zoom out callback triggered");
         dispatch({ type: "ZOOM_OUT", payload: null });
     }, []);
-    const rotateLeft = (0, react_1.useCallback)(() => {
-        (0, log_1.debuginfo)("Rotate left callback triggered");
+    const rotateLeft = useCallback(() => {
+        debuginfo("Rotate left callback triggered");
         dispatch({ type: "ROTATE_LEFT", payload: null });
     }, []);
-    const flipVertical = (0, react_1.useCallback)(() => {
-        (0, log_1.debuginfo)("Flip vertical callback triggered");
+    const flipVertical = useCallback(() => {
+        debuginfo("Flip vertical callback triggered");
         dispatch({ type: "FLIP_VERTICAL", payload: null });
     }, []);
-    const flipHorisontal = (0, react_1.useCallback)(() => {
-        (0, log_1.debuginfo)("Flip horisontal callback triggered");
+    const flipHorisontal = useCallback(() => {
+        debuginfo("Flip horisontal callback triggered");
         dispatch({ type: "FLIP_HORIZONTAL", payload: null });
     }, []);
-    const rotateRight = (0, react_1.useCallback)(() => {
-        (0, log_1.debuginfo)("Rotate right callback triggered");
+    const rotateRight = useCallback(() => {
+        debuginfo("Rotate right callback triggered");
         dispatch({ type: "ROTATE_RIGHT", payload: null });
     }, []);
-    const setDraggingImage = (0, react_1.useCallback)((isDragging) => {
+    const setDraggingFigure = useCallback((isDragging) => {
         dispatch({ type: "SET_DRAGGING", payload: isDragging });
     }, []);
-    const resetImageState = (0, react_1.useCallback)(() => {
+    const resetMaipulationState = useCallback(() => {
         dispatch({ type: "RESET_IMAGE" });
     }, []);
-    const resetAll = (0, react_1.useCallback)(() => {
+    const resetAll = useCallback(() => {
         dispatch({ type: "RESET_ALL" });
     }, []);
-    const updateViewState = (0, react_1.useCallback)((viewMode) => {
-        (0, log_1.debuginfo)(`Updating view state to: ${viewMode}`);
+    const updateViewState = useCallback((viewMode) => {
+        debuginfo(`Updating view state to: ${viewMode}`);
         dispatch({ type: "UPDATE_VIEW_STATE", payload: viewMode });
         dispatch({ type: "RESET_IMAGE" });
     }, []);
-    const setSourceType = (0, react_1.useCallback)((sourceType) => {
-        (0, log_1.debuginfo)(`Updating view state to: ${sourceType}`);
+    const setSourceType = useCallback((sourceType) => {
+        debuginfo(`Updating view state to: ${sourceType}`);
         dispatch({ type: "SET_SOURCE_TYPE", payload: sourceType });
         dispatch({ type: "RESET_IMAGE" });
     }, []);
-    const pinImage = (0, react_1.useCallback)((state) => {
-        (0, log_1.debuginfo)(`Pinning image at index: ${state.imageIndex}`);
-        dispatch({ type: "PIN_IMAGE", payload: state });
+    const pinFigure = useCallback((state) => {
+        debuginfo(`Pinning image at index: ${state.imageIndex}`);
+        dispatch({ type: "PIN_FIGURE_STATE", payload: state });
     }, []);
-    const unPinImage = (0, react_1.useCallback)((imageIndex) => {
-        (0, log_1.debuginfo)(`Unpinning image at index: ${imageIndex}`);
-        dispatch({ type: "UN_PIN_IMAGE", payload: imageIndex });
+    const unPinFigure = useCallback((imageIndex) => {
+        debuginfo(`Unpinning image at index: ${imageIndex}`);
+        dispatch({ type: "UNPIN_FIGURE_STATE", payload: imageIndex });
     }, []);
-    const setLoading = (0, react_1.useCallback)((isLoading) => {
-        (0, log_1.debuginfo)(`Setting loading state to: ${isLoading}`);
+    const setLoading = useCallback((isLoading) => {
+        debuginfo(`Setting loading state to: ${isLoading}`);
         dispatch({ type: "SET_LOADING", payload: isLoading });
     }, []);
-    const goToPinnedImage = (0, react_1.useCallback)((index, updates) => {
-        (0, log_1.debuginfo)(`Going to pinned image at index: ${index}`);
-        dispatch({ type: "GO_TO_PINNED_IMAGE", payload: { index, updates } });
+    const goToPinnedFigure = useCallback((index, updates) => {
+        debuginfo(`Going to pinned image at index: ${index}`);
+        dispatch({
+            type: "GO_TO_PINNED_FIGURE_STATE",
+            payload: { index, updates },
+        });
     }, []);
     const contextValue = {
         state,
         dispatch,
         setState,
         setImages,
-        setCurrentImage,
+        setCurrentIndex,
         zoomIn,
         zoomOut,
         flipVertical,
         flipHorisontal,
         rotateLeft,
         rotateRight,
-        updateImageState,
-        setDraggingImage,
-        resetImageState,
+        updateFigureManipulation,
+        setDraggingFigure,
+        resetMaipulationState,
         resetAll,
         updateViewState,
-        goToPinnedImage,
-        pinImage,
-        unPinImage,
+        goToPinnedFigure,
+        pinFigure,
+        unPinFigure,
         setLoading,
-        setSourceType
+        setSourceType,
+        setPageCount,
     };
-    return ((0, jsx_runtime_1.jsx)(LightboxContext.Provider, { value: contextValue, children: children }));
+    return (_jsx(LightboxContext.Provider, { value: contextValue, children: children }));
 };
-exports.LightboxProvider = LightboxProvider;
-const useSetupState = (initialState) => {
-    const context = (0, react_1.useContext)(LightboxContext);
+export const useSetupState = (initialState) => {
+    const context = useContext(LightboxContext);
     if (!context) {
         throw new Error("useInitialiseState must be used within a LightboxProvider");
     }
     // Only initialize once when the component mounts
-    (0, react_1.useEffect)(() => {
+    useEffect(() => {
         context.setState(initialState);
     }, []); // Empty dependency array ensures this only runs once
 };
-exports.useSetupState = useSetupState;
 // Custom hook to use the lightbox context
-const useLightboxState = () => {
-    const context = (0, react_1.useContext)(LightboxContext);
+export const useLightboxState = () => {
+    const context = useContext(LightboxContext);
     if (context === undefined) {
         throw new Error("useLightboxState must be used within a LightboxProvider");
     }
     return context;
 };
-exports.useLightboxState = useLightboxState;
 // Custom hooks for specific state slices
-const useCurrentImage = () => {
-    const { state } = (0, exports.useLightboxState)();
-    const { images, currentImage } = state;
-    return images[currentImage];
+export const useCurrentImage = () => {
+    const { state } = useLightboxState();
+    const { images, currentIndex } = state;
+    return images[currentIndex];
 };
-exports.useCurrentImage = useCurrentImage;
-const useCallbackMethods = () => {
-    const { state } = (0, exports.useLightboxState)();
-    const { onClickImage, onClickNext, onClickPrev, onClose, onRotateLeft, onRotateRight, onZoomIn, onZoomOut, onSave, onClickThumbnail, } = state;
+export const useCallbackMethods = () => {
+    const { state } = useLightboxState();
+    const { onCLickFigure, onClickNext, onClickPrev, onClose, onRotateLeft, onRotateRight, onZoomIn, onZoomOut, onSave, onClickThumbnail, } = state;
     return {
-        onClickImage,
+        onCLickFigure,
         onClickNext,
         onClickPrev,
         onClose,
@@ -264,41 +354,38 @@ const useCallbackMethods = () => {
         onClickThumbnail,
     };
 };
-exports.useCallbackMethods = useCallbackMethods;
 // Custom hooks for specific state slices
-const useLightboxImages = () => {
-    const { state, setImages, setCurrentImage } = (0, exports.useLightboxState)();
+export const useLightboxImages = () => {
+    const { state, setImages, setCurrentIndex } = useLightboxState();
     return {
         images: state.images,
-        currentImage: state.currentImage,
-        currentImageData: state.images[state.currentImage],
+        currentIndex: state.currentIndex,
+        pageCount: state.pageCount,
+        currentFigureData: state.images[state.currentIndex],
         setImages,
-        setCurrentImage,
-        nextImage: () => setCurrentImage(state.currentImage + 1),
-        prevImage: () => setCurrentImage(state.currentImage - 1),
-        toImage: (index) => setCurrentImage(index),
-        hasNext: state.currentImage < state.images.length - 1,
-        hasPrev: state.currentImage > 0,
+        setCurrentIndex,
+        nextImage: () => setCurrentIndex(state.currentIndex + 1),
+        prevImage: () => setCurrentIndex(state.currentIndex - 1),
+        toImage: (index) => setCurrentIndex(index),
+        hasNext: state.currentIndex < state.images.length - 1,
+        hasPrev: state.currentIndex > 0,
     };
 };
-exports.useLightboxImages = useLightboxImages;
-const useLightboxImageState = () => {
-    const { state, updateImageState, resetImageState } = (0, exports.useLightboxState)();
+export const useLightboxManipulationState = () => {
+    const { state, updateFigureManipulation, resetMaipulationState } = useLightboxState();
     return {
-        imageState: state.imageState,
-        updateImageState,
-        resetImageState,
-        isLoaded: state.imageState.imageLoaded,
-        hasError: !!state.imageState.error,
+        manipulationState: state.figureManipulation,
+        updateFigureManipulation,
+        resetMaipulationState,
+        isLoaded: state.figureManipulation.imageLoaded,
+        hasError: !!state.figureManipulation.error,
     };
 };
-exports.useLightboxImageState = useLightboxImageState;
-const useLightboxDrag = () => {
-    const { state, setDraggingImage } = (0, exports.useLightboxState)();
+export const useLightboxDrag = () => {
+    const { state, setDraggingFigure } = useLightboxState();
     return {
-        isDragging: state.isDraggingImage,
-        setDraggingImage,
-        isAnyDragging: state.isDraggingImage,
+        isDragging: state.isDraggingFigure,
+        setDraggingFigure,
+        isAnyDragging: state.isDraggingFigure,
     };
 };
-exports.useLightboxDrag = useLightboxDrag;

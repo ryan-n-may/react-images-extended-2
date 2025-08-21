@@ -3,6 +3,7 @@ import {
   useCurrentImage,
   useLightboxState,
 } from "../ComponentState";
+import { debuginfo } from "../utils/log";
 import {
   ImageFullscreen,
   PdfFullscreen,
@@ -12,12 +13,12 @@ import { Draggable } from "./Wrappers";
 
 export function DraggableImageFullScreen() {
   const currentImage = useCurrentImage();
-  const { onClickImage } = useCallbackMethods();
+  const { onCLickFigure } = useCallbackMethods();
 
   return (
     <Draggable>
       <ImageFullscreen
-        onClick={onClickImage}
+        onClick={onCLickFigure}
         alt={currentImage.alt}
         src={currentImage.src}
       />
@@ -27,11 +28,11 @@ export function DraggableImageFullScreen() {
 
 export function DraggableReaderFullScreen() {
   const currentImage = useCurrentImage();
-  const { onClickImage } = useCallbackMethods();
+  const { onCLickFigure } = useCallbackMethods();
 
   const { state } = useLightboxState();
   const imageArray = state.images || [];
-  const currentImageIndex = state.currentImage || 0;
+  const currentImageIndex = state.currentIndex || 0;
   let nextIndex = currentImageIndex + 1;
   if (nextIndex >= imageArray.length) nextIndex = currentImageIndex;
 
@@ -41,12 +42,12 @@ export function DraggableReaderFullScreen() {
     <Draggable>
       <ReaderModeImageFullscreen
         image1={{
-          onClick: onClickImage,
+          onClick: onCLickFigure,
           alt: currentImage.alt,
           src: currentImage.src,
         }}
         image2={{
-          onClick: onClickImage,
+          onClick: onCLickFigure,
           alt: nextImage.alt,
           src: nextImage.src,
         }}
@@ -55,14 +56,15 @@ export function DraggableReaderFullScreen() {
   );
 }
 
-export function DraggablePdfFullscreen() {
-  const currentImage = useCurrentImage();
+export function DraggablePdfFullScreen() {
   const { state } = useLightboxState();
-  const { currentImage: index } = state;
+  const { currentIndex: index, pdfDocumentSrc } = state;
+
+  debuginfo(`DraggablePdfFullscreen props: ${pdfDocumentSrc} ${index}`);
 
   return (
     <Draggable>
-      <PdfFullscreen file={currentImage.src} pageNumber={index} />
+      <PdfFullscreen file={pdfDocumentSrc} pageNumber={index + 1} />
     </Draggable>
   );
 }

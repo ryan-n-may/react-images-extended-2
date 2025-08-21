@@ -1,37 +1,23 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useOpenPip = void 0;
-const jsx_runtime_1 = require("react/jsx-runtime");
-const ComponentState_1 = require("../ComponentState");
-const LightboxDPIPPage_1 = require("../pages/LightboxDPIPPage");
-const usePip_1 = require("./usePip");
-const useOpenPip = (lightboxState) => {
-    const { open: pipOpen, close, isOpen, window: targetWindowRef, } = (0, usePip_1.useDocumentPiP)();
-    const callbackMethods = (0, ComponentState_1.useCallbackMethods)();
-    const handlePipOpen = () => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
+import { jsx as _jsx } from "react/jsx-runtime";
+import { LightboxProvider, useCallbackMethods, } from "../ComponentState";
+import { LightboxDPIPPage } from "../pages/LightboxDPIPPage";
+import { useDocumentPiP } from "./usePip";
+export const useOpenPip = (lightboxState) => {
+    const { open: pipOpen, close, isOpen, window: targetWindowRef, } = useDocumentPiP();
+    const callbackMethods = useCallbackMethods();
+    const handlePipOpen = async () => {
         try {
-            pipOpen((0, jsx_runtime_1.jsx)(ComponentState_1.LightboxProvider, { initialState: lightboxState, children: (0, jsx_runtime_1.jsx)(LightboxDPIPPage_1.LightboxDPIPPage, { targetWindowRef: targetWindowRef !== null && targetWindowRef !== void 0 ? targetWindowRef : undefined }) })); // passing current state to pipOpen
-            (_a = callbackMethods.onClose) === null || _a === void 0 ? void 0 : _a.call(callbackMethods); // close main component when PIP opened
+            pipOpen(_jsx(LightboxProvider, { initialState: lightboxState, children: _jsx(LightboxDPIPPage, { targetWindowRef: targetWindowRef ?? undefined }) })); // passing current state to pipOpen
+            callbackMethods.onClose?.(); // close main component when PIP opened
         }
         catch (error) {
             console.error("Error opening Document PiP:", error);
             // Optionally handle the error, e.g., show a notification
         }
-    });
+    };
     return {
         open: handlePipOpen,
         close,
         isOpen,
     };
 };
-exports.useOpenPip = useOpenPip;

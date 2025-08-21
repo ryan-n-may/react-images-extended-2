@@ -1,6 +1,6 @@
 import {
   IImageViewMode,
-  ILightboxImageState,
+  ILightboxManipulationState,
   ILightboxState,
 } from "../ComponentState";
 import {
@@ -19,7 +19,7 @@ const SCALE_DIRECTION_NEGATIVE = -1;
 const SCALE_DIRECTION_POSITIVE = 1;
 
 // Get image center coordinates
-export function getImageCenterXY(state: ILightboxImageState): {
+export function getImageCenterXY(state: ILightboxManipulationState): {
   x: number;
   y: number;
 } {
@@ -50,8 +50,8 @@ export function getImgWidthHeight(
 // Handle zoom
 export function zoomManipulation(
   zoomingIn: boolean,
-  state: ILightboxImageState
-): Partial<ILightboxImageState> | undefined {
+  state: ILightboxManipulationState
+): Partial<ILightboxManipulationState> | undefined {
   const { scaleX, scaleY } = state;
 
   // Which way are we zooming?
@@ -77,9 +77,9 @@ export function zoomManipulation(
 
 // Handle rotate
 export function flipManipulation(
-  state: ILightboxImageState,
+  state: ILightboxManipulationState,
   isHorisontal: boolean = false
-): Partial<ILightboxImageState> {
+): Partial<ILightboxManipulationState> {
   const { scaleX, scaleY } = state;
 
   const newScaleX = scaleX * (isHorisontal ? -1 : 1);
@@ -94,9 +94,9 @@ export function flipManipulation(
 
 // Handle rotate
 export function rotateManipulation(
-  state: ILightboxImageState,
+  state: ILightboxManipulationState,
   isRight: boolean = false
-): Partial<ILightboxImageState> {
+): Partial<ILightboxManipulationState> {
   debuginfo(
     `Handling rotate: isRight=${isRight}, current rotate=${state.rotate}`
   );
@@ -111,40 +111,43 @@ export function rotateManipulation(
 }
 
 export interface IPinnedState {
-  imageState: ILightboxImageState;
+  imageState: ILightboxManipulationState;
   imageIndex: number;
 }
 
-export function pinImage(
-  state: ILightboxState
-): IPinnedState {
+export function handlePinFigure(state: ILightboxState): IPinnedState {
   return {
-    imageState: state.imageState,
-    imageIndex: state.currentImage,
+    imageState: state.figureManipulation,
+    imageIndex: state.currentIndex,
   };
 }
 
 export function handleReset(
   state: ILightboxState
-): Partial<ILightboxImageState> {
+): Partial<ILightboxManipulationState> {
   debuginfo("Handling reset: resetting image state to initial values");
   // Use requestAnimationFrame to batch the state update and prevent flashing
   const { height: windowHeight, width: windowWidth } = getWindowSize();
 
   const getImageAspectRatio = () => {
     if (state.viewMode === IImageViewMode.IMAGE) {
-      return state.imageState.imageWidth / state.imageState.imageHeight;
+      return (
+        state.figureManipulation.imageWidth /
+        state.figureManipulation.imageHeight
+      );
     }
 
-    const imageHeight = state.imageState.imageHeight;
-    const imageWidth = state.imageState.imageWidth * 2;
+    const imageHeight = state.figureManipulation.imageHeight;
+    const imageWidth = state.figureManipulation.imageWidth * 2;
 
     return imageWidth / imageHeight;
   };
 
   const imageAspectRatio = getImageAspectRatio();
 
-  console.log(`Image aspect ratio: ${imageAspectRatio}: ${state.imageState.imageWidth} / ${state.imageState.imageHeight}`);
+  console.log(
+    `Image aspect ratio: ${imageAspectRatio}: ${state.figureManipulation.imageWidth} / ${state.figureManipulation.imageHeight}`
+  );
 
   const imageHeightFillingScreen = windowHeight * IMAGE_MAX_SIZE_RATIO;
   const imageWidthFillingScreen = imageAspectRatio * imageHeightFillingScreen;

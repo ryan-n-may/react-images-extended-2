@@ -1,4 +1,4 @@
-import { ILightboxImageState, ILightboxState } from "../ComponentState";
+import { ILightboxManipulationState, ILightboxState } from "../ComponentState";
 import { debuginfo } from "./log";
 import { handleReset } from "./manipulation";
 import { IImage } from "./types";
@@ -21,10 +21,10 @@ export function normalizeSourceSet(data: IImage) {
 // Preload image
 export function preloadImage(
   state: ILightboxState,
-  updateImageState: (updates: Partial<ILightboxImageState>) => void,
+  updateImageState: (updates: Partial<ILightboxManipulationState>) => void,
   resetImageOnLoad: boolean
 ): HTMLImageElement {
-  const { images, currentImage: idx } = state;
+  const { images, currentIndex: idx } = state;
   console.log(`Preloading image at index: ${idx}`); // Debugging log
 
   const data = images?.[idx];
@@ -42,17 +42,17 @@ export function preloadImage(
     debuginfo(`Image dimensions: ${img.width}x${img.height}`); // Debugging log
     const stateIncludingImageAttributes: ILightboxState = {
       ...state,
-      imageState: {
-        ...state.imageState,
+      figureManipulation: {
+        ...state.figureManipulation,
         imageHeight: img.height,
         imageWidth: img.width,
       },
     };
     const resetImageState = resetImageOnLoad
       ? handleReset(stateIncludingImageAttributes)
-      : stateIncludingImageAttributes.imageState;
+      : stateIncludingImageAttributes.figureManipulation;
     updateImageState({
-      ...stateIncludingImageAttributes.imageState,
+      ...stateIncludingImageAttributes.figureManipulation,
       ...resetImageState,
       imageLoaded: true,
     });

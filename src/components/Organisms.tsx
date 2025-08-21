@@ -20,8 +20,12 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiddenPortal, Portal } from "./StyledComponents";
-import { IImageViewMode, useLightboxState } from "../ComponentState";
-import { pinImage } from "../utils/manipulation";
+import {
+  IImageViewMode,
+  useLightboxManipulationState,
+  useLightboxState,
+} from "../ComponentState";
+import { handlePinFigure } from "../utils/manipulation";
 
 interface IDefaultHeaderProps {
   pipControls?: {
@@ -37,7 +41,8 @@ interface IDefaultHeaderProps {
 
 export function DefaultHeader(props: IDefaultHeaderProps) {
   const lightboxState = useLightboxState();
-  const { imageLoaded } = lightboxState.state.imageState;
+  const { manipulationState } = useLightboxManipulationState();
+  const { imageLoaded } = manipulationState;
 
   const [showExtraControls, setShowExtraControls] = useState<boolean>(true);
   const toggleShowExtraControls = () =>
@@ -124,7 +129,7 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
       tooltip="Reset image position"
       key="reset-image"
       disabled={!imageLoaded}
-      onClick={() => lightboxState.resetImageState()}
+      onClick={() => lightboxState.resetMaipulationState()}
       icon={<RefreshCw color="white" />}
     />
   );
@@ -203,8 +208,8 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
       key="pin-image-button"
       disabled={!imageLoaded}
       onClick={() => {
-        const pinnedImage = pinImage(lightboxState.state);
-        lightboxState.pinImage(pinnedImage);
+        const pinnedFigure = handlePinFigure(lightboxState.state);
+        lightboxState.pinFigure(pinnedFigure);
       }}
       icon={<Pin color="white" />}
     />
