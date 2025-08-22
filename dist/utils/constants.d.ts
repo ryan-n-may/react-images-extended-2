@@ -1,5 +1,5 @@
 export declare const FOOTER_HEIGHT = 84;
-export declare const IMAGE_MAX_SIZE_RATIO = 0.75;
+export declare const IMAGE_MAX_SIZE_RATIO = 0.9;
 export declare const SCALE_STEP = 0.1;
 export declare const MIN_SCALE = 0.1;
 export declare const SCALE_PRECISION = 10;

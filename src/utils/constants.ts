@@ -1,6 +1,6 @@
 // Constants
 export const FOOTER_HEIGHT = 84;
-export const IMAGE_MAX_SIZE_RATIO = 0.75;
+export const IMAGE_MAX_SIZE_RATIO = 0.90;
 export const SCALE_STEP = 0.1;
 export const MIN_SCALE = 0.1;
 export const SCALE_PRECISION = 10;

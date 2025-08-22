@@ -57,6 +57,15 @@ export type LightboxAction = {
     type: "ZOOM_OUT";
     payload: null;
 } | {
+    type: "ZOOM_IN_TO_POINT";
+    payload: {
+        x: number;
+        y: number;
+    };
+} | {
+    type: "ZOOM_TO_FACTOR";
+    payload: number;
+} | {
     type: "ROTATE_LEFT";
     payload: null;
 } | {
@@ -126,6 +135,11 @@ export interface ILightboxContext {
     setLoading: (isLoading: boolean) => void;
     zoomIn: () => void;
     zoomOut: () => void;
+    zoomInToPoint: (position: {
+        x: number;
+        y: number;
+    }) => void;
+    zoomInToFactor: (notch: number) => void;
     rotateLeft: () => void;
     rotateRight: () => void;
     flipVertical: () => void;

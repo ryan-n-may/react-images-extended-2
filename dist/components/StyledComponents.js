@@ -10,19 +10,17 @@ export const ThumnailBar = (props) => (_jsx("div", { className: "bg-neutral-900 
 export const ThumbnailScroller = (props) => (_jsx("div", { className: "flex items-center justify-center gap-1 min-w-0", style: { zIndex: HEADER_Z_INDEX }, ...props }));
 export const VerticalThumbnailScroller = (props) => (_jsx("div", { className: "flex flex-col items-center justify-center gap-2 min-w-0 h-full overflow-y-auto", style: { zIndex: HEADER_Z_INDEX }, ...props }));
 export const LeftGradientThumbnail = (props) => {
-    const fractionalScale = (props.progressiveScale ?? 100) / 100;
     return (_jsx("img", { className: `w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-75 transform-gpu`, style: {
-            opacity: fractionalScale,
+            opacity: 0.5,
         }, ...props }));
 };
 export const RightGradientThumbnail = (props) => {
-    const fractionalScale = (props.progressiveScale ?? 100) / 100;
     return (_jsx("img", { className: `w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-75 transform-gpu`, style: {
-            opacity: fractionalScale,
+            opacity: 0.5,
         }, ...props }));
 };
-export const PinnedThumbnail = (props) => (_jsx("div", { className: "rounded-md border-2 border-white", children: _jsx("img", { className: `w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`, ...props }) }));
-export const NoGradientThumbnail = (props) => (_jsx("div", { className: "rounded-md border-2 border-white", children: _jsx("img", { className: `w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`, ...props }) }));
+export const PinnedThumbnail = (props) => (_jsx("img", { className: `w-8 h-8 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`, ...props }));
+export const NoGradientThumbnail = (props) => (_jsx("div", { className: "rounded-md border-4 border-white bg-white", children: _jsx("img", { className: `w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`, ...props }) }));
 export const Header = (props) => (_jsx("div", { className: "relative gap-2 flex items-center justify-center flex-wrap min-w-0", style: {
         zIndex: HEADER_Z_INDEX,
         ...props.style,
@@ -45,4 +43,4 @@ export const ReaderModeImageFullscreen = (props) => (_jsxs("div", { className: "
 export const ImageComponent = (props) => (_jsx("img", { className: "relative overflow-auto block", style: { zIndex: IMAGE_Z_INDEX }, ...props }));
 export const ImageContainer = (props) => (_jsx("div", { className: "relative w-full h-full flex items-center justify-center overflow-scroll", style: { zIndex: IMAGE_Z_INDEX }, ...props }));
 export const ImageSpinnerWrapper = (props) => (_jsx("div", { className: "flex items-center justify-center w-screen h-screen", ...props }));
-export const FigureContainerFullScreen = (props) => (_jsx("div", { className: "h-[80vh] w-full p-4 box-border flex flex-col items-center justify-center", ...props }));
+export const FigureContainerFullScreen = (props) => (_jsx("div", { className: "h-[100vh] w-full p-4 box-border flex flex-col items-center justify-center", ...props }));

@@ -18,9 +18,15 @@ export interface IIconSwitcherButtonProps {
 export declare function IconSwitcherButton({ onClick, icon, iconOnHover, disabled, }: IIconSwitcherButtonProps): import("react/jsx-runtime").JSX.Element;
 export interface IActionButtonProps {
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onHoldDown?: () => void;
     icon: JSX.Element;
     disabled?: boolean;
-    tooltip: string;
+    holdDelay?: number;
+    holdInterval?: number;
+    tooltip?: string;
 }
-export declare function ActionButtonAtom({ onClick, icon, tooltip, disabled, }: IActionButtonProps): import("react/jsx-runtime").JSX.Element;
+export declare function ActionButtonAtom({ onClick, onHoldDown, icon, holdDelay, // Start holding after 500ms
+holdInterval, // Repeat every 100ms
+disabled, }: IActionButtonProps): import("react/jsx-runtime").JSX.Element;
+export declare function GhostActionButtonAtom({ onClick, icon }: IActionButtonProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=Atoms.d.ts.map

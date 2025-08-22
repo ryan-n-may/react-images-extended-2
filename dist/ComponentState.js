@@ -1,7 +1,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useReducer, useCallback, useEffect, } from "react";
 import { debuginfo } from "./utils/log";
-import { flipManipulation, handleReset, rotateManipulation, zoomManipulation, } from "./utils/manipulation";
+import { flipManipulation, handleReset, rotateManipulation, zoomManipulation, zoomManipulationToPoint, zoomToAFactor, } from "./utils/manipulation";
 export var IImageViewMode;
 (function (IImageViewMode) {
     IImageViewMode["READER"] = "READER";
@@ -65,6 +65,25 @@ function lightboxReducer(state, action) {
                 figureManipulation: {
                     ...state.figureManipulation,
                     ...stateOnZoomOut,
+                },
+            };
+        case "ZOOM_IN_TO_POINT":
+            debuginfo("Handling zoom in to particular point");
+            const stateOnZoomInToPoint = zoomManipulationToPoint(state.figureManipulation, action.payload);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...stateOnZoomInToPoint,
+                },
+            };
+        case "ZOOM_TO_FACTOR":
+            const zoomToFactor = zoomToAFactor(action.payload);
+            return {
+                ...state,
+                figureManipulation: {
+                    ...state.figureManipulation,
+                    ...zoomToFactor,
                 },
             };
         case "ROTATE_LEFT":
@@ -234,6 +253,12 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
         debuginfo("Zoom out callback triggered");
         dispatch({ type: "ZOOM_OUT", payload: null });
     }, []);
+    const zoomInToPoint = useCallback((position) => {
+        dispatch({ type: "ZOOM_IN_TO_POINT", payload: position });
+    }, []);
+    const zoomInToFactor = useCallback((notch) => {
+        dispatch({ type: "ZOOM_TO_FACTOR", payload: notch });
+    }, []);
     const rotateLeft = useCallback(() => {
         debuginfo("Rotate left callback triggered");
         dispatch({ type: "ROTATE_LEFT", payload: null });
@@ -296,6 +321,8 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
         setCurrentIndex,
         zoomIn,
         zoomOut,
+        zoomInToPoint,
+        zoomInToFactor,
         flipVertical,
         flipHorisontal,
         rotateLeft,

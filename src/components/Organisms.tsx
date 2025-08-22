@@ -1,8 +1,6 @@
 import { ActionButtonAtom } from "./Atoms";
-import { HeaderMolecule } from "./Molecules";
+import { HeaderMolecule, ZoomMolecule } from "./Molecules";
 import {
-  ZoomIn,
-  ZoomOut,
   RotateCcwSquare,
   RotateCwSquare,
   RefreshCw,
@@ -10,8 +8,6 @@ import {
   FlipVertical2,
   ArrowRightToLine,
   ArrowLeftToLine,
-  PictureInPicture,
-  CircleArrowOutUpRight,
   Download,
   BookOpen,
   Image,
@@ -26,50 +22,20 @@ import {
   useLightboxState,
 } from "../ComponentState";
 import { handlePinFigure } from "../utils/manipulation";
-import { PACKAGE_VERSION } from "..";
 
-interface IDefaultHeaderProps {
-  pipControls?: {
-    open: () => Promise<void>;
-    isOpen: () => boolean;
-    close: () => void | undefined;
-  };
-
-  newTabControls?: {
-    open: () => Promise<void>;
-  };
-}
-
-export function DefaultHeader(props: IDefaultHeaderProps) {
+export function DefaultHeader() {
   const lightboxState = useLightboxState();
   const { manipulationState } = useLightboxManipulationState();
   const { imageLoaded } = manipulationState;
 
-  const [showExtraControls, setShowExtraControls] = useState<boolean>(true);
+  const [showExtraControls, setShowExtraControls] = useState<boolean>(false);
   const toggleShowExtraControls = () =>
     setShowExtraControls(!showExtraControls);
 
   const defaultActions = [];
   const extraActions = [];
 
-  defaultActions.push(
-    <div key="zoom-buttons" className="flex items-center gap-1">
-      <ActionButtonAtom
-        tooltip="Zoom in"
-        key="zoom-in"
-        disabled={!imageLoaded}
-        onClick={() => lightboxState.zoomIn()}
-        icon={<ZoomIn color="white" />}
-      />
-      <ActionButtonAtom
-        tooltip="Zoom out"
-        key="zoom-out"
-        disabled={!imageLoaded}
-        onClick={() => lightboxState.zoomOut()}
-        icon={<ZoomOut color="white" />}
-      />
-    </div>
-  );
+  defaultActions.push(<ZoomMolecule />);
 
   defaultActions.push(
     <div key="rotate-buttons" className="flex items-center gap-1">
@@ -88,6 +54,16 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
         icon={<RotateCwSquare color="white" />}
       />
     </div>
+  );
+
+  defaultActions.push(
+    <ActionButtonAtom
+      tooltip="Reset image position"
+      key="reset-image"
+      disabled={!imageLoaded}
+      onClick={() => lightboxState.resetMaipulationState()}
+      icon={<RefreshCw color="white" />}
+    />
   );
 
   defaultActions.push(
@@ -124,54 +100,6 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
       />
     </div>
   );
-
-  extraActions.push(
-    <ActionButtonAtom
-      tooltip="Reset image position"
-      key="reset-image"
-      disabled={!imageLoaded}
-      onClick={() => lightboxState.resetMaipulationState()}
-      icon={<RefreshCw color="white" />}
-    />
-  );
-
-  if (props.pipControls && PACKAGE_VERSION === "EXPERIMENTAL") {
-    const { open, isOpen, close } = props.pipControls;
-    extraActions.push(
-      <ActionButtonAtom
-        tooltip="Open PiP"
-        key="pip-button"
-        disabled={!imageLoaded}
-        onClick={() => {
-          if (isOpen()) close();
-          else
-            open().catch((error) => {
-              console.error("Error opening PiP:", error);
-              close();
-            });
-        }}
-        icon={<PictureInPicture color="white" />}
-      />
-    );
-  }
-
-  if (props.newTabControls && PACKAGE_VERSION === "EXPERIMENTAL") {
-    const { open } = props.newTabControls;
-    extraActions.push(
-      <ActionButtonAtom
-        tooltip="New tab"
-        key="open-new-tab-button"
-        disabled={!imageLoaded}
-        onClick={() => {
-          open().catch((error) => {
-            console.error("Error opening new tab:", error);
-            // we do not elect to control the new open tab; no close handlers
-          });
-        }}
-        icon={<CircleArrowOutUpRight color="white" />}
-      />
-    );
-  }
 
   extraActions.push(
     <ActionButtonAtom

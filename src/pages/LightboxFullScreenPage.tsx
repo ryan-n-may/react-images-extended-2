@@ -1,25 +1,26 @@
 import { useMemo } from "react";
-import { SpinnerAtom } from "../components/Atoms";
 import {
+  NextImageMolecule,
+  PageCountMolecule,
   PinnedImagesHeader,
+  PreviousImageMolecule,
   ThumbnailsMolecule,
 } from "../components/Molecules";
 import { Modal, DefaultHeader } from "../components/Organisms";
-import { FigureContainerFullScreen } from "../components/StyledComponents";
 import {
   useLightboxState,
   useLightboxManipulationState,
 } from "../ComponentState";
 import { useLoadImage } from "../hooks/useLoadImage";
 import { debuginfo } from "../utils/log";
-import { useOpenPip } from "../hooks/useOpenPip";
-import { useOpenTab } from "../hooks/useOpenTab";
 import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
+import { FigureContainerFullScreen } from "../components/StyledComponents";
+import { SpinnerAtom } from "../components/Atoms";
+import { HEADER_Z_INDEX } from "../utils/constants";
 
 export const LightboxFullScreenPage = () => {
   const lightboxState = useLightboxState();
-  const { images, currentIndex, showThumbnails, viewMode, sourceType } =
-    lightboxState.state;
+  const { images, currentIndex, viewMode, sourceType } = lightboxState.state;
   const { manipulationState } = useLightboxManipulationState();
   const { imageLoaded } = manipulationState;
 
@@ -34,21 +35,72 @@ export const LightboxFullScreenPage = () => {
     );
   }, [images, currentIndex, viewMode, imageLoaded, sourceType]);
 
-  const {
-    open: handlePipOpen,
-    isOpen,
-    close,
-  } = useOpenPip(lightboxState.state);
-  const { open: handleTabOpen } = useOpenTab(lightboxState.state);
-
   return (
     <>
-      <Modal key="lightbox-fullscreen-modal" hidden={false}>
-        <div key="lightbox-fullscreen">
-          <div className="fixed left-0 top-0 z-10 h-screen p-4">
+      <Modal hidden={false}>
+        <div role="lightbox-fullscreen" className="w-screen h-screen p-0">
+          {imageLoaded && (
+            <FigureContainerFullScreen>
+              {ImageCourasselFullscreen}
+            </FigureContainerFullScreen>
+          )}
+          {!imageLoaded && <SpinnerAtom />}
+          <div
+            className="fixed top-0 right-0 flex justify-end w-3/4"
+            role="top-right"
+            style={{ zIndex: HEADER_Z_INDEX }}
+          >
+            <DefaultHeader />
+          </div>
+
+          <div
+            className="fixed top-0 left-0 flex justify-start w-1/4"
+            role="top-left"
+            style={{ zIndex: HEADER_Z_INDEX }}
+          >
+            <PageCountMolecule />
+          </div>
+
+          <div
+            className="fixed bottom-1/2 left-0 flex justify-start w-1/4"
+            role="left-bar"
+            style={{ zIndex: HEADER_Z_INDEX }}
+          >
+            <PreviousImageMolecule />
+          </div>
+
+          <div
+            className="fixed bottom-1/2 right-0 flex justify-end w-1/4"
+            role="right-bar"
+            style={{ zIndex: HEADER_Z_INDEX }}
+          >
+            <NextImageMolecule />
+          </div>
+
+          <div
+            className="fixed bottom-0 flex justify-center w-full"
+            role="bottom-bar"
+            style={{ zIndex: HEADER_Z_INDEX }}
+          >
+            <div className="flex flex-col items-center space-y-2">
+              <PinnedImagesHeader />
+              <ThumbnailsMolecule />
+            </div>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+};
+
+/**
+ * <div className="fixed left-0 top-0 z-10 h-screen w-screen p-4">
             <PinnedImagesHeader key="pinned-images-header" />
           </div>
-          <div className="sticky top-0 z-10">
+ */
+
+/**
+           * <div className="sticky top-0 z-10">
             <DefaultHeader
               key="default-header"
               pipControls={{ open: handlePipOpen, close, isOpen }}
@@ -64,8 +116,4 @@ export const LightboxFullScreenPage = () => {
           <div className="sticky bottom-0 z-10">
             {showThumbnails && <ThumbnailsMolecule key="thumbnails" />}
           </div>
-        </div>
-      </Modal>
-    </>
-  );
-};
+           */

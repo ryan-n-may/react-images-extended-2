@@ -71,12 +71,11 @@ export const VerticalThumbnailScroller = (props: any) => (
 );
 
 export const LeftGradientThumbnail = (props: any) => {
-  const fractionalScale = (props.progressiveScale ?? 100) / 100;
   return (
     <img
       className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-75 transform-gpu`}
       style={{
-        opacity: fractionalScale,
+        opacity: 0.5,
       }}
       {...props}
     />
@@ -84,12 +83,11 @@ export const LeftGradientThumbnail = (props: any) => {
 };
 
 export const RightGradientThumbnail = (props: any) => {
-  const fractionalScale = (props.progressiveScale ?? 100) / 100;
   return (
     <img
       className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-75 transform-gpu`}
       style={{
-        opacity: fractionalScale,
+        opacity: 0.5,
       }}
       {...props}
     />
@@ -97,16 +95,14 @@ export const RightGradientThumbnail = (props: any) => {
 };
 
 export const PinnedThumbnail = (props: any) => (
-  <div className={"rounded-md border-2 border-white"}>
-    <img
-      className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`}
-      {...props}
-    />
-  </div>
+  <img
+    className={`w-8 h-8 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`}
+    {...props}
+  />
 );
 
 export const NoGradientThumbnail = (props: any) => (
-  <div className={"rounded-md border-2 border-white"}>
+  <div className={"rounded-md border-4 border-white bg-white"}>
     <img
       className={`w-12 h-12 relative object-cover rounded-md cursor-pointer shadow-md opacity-100 transform-gpu`}
       {...props}
@@ -209,7 +205,7 @@ export const ImageSpinnerWrapper = (props: any) => (
 
 export const FigureContainerFullScreen = (props: any) => (
   <div
-    className="h-[80vh] w-full p-4 box-border flex flex-col items-center justify-center"
+    className="h-[100vh] w-full p-4 box-border flex flex-col items-center justify-center"
     {...props}
   />
 );

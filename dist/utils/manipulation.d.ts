@@ -4,7 +4,12 @@ export declare function getImageCenterXY(state: ILightboxManipulationState): {
     y: number;
 };
 export declare function getImgWidthHeight(imgWidth: number, imgHeight: number): [number, number];
-export declare function zoomManipulation(zoomingIn: boolean, state: ILightboxManipulationState): Partial<ILightboxManipulationState> | undefined;
+export declare function zoomManipulationToPoint(state: ILightboxManipulationState, position: {
+    x: number;
+    y: number;
+}): Partial<ILightboxManipulationState> | undefined;
+export declare function zoomToAFactor(notchNumber: number): Partial<ILightboxManipulationState>;
+export declare function zoomManipulation(zoomingIn: boolean, state: ILightboxManipulationState, zoomFactor?: number): Partial<ILightboxManipulationState> | undefined;
 export declare function flipManipulation(state: ILightboxManipulationState, isHorisontal?: boolean): Partial<ILightboxManipulationState>;
 export declare function rotateManipulation(state: ILightboxManipulationState, isRight?: boolean): Partial<ILightboxManipulationState>;
 export interface IPinnedState {

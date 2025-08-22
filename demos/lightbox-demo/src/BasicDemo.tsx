@@ -8,8 +8,8 @@ import {
   CardBody,
   Heading,
 } from "@chakra-ui/react";
-import { Lightbox, IImage } from "react-images-extended-2";
-import "react-images-extended-2/dist/styles.css";
+import { Lightbox, IImage } from "react-images-extended-2-stable";
+import "react-images-extended-2-stable/dist/styles.css";
 
 // Demo images from public APIs
 const demoImages: IImage[] = [

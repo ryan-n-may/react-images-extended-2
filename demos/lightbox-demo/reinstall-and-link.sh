@@ -12,4 +12,4 @@ npm link
 echo "Linking react-images-extended-2 in your demo..."
 
 cd ../demos/lightbox-demo
-npm link react-images-extended-2
+npm link react-images-extended-2-stable

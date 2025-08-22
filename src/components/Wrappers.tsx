@@ -8,10 +8,12 @@ import {
   useEffect,
 } from "react";
 import {
+  ILightboxManipulationState,
   useLightboxManipulationState,
   useLightboxState,
 } from "../ComponentState";
 import { debuginfo } from "../utils/log";
+import { IMAGE_Z_INDEX } from "../utils/constants";
 
 export function Draggable({ children }: { children: ReactNode }) {
   const dragStartRef = useRef({ x: 0, y: 0 });
@@ -34,18 +36,27 @@ export function Draggable({ children }: { children: ReactNode }) {
       minWidth: `${manipulationState.width}px`,
       maxWidth: `${manipulationState.width}px`,
       height: "auto",
-      transform: `rotate(${manipulationState.rotate}deg) scaleX(${manipulationState.scaleX}) scaleY(${manipulationState.scaleY})`,
+      transform: `translate(-50%, -50%) translate(${left || 0}px, ${
+        top || 0
+      }px) rotate(${manipulationState.rotate}deg) scaleX(${
+        manipulationState.scaleX
+      }) scaleY(${manipulationState.scaleY})`,
       transformOrigin: "center",
       willChange: "transform",
-      transition: "none", // Remove transition to prevent flashing
+      transition: isDraggingFigure ? "none" : "transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)", // More visible smooth transitions when not dragging
       backfaceVisibility: "hidden" as const, // Prevent flashing on transform
       WebkitBackfaceVisibility: "hidden" as const,
-      WebkitTransform: `rotate(${manipulationState.rotate}deg) scaleX(${manipulationState.scaleX}) scaleY(${manipulationState.scaleY})`,
+      WebkitTransform: `translate(-50%, -50%) translate(${left || 0}px, ${
+        top || 0
+      }px) rotate(${manipulationState.rotate}deg) scaleX(${
+        manipulationState.scaleX
+      }) scaleY(${manipulationState.scaleY})`,
       position: "absolute" as const,
       display: "block",
+      zIndex: IMAGE_Z_INDEX, // Ensure image is below controls
 
-      left: `${left || 0}px`,
-      top: `${top || 0}px`,
+      left: "50%",
+      top: "50%",
       cursor: isDraggingFigure ? "grabbing" : "grab",
       // Additional properties to reduce flashing
       imageRendering: "crisp-edges" as const,
@@ -66,6 +77,7 @@ export function Draggable({ children }: { children: ReactNode }) {
       manipulationState.rotate,
       manipulationState.scaleX,
       manipulationState.scaleY,
+      isDraggingFigure, // Add this dependency so transition updates properly
     ]
   );
 
@@ -102,7 +114,7 @@ export function Draggable({ children }: { children: ReactNode }) {
       const newLeft = dragOffsetRef.current.x + deltaX;
       const newTop = dragOffsetRef.current.y + deltaY;
 
-      const updatedImageState = {
+      const updatedImageState: Partial<ILightboxManipulationState> = {
         left: newLeft,
         top: newTop,
       };
@@ -112,8 +124,26 @@ export function Draggable({ children }: { children: ReactNode }) {
     [isDraggingFigure, dragOffsetRef, dragStartRef]
   );
 
+  const handleDoubleClick = useCallback(
+    (event: MouseEvent<Element>) => {
+      event.preventDefault();
+
+      const clickX = event.clientX;
+      const clickY = event.clientY;
+
+      const deltaX = clickX - dragStartRef.current.x;
+      const deltaY = clickY - dragStartRef.current.y;
+
+      if (deltaX <= 1 && deltaY <= 1) {
+        lightboxState.zoomInToPoint({ x: clickX, y: clickY });
+      }
+
+      lightboxState.setDraggingFigure(false);
+    },
+    [lightboxState]
+  );
+
   const handleMouseUp = useCallback(() => {
-    //debuginfo("Mouse up event detected, stopping drag");
     lightboxState.setDraggingFigure(false);
   }, [lightboxState]);
 
@@ -124,6 +154,7 @@ export function Draggable({ children }: { children: ReactNode }) {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onDoubleClick={handleDoubleClick}
       style={wrapperStyle}
     >
       {children}

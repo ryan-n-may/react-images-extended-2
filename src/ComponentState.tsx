@@ -15,6 +15,8 @@ import {
   IPinnedState,
   rotateManipulation,
   zoomManipulation,
+  zoomManipulationToPoint,
+  zoomToAFactor,
 } from "./utils/manipulation";
 
 export interface ILightboxManipulationState {
@@ -89,6 +91,8 @@ export type LightboxAction =
   // Basic figure manipulation methods
   | { type: "ZOOM_IN"; payload: null }
   | { type: "ZOOM_OUT"; payload: null }
+  | { type: "ZOOM_IN_TO_POINT"; payload: { x: number; y: number } }
+  | { type: "ZOOM_TO_FACTOR"; payload: number }
   | { type: "ROTATE_LEFT"; payload: null }
   | { type: "ROTATE_RIGHT"; payload: null }
   | { type: "FLIP_VERTICAL"; payload: null }
@@ -192,6 +196,30 @@ function lightboxReducer(
         },
       };
 
+    case "ZOOM_IN_TO_POINT":
+      debuginfo("Handling zoom in to particular point");
+      const stateOnZoomInToPoint = zoomManipulationToPoint(
+        state.figureManipulation,
+        action.payload
+      );
+      return {
+        ...state,
+        figureManipulation: {
+          ...state.figureManipulation,
+          ...stateOnZoomInToPoint,
+        },
+      };
+
+    case "ZOOM_TO_FACTOR":
+      const zoomToFactor = zoomToAFactor(action.payload);
+      return {
+        ...state,
+        figureManipulation: {
+          ...state.figureManipulation,
+          ...zoomToFactor,
+        },
+      };
+
     case "ROTATE_LEFT":
       debuginfo("Handling rotate left");
       const stateOnRotateLeft = rotateManipulation(
@@ -264,7 +292,10 @@ function lightboxReducer(
       return {
         ...state,
         currentIndexIsPinned: false,
-        currentIndex: Math.max(0, Math.min(action.payload, state.pageCount - 1)),
+        currentIndex: Math.max(
+          0,
+          Math.min(action.payload, state.pageCount - 1)
+        ),
       };
 
     case "SET_PAGE_COUNT":
@@ -375,6 +406,8 @@ export interface ILightboxContext {
 
   zoomIn: () => void;
   zoomOut: () => void;
+  zoomInToPoint: (position: { x: number; y: number }) => void;
+  zoomInToFactor: (notch: number) => void;
 
   rotateLeft: () => void;
   rotateRight: () => void;
@@ -459,6 +492,14 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "ZOOM_OUT", payload: null });
   }, []);
 
+  const zoomInToPoint = useCallback((position: { x: number; y: number }) => {
+    dispatch({ type: "ZOOM_IN_TO_POINT", payload: position });
+  }, []);
+
+  const zoomInToFactor = useCallback((notch: number) => {
+    dispatch({ type: "ZOOM_TO_FACTOR", payload: notch });
+  }, []);
+
   const rotateLeft = useCallback(() => {
     debuginfo("Rotate left callback triggered");
     dispatch({ type: "ROTATE_LEFT", payload: null });
@@ -537,6 +578,8 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     setCurrentIndex,
     zoomIn,
     zoomOut,
+    zoomInToPoint,
+    zoomInToFactor,
     flipVertical,
     flipHorisontal,
     rotateLeft,
