@@ -15,7 +15,6 @@ import { debuginfo } from "../utils/log";
 import { useOpenPip } from "../hooks/useOpenPip";
 import { useOpenTab } from "../hooks/useOpenTab";
 import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
-import { usePdfMetadata } from "../hooks/usePdfMetadata";
 
 export const LightboxFullScreenPage = () => {
   const lightboxState = useLightboxState();
@@ -24,7 +23,6 @@ export const LightboxFullScreenPage = () => {
   const { manipulationState } = useLightboxManipulationState();
   const { imageLoaded } = manipulationState;
 
-  usePdfMetadata();
   useLoadImage();
 
   const ImageCourasselFullscreen = useMemo(() => {

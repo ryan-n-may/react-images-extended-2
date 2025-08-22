@@ -1,6 +1,6 @@
 {
   "name": "react-images-extended-2-stable",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A simple, responsive lightbox component for displaying an array of images with React.js with extended features ((stable version))",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,6 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react-pdf": "6.2.0",
     "@types/pdf-parse": "1.1.5",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
@@ -37,8 +36,7 @@
   "scripts": {
     "clear": "rm -rf dist && rm -rf node_modules",
     "build": "npm run build:css && npx tsc",
-    "build:css": "tailwindcss -i ./src/tailwind.css -o ./dist/styles.css --minify",
-    "build:worker": "mkdir -p dist && curl -L -o dist/pdf.worker.min.js https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.min.mjs"
+    "build:css": "tailwindcss -i ./src/tailwind.css -o ./dist/styles.css --minify"
   },
   "keywords": [
     "react",
