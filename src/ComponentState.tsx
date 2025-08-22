@@ -16,7 +16,6 @@ import {
   rotateManipulation,
   zoomManipulation,
 } from "./utils/manipulation";
-import { PageCount } from "./components/StyledComponents";
 
 export interface ILightboxManipulationState {
   imageLoaded: boolean;

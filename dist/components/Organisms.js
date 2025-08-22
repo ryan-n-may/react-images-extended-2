@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { HiddenPortal, Portal } from "./StyledComponents";
 import { IImageViewMode, useLightboxManipulationState, useLightboxState, } from "../ComponentState";
 import { handlePinFigure } from "../utils/manipulation";
+import { PACKAGE_VERSION } from "..";
 export function DefaultHeader(props) {
     const lightboxState = useLightboxState();
     const { manipulationState } = useLightboxManipulationState();
@@ -20,7 +21,7 @@ export function DefaultHeader(props) {
     defaultActions.push(_jsx(ActionButtonAtom, { tooltip: "Extra controls", disabled: !imageLoaded, onClick: () => toggleShowExtraControls(), icon: showExtraControls ? (_jsx(ArrowLeftToLine, { color: "white" })) : (_jsx(ArrowRightToLine, { color: "white" })) }, "toggle-collapse"));
     extraActions.push(_jsxs("div", { className: "flex items-center gap-1", children: [_jsx(ActionButtonAtom, { tooltip: "Flip vertical", disabled: !imageLoaded, onClick: () => lightboxState.flipVertical(), icon: _jsx(FlipVertical2, { color: "white" }) }, "flip-vertical"), _jsx(ActionButtonAtom, { tooltip: "Flip horizontal", disabled: !imageLoaded, onClick: () => lightboxState.flipHorisontal(), icon: _jsx(FlipHorizontal2, { color: "white" }) }, "flip-horisontal")] }, "flip-controls"));
     extraActions.push(_jsx(ActionButtonAtom, { tooltip: "Reset image position", disabled: !imageLoaded, onClick: () => lightboxState.resetMaipulationState(), icon: _jsx(RefreshCw, { color: "white" }) }, "reset-image"));
-    if (props.pipControls) {
+    if (props.pipControls && PACKAGE_VERSION === "EXPERIMENTAL") {
         const { open, isOpen, close } = props.pipControls;
         extraActions.push(_jsx(ActionButtonAtom, { tooltip: "Open PiP", disabled: !imageLoaded, onClick: () => {
                 if (isOpen())
@@ -32,7 +33,7 @@ export function DefaultHeader(props) {
                     });
             }, icon: _jsx(PictureInPicture, { color: "white" }) }, "pip-button"));
     }
-    if (props.newTabControls) {
+    if (props.newTabControls && PACKAGE_VERSION === "EXPERIMENTAL") {
         const { open } = props.newTabControls;
         extraActions.push(_jsx(ActionButtonAtom, { tooltip: "New tab", disabled: !imageLoaded, onClick: () => {
                 open().catch((error) => {

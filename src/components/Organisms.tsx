@@ -26,6 +26,7 @@ import {
   useLightboxState,
 } from "../ComponentState";
 import { handlePinFigure } from "../utils/manipulation";
+import { PACKAGE_VERSION } from "..";
 
 interface IDefaultHeaderProps {
   pipControls?: {
@@ -134,7 +135,7 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
     />
   );
 
-  if (props.pipControls) {
+  if (props.pipControls && PACKAGE_VERSION === "EXPERIMENTAL") {
     const { open, isOpen, close } = props.pipControls;
     extraActions.push(
       <ActionButtonAtom
@@ -154,7 +155,7 @@ export function DefaultHeader(props: IDefaultHeaderProps) {
     );
   }
 
-  if (props.newTabControls) {
+  if (props.newTabControls && PACKAGE_VERSION === "EXPERIMENTAL") {
     const { open } = props.newTabControls;
     extraActions.push(
       <ActionButtonAtom

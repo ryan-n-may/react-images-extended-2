@@ -4,6 +4,7 @@ import { LightboxProvider, useSetupState, ILightboxImageType, } from "./Componen
 import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
 import "./pdf";
 export const Lightbox = (props) => {
+    //if(props.allowExperimentalFeatures) PACKAGE_VERSION = "EXPERIMENTAL"; // add configurability to global state later. 
     return (_jsx(LightboxProvider, { children: _jsx(LightboxWrapper, { ...props }) }));
 };
 export function LightboxWrapper(props) {

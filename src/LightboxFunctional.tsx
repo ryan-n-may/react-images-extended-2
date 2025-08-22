@@ -17,14 +17,17 @@ export interface ICustomControl {
   isActive?: (state?: ILightboxState) => boolean;
 }
 
-export interface ILightboxProps {
+export interface ILightboxProps extends IStableLightboxProps {
   pdfSource?: string;
-  images?: Array<IImage>;
-
-  // Optional custom controls @todo: implement this.
   customControls?: Array<ICustomControl>;
 
-  // Callback methods
+  // Optional configurations
+  showCloseButton?: boolean;
+  showThumbnails?: boolean;
+}
+
+interface IStableLightboxProps {
+  images?: Array<IImage>;
   onClickImage?: () => void;
   onClickNext?: () => void;
   onClickPrev?: () => void;
@@ -39,12 +42,12 @@ export interface ILightboxProps {
   ) => void;
   onClickThumbnail?: () => void;
 
-  // Optional configurations
-  showCloseButton?: boolean;
-  showThumbnails?: boolean;
+  //allowExperimentalFeatures?: boolean; // add configurability to global state later. 
 }
 
 export const Lightbox = (props: ILightboxProps) => {
+  //if(props.allowExperimentalFeatures) PACKAGE_VERSION = "EXPERIMENTAL"; // add configurability to global state later. 
+
   return (
     <LightboxProvider>
       <LightboxWrapper {...props} />
