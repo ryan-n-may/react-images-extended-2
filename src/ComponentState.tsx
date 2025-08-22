@@ -64,6 +64,11 @@ export interface ILightboxState {
 
   // UI configuration
   showThumbnails: boolean;
+  resetImageOnLoad: boolean;
+  holdZoomDelay: number;
+  holdZoomInternal: number;
+
+  // UI State
   isLoading: boolean;
 
   // Callbacks
@@ -165,6 +170,10 @@ const defaultState: ILightboxState = {
   },
 
   showThumbnails: false,
+  resetImageOnLoad: true,
+  holdZoomDelay: 250, // ms
+  holdZoomInternal: 100, // ms
+
   isLoading: false,
 };
 

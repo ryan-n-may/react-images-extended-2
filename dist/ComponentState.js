@@ -42,6 +42,9 @@ const defaultState = {
         scaleY: 1,
     },
     showThumbnails: false,
+    resetImageOnLoad: true,
+    holdZoomDelay: 250, // ms
+    holdZoomInternal: 100, // ms
     isLoading: false,
 };
 // Reducer function for state mutations

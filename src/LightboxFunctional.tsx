@@ -19,14 +19,12 @@ export interface ICustomControl {
 export interface ILightboxProps extends IStableLightboxProps {
   pdfSource?: string;
   customControls?: Array<ICustomControl>;
-
-  // Optional configurations
-  showCloseButton?: boolean;
-  showThumbnails?: boolean;
 }
 
 interface IStableLightboxProps {
   images?: Array<IImage>;
+  currentImage?: number; // Default to first image
+
   onClickImage?: () => void;
   onClickNext?: () => void;
   onClickPrev?: () => void;
@@ -41,11 +39,15 @@ interface IStableLightboxProps {
   ) => void;
   onClickThumbnail?: () => void;
 
-  //allowExperimentalFeatures?: boolean; // add configurability to global state later. 
+  // Optional configurations
+  showThumbnails?: boolean;
+  zoomDelay?: number; // Delay in milliseconds for zoom actions
+  zoomInternal?: number; // Interval in milliseconds for zoom actions
+  resetImageOnLoad?: boolean; // Reset image state on load
 }
 
 export const Lightbox = (props: ILightboxProps) => {
-  //if(props.allowExperimentalFeatures) PACKAGE_VERSION = "EXPERIMENTAL"; // add configurability to global state later. 
+  //if(props.allowExperimentalFeatures) PACKAGE_VERSION = "EXPERIMENTAL"; // add configurability to global state later.
 
   return (
     <LightboxProvider>
@@ -64,8 +66,12 @@ export function LightboxWrapper(props: ILightboxProps) {
     onClickPrev,
     onClose,
     onSave,
-    showThumbnails,
     onClickThumbnail,
+    showThumbnails,
+    zoomDelay,
+    zoomInternal,
+    resetImageOnLoad,
+    currentImage,
   } = props;
 
   if (images && images.length > 0 && Boolean(pdfSource)) {
@@ -101,13 +107,17 @@ export function LightboxWrapper(props: ILightboxProps) {
         onSave,
         pageCount,
         images: images || [],
+        currentImage,
         pdfDocumentSrc: pdfSource || "",
         sourceType,
-        currentImage: 0, // Default to first image
+        zoomDelay,
+        zoomInternal,
+        resetImageOnLoad,
       } as Partial<ILightboxState>),
     [
       showThumbnails,
       pageCount,
+      currentImage,
       onClickThumbnail,
       onClickImage,
       onClickNext,
@@ -116,6 +126,9 @@ export function LightboxWrapper(props: ILightboxProps) {
       onSave,
       images,
       sourceType,
+      zoomDelay,
+      zoomInternal,
+      resetImageOnLoad,
     ]
   );
 

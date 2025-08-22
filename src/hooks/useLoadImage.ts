@@ -7,7 +7,7 @@ import { debuginfo } from "../utils/log";
 export function useLoadImage() {
   const lightboxContext = useLightboxState();
   const { state } = lightboxContext;
-  const { currentIndex, images, currentIndexIsPinned } = state;
+  const { currentIndex, images, currentIndexIsPinned, resetImageOnLoad } = state;
   useEffect(() => {
     debuginfo(`useLoadImage: currentImage index is ${currentIndex}`);
 
@@ -23,10 +23,11 @@ export function useLoadImage() {
       });
     }
 
+
     preloadImage(
       state,
       lightboxContext.updateFigureManipulation,
-      !currentIndexIsPinned
+      !currentIndexIsPinned || resetImageOnLoad
     );
   }, [currentIndex, preloadImage, images]);
 }

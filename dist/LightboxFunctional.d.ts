@@ -10,11 +10,10 @@ export interface ICustomControl {
 export interface ILightboxProps extends IStableLightboxProps {
     pdfSource?: string;
     customControls?: Array<ICustomControl>;
-    showCloseButton?: boolean;
-    showThumbnails?: boolean;
 }
 interface IStableLightboxProps {
     images?: Array<IImage>;
+    currentImage?: number;
     onClickImage?: () => void;
     onClickNext?: () => void;
     onClickPrev?: () => void;
@@ -28,6 +27,10 @@ interface IStableLightboxProps {
         rotation: number;
     }) => void;
     onClickThumbnail?: () => void;
+    showThumbnails?: boolean;
+    zoomDelay?: number;
+    zoomInternal?: number;
+    resetImageOnLoad?: boolean;
 }
 export declare const Lightbox: (props: ILightboxProps) => import("react/jsx-runtime").JSX.Element;
 export declare function LightboxWrapper(props: ILightboxProps): import("react/jsx-runtime").JSX.Element;

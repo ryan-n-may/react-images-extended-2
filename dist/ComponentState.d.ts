@@ -35,6 +35,9 @@ export interface ILightboxState {
     sourceType: ILightboxImageType;
     viewMode: IImageViewMode;
     showThumbnails: boolean;
+    resetImageOnLoad: boolean;
+    holdZoomDelay: number;
+    holdZoomInternal: number;
     isLoading: boolean;
     onCLickFigure?: () => void;
     onClickNext?: () => void;

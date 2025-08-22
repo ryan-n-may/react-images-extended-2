@@ -3,12 +3,12 @@ import { useMemo } from "react";
 import { LightboxProvider, useSetupState, ILightboxImageType, } from "./ComponentState";
 import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
 export const Lightbox = (props) => {
-    //if(props.allowExperimentalFeatures) PACKAGE_VERSION = "EXPERIMENTAL"; // add configurability to global state later. 
+    //if(props.allowExperimentalFeatures) PACKAGE_VERSION = "EXPERIMENTAL"; // add configurability to global state later.
     return (_jsx(LightboxProvider, { children: _jsx(LightboxWrapper, { ...props }) }));
 };
 export function LightboxWrapper(props) {
     // Might need to tweak requirements
-    const { images, pdfSource, onClickImage, onClickNext, onClickPrev, onClose, onSave, showThumbnails, onClickThumbnail, } = props;
+    const { images, pdfSource, onClickImage, onClickNext, onClickPrev, onClose, onSave, onClickThumbnail, showThumbnails, zoomDelay, zoomInternal, resetImageOnLoad, currentImage, } = props;
     if (images && images.length > 0 && Boolean(pdfSource)) {
         throw new Error("Cannot use pdfSource with images. Please provide either images or pdfSource.");
     }
@@ -35,12 +35,16 @@ export function LightboxWrapper(props) {
         onSave,
         pageCount,
         images: images || [],
+        currentImage,
         pdfDocumentSrc: pdfSource || "",
         sourceType,
-        currentImage: 0, // Default to first image
+        zoomDelay,
+        zoomInternal,
+        resetImageOnLoad,
     }), [
         showThumbnails,
         pageCount,
+        currentImage,
         onClickThumbnail,
         onClickImage,
         onClickNext,
@@ -49,6 +53,9 @@ export function LightboxWrapper(props) {
         onSave,
         images,
         sourceType,
+        zoomDelay,
+        zoomInternal,
+        resetImageOnLoad,
     ]);
     // transfer props to state
     useSetupState(initialState);

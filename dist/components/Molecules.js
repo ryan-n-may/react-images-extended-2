@@ -25,6 +25,7 @@ export function NextImageMolecule() {
         }, disabled: imageState.currentIndex >= imageState.pageCount - 1 }));
 }
 export function ThumbnailsMolecule() {
+    const { state } = useLightboxState();
     const imageState = useLightboxImages();
     const callBacks = useCallbackMethods();
     const currentImage = imageState.currentIndex;
@@ -37,6 +38,9 @@ export function ThumbnailsMolecule() {
     const noScrollImage = imageArray[currentImage];
     const leftScrollImage = imageArray.slice(minimalBackthumbnail, currentImage);
     const rightScrollImage = imageArray.slice(currentImage + 1, minimalForwardthumbnail + 1);
+    if (state.showThumbnails === false) {
+        return null; // Return null if thumbnails are not enabled
+    }
     return (_jsx(ThumnailBar, { children: imageArray.length > 0 && (_jsxs(ThumbnailScroller, { children: [leftScrollImage.map((image, index) => {
                     return (_jsx(LeftGradientThumbnail, { index: index, src: image.src, onClick: () => {
                             imageState.setCurrentIndex(minimalBackthumbnail + index);
@@ -86,7 +90,7 @@ export const PinnedImagesHeader = () => {
 export function ZoomMolecule() {
     const lightboxContext = useLightboxState();
     const { state } = lightboxContext;
-    const { figureManipulation } = state;
+    const { figureManipulation, holdZoomDelay, holdZoomInternal } = state;
     const { imageLoaded } = figureManipulation;
-    return (_jsxs("div", { className: "flex items-center gap-2", children: [_jsx(ActionButtonAtom, { tooltip: "Zoom in", disabled: !imageLoaded, onClick: () => lightboxContext.zoomIn(), onHoldDown: () => lightboxContext.zoomIn(), icon: _jsx(ZoomIn, { color: "white" }) }, "zoom-in"), _jsx(ActionButtonAtom, { tooltip: "Zoom out", disabled: !imageLoaded, onClick: () => lightboxContext.zoomOut(), onHoldDown: () => lightboxContext.zoomOut(), icon: _jsx(ZoomOut, { color: "white" }) }, "zoom-out")] }, "zoom-controls"));
+    return (_jsxs("div", { className: "flex items-center gap-2", children: [_jsx(ActionButtonAtom, { tooltip: "Zoom in", disabled: !imageLoaded, onClick: () => lightboxContext.zoomIn(), onHoldDown: () => lightboxContext.zoomIn(), holdDelay: holdZoomDelay, holdInterval: holdZoomInternal, icon: _jsx(ZoomIn, { color: "white" }) }, "zoom-in"), _jsx(ActionButtonAtom, { tooltip: "Zoom out", disabled: !imageLoaded, onClick: () => lightboxContext.zoomOut(), onHoldDown: () => lightboxContext.zoomOut(), holdDelay: holdZoomDelay, holdInterval: holdZoomInternal, icon: _jsx(ZoomOut, { color: "white" }) }, "zoom-out")] }, "zoom-controls"));
 }

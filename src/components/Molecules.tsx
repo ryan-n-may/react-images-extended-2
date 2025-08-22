@@ -63,6 +63,7 @@ export function NextImageMolecule() {
 }
 
 export function ThumbnailsMolecule() {
+  const { state } = useLightboxState();
   const imageState = useLightboxImages();
   const callBacks = useCallbackMethods();
 
@@ -81,6 +82,10 @@ export function ThumbnailsMolecule() {
     currentImage + 1,
     minimalForwardthumbnail + 1
   );
+
+  if (state.showThumbnails === false) {
+    return null; // Return null if thumbnails are not enabled
+  }
 
   return (
     <ThumnailBar>
@@ -234,7 +239,7 @@ export const PinnedImagesHeader = () => {
 export function ZoomMolecule() {
   const lightboxContext = useLightboxState();
   const { state } = lightboxContext;
-  const { figureManipulation } = state;
+  const { figureManipulation, holdZoomDelay, holdZoomInternal } = state;
   const { imageLoaded } = figureManipulation;
 
   return (
@@ -245,6 +250,8 @@ export function ZoomMolecule() {
         disabled={!imageLoaded}
         onClick={() => lightboxContext.zoomIn()}
         onHoldDown={() => lightboxContext.zoomIn()}
+        holdDelay={holdZoomDelay}
+        holdInterval={holdZoomInternal}
         icon={<ZoomIn color="white" />}
       />
 
@@ -254,6 +261,8 @@ export function ZoomMolecule() {
         disabled={!imageLoaded}
         onClick={() => lightboxContext.zoomOut()}
         onHoldDown={() => lightboxContext.zoomOut()}
+        holdDelay={holdZoomDelay}
+        holdInterval={holdZoomInternal}
         icon={<ZoomOut color="white" />}
       />
     </div>
