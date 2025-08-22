@@ -19,7 +19,6 @@ export declare const PageCount: (props: any) => import("react/jsx-runtime").JSX.
 export declare const HeaderPiP: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const ImageFullscreen: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const ReaderModeImageFullscreen: (props: any) => import("react/jsx-runtime").JSX.Element;
-export declare const PdfFullscreen: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const ImageComponent: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const ImageContainer: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const ImageSpinnerWrapper: (props: any) => import("react/jsx-runtime").JSX.Element;

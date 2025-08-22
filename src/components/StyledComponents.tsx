@@ -1,11 +1,9 @@
-import { useState } from "react";
 import {
   HEADER_Z_INDEX,
   FOOTER_Z_INDEX,
   MODAL_Z_INDEX,
   IMAGE_Z_INDEX,
 } from "../utils/constants";
-import { Document, Page } from "react-pdf";
 
 // Portal Components
 export const HiddenPortal = (props: any) => (
@@ -185,61 +183,6 @@ export const ReaderModeImageFullscreen = (props: any) => (
     />
   </div>
 );
-
-export const PdfFullscreen = (props: any) => {
-  const [_numPages, setNumPages] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  console.log("PdfFullscreen props:", props); // Debug log
-
-  return (
-    <div className="relative w-full h-full flex items-center justify-center bg-gray-100">
-      <Document
-        file={props.file}
-        onLoadSuccess={({ numPages }) => {
-          console.log("PDF loaded successfully, pages:", numPages);
-          setNumPages(numPages);
-          setError(null);
-        }}
-        onLoadError={(error) => {
-          console.error("PDF load error:", error);
-          setError("Failed to load PDF");
-        }}
-        loading={
-          <div className="text-black bg-white p-4 rounded">Loading PDF...</div>
-        }
-        error={
-          <div className="text-red-500 bg-white p-4 rounded">
-            Error loading PDF: {error}
-          </div>
-        }
-      >
-        <Page
-          pageNumber={props.pageNumber || 1}
-          onLoadSuccess={() => {
-            console.log("Page loaded successfully");
-          }}
-          onLoadError={(error) => {
-            console.error("Page load error:", error);
-          }}
-          loading={
-            <div className="text-black bg-white p-4 rounded">
-              Loading page...
-            </div>
-          }
-          error={
-            <div className="text-red-500 bg-white p-4 rounded">
-              Error loading page
-            </div>
-          }
-          renderTextLayer={false}
-          renderAnnotationLayer={false}
-          width={Math.min(window.innerWidth * 0.8, 800)}
-        />
-      </Document>
-    </div>
-  );
-};
 
 export const ImageComponent = (props: any) => (
   <img

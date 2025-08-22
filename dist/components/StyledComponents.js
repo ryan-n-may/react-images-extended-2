@@ -1,7 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useState } from "react";
 import { HEADER_Z_INDEX, FOOTER_Z_INDEX, MODAL_Z_INDEX, IMAGE_Z_INDEX, } from "../utils/constants";
-import { Document, Page } from "react-pdf";
 // Portal Components
 export const HiddenPortal = (props) => (_jsx("div", { className: "fixed inset-0 w-screen h-screen flex items-center justify-center invisible bg-transparent", style: { zIndex: -MODAL_Z_INDEX }, ...props }));
 export const Portal = (props) => (_jsx("div", { className: "fixed inset-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-90", style: { zIndex: MODAL_Z_INDEX }, ...props }));
@@ -44,23 +42,6 @@ export const HeaderPiP = (props) => (_jsx("div", { className: "bg-gray-100 bg-op
 // Image Components
 export const ImageFullscreen = (props) => (_jsx("img", { className: "relative w-full h-full overflow-auto", style: { zIndex: IMAGE_Z_INDEX }, ...props }));
 export const ReaderModeImageFullscreen = (props) => (_jsxs("div", { className: "flex w-full h-full gap-2", ...props.manipulation, children: [_jsx("img", { index: 1, className: "relative w-full h-full overflow-auto block", style: { zIndex: IMAGE_Z_INDEX }, ...props.image1 }), _jsx("img", { index: 2, className: "relative w-full h-full overflow-auto block", style: { zIndex: IMAGE_Z_INDEX }, ...props.image2 })] }));
-export const PdfFullscreen = (props) => {
-    const [_numPages, setNumPages] = useState(null);
-    const [error, setError] = useState(null);
-    console.log("PdfFullscreen props:", props); // Debug log
-    return (_jsx("div", { className: "relative w-full h-full flex items-center justify-center bg-gray-100", children: _jsx(Document, { file: props.file, onLoadSuccess: ({ numPages }) => {
-                console.log("PDF loaded successfully, pages:", numPages);
-                setNumPages(numPages);
-                setError(null);
-            }, onLoadError: (error) => {
-                console.error("PDF load error:", error);
-                setError("Failed to load PDF");
-            }, loading: _jsx("div", { className: "text-black bg-white p-4 rounded", children: "Loading PDF..." }), error: _jsxs("div", { className: "text-red-500 bg-white p-4 rounded", children: ["Error loading PDF: ", error] }), children: _jsx(Page, { pageNumber: props.pageNumber || 1, onLoadSuccess: () => {
-                    console.log("Page loaded successfully");
-                }, onLoadError: (error) => {
-                    console.error("Page load error:", error);
-                }, loading: _jsx("div", { className: "text-black bg-white p-4 rounded", children: "Loading page..." }), error: _jsx("div", { className: "text-red-500 bg-white p-4 rounded", children: "Error loading page" }), renderTextLayer: false, renderAnnotationLayer: false, width: Math.min(window.innerWidth * 0.8, 800) }) }) }));
-};
 export const ImageComponent = (props) => (_jsx("img", { className: "relative overflow-auto block", style: { zIndex: IMAGE_Z_INDEX }, ...props }));
 export const ImageContainer = (props) => (_jsx("div", { className: "relative w-full h-full flex items-center justify-center overflow-scroll", style: { zIndex: IMAGE_Z_INDEX }, ...props }));
 export const ImageSpinnerWrapper = (props) => (_jsx("div", { className: "flex items-center justify-center w-screen h-screen", ...props }));

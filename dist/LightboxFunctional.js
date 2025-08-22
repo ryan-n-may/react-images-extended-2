@@ -2,7 +2,6 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import { useMemo } from "react";
 import { LightboxProvider, useSetupState, ILightboxImageType, } from "./ComponentState";
 import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
-import "./pdf";
 export const Lightbox = (props) => {
     //if(props.allowExperimentalFeatures) PACKAGE_VERSION = "EXPERIMENTAL"; // add configurability to global state later. 
     return (_jsx(LightboxProvider, { children: _jsx(LightboxWrapper, { ...props }) }));

@@ -3,10 +3,8 @@ import {
   useCurrentImage,
   useLightboxState,
 } from "../ComponentState";
-import { debuginfo } from "../utils/log";
 import {
   ImageFullscreen,
-  PdfFullscreen,
   ReaderModeImageFullscreen,
 } from "./StyledComponents";
 import { Draggable } from "./Wrappers";
@@ -52,19 +50,6 @@ export function DraggableReaderFullScreen() {
           src: nextImage.src,
         }}
       />
-    </Draggable>
-  );
-}
-
-export function DraggablePdfFullScreen() {
-  const { state } = useLightboxState();
-  const { currentIndex: index, pdfDocumentSrc } = state;
-
-  debuginfo(`DraggablePdfFullscreen props: ${pdfDocumentSrc} ${index}`);
-
-  return (
-    <Draggable>
-      <PdfFullscreen file={pdfDocumentSrc} pageNumber={index + 1} />
     </Draggable>
   );
 }

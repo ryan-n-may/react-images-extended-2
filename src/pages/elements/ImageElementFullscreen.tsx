@@ -1,6 +1,5 @@
 import {
   DraggableImageFullScreen,
-  DraggablePdfFullScreen,
   DraggableReaderFullScreen,
 } from "../../components/Draggable";
 import {
@@ -16,19 +15,12 @@ export interface IImageElementFullscreenProps {
 
 export function ImageElementFullscreen(props: IImageElementFullscreenProps) {
   const { state } = props;
-  const { images, currentIndex, viewMode, sourceType, pdfDocumentSrc } = state;
+  const { images, currentIndex, viewMode, sourceType } = state;
 
   if (sourceType === ILightboxImageType.PDF) {
-    if (!pdfDocumentSrc) {
-      console.error("PDF source is not provided.");
-      return null;
-    }
-
-    debuginfo(
-      `Rendering DraggablePdfFullscreen for currentImage: ${currentIndex}, ${pdfDocumentSrc}`
+    throw new Error(
+      "Experimental feature not supported in this version of react-iamges-extended-2."
     );
-
-    return <DraggablePdfFullScreen key="pdf-reader-draggable-fullscreen" />;
   } else if (sourceType === ILightboxImageType.IMAGE) {
     if (!images[currentIndex]) {
       console.error("Image source is not provided.");

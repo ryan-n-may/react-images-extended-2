@@ -1,7 +1,7 @@
 {
-  "name": "react-images-extended-2",
+  "name": "react-images-extended-2-stable",
   "version": "1.1.0",
-  "description": "A simple, responsive lightbox component for displaying an array of images with React.js with extended features",
+  "description": "A simple, responsive lightbox component for displaying an array of images with React.js with extended features ((stable version))",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "style": "dist/styles.css",
@@ -17,8 +17,7 @@
   "dependencies": {
     "lucide-react": "0.536.0",
     "ts": "0.2.2",
-    "typescript": "5.4.3",
-    "react-pdf": "10.1.0"
+    "typescript": "5.4.3"
   },
   "peerDependencies": {
     "react": "^18.2.0",

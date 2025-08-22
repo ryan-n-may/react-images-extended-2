@@ -7,7 +7,6 @@ import {
 } from "./ComponentState";
 import { IImage } from "./utils/types";
 import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
-import "./pdf";
 
 export interface ICustomControl {
   label: string;

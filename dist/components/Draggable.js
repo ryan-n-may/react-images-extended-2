@@ -1,7 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { useCallbackMethods, useCurrentImage, useLightboxState, } from "../ComponentState";
-import { debuginfo } from "../utils/log";
-import { ImageFullscreen, PdfFullscreen, ReaderModeImageFullscreen, } from "./StyledComponents";
+import { ImageFullscreen, ReaderModeImageFullscreen, } from "./StyledComponents";
 import { Draggable } from "./Wrappers";
 export function DraggableImageFullScreen() {
     const currentImage = useCurrentImage();
@@ -27,10 +26,4 @@ export function DraggableReaderFullScreen() {
                 alt: nextImage.alt,
                 src: nextImage.src,
             } }) }));
-}
-export function DraggablePdfFullScreen() {
-    const { state } = useLightboxState();
-    const { currentIndex: index, pdfDocumentSrc } = state;
-    debuginfo(`DraggablePdfFullscreen props: ${pdfDocumentSrc} ${index}`);
-    return (_jsx(Draggable, { children: _jsx(PdfFullscreen, { file: pdfDocumentSrc, pageNumber: index + 1 }) }));
 }
