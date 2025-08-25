@@ -14,8 +14,7 @@ import {
   flipManipulation,
   handleReset,
   rotateManipulation,
-  zoomManipulation,
-  zoomManipulationToPoint,
+  zoomManipulation
 } from "./utils/manipulation";
 
 export interface ILightboxManipulationState {
@@ -71,6 +70,7 @@ export interface ILightboxState {
   isNavigating: boolean; // Add this to track navigation state
   navigationDirection: 'left' | 'right' | null; // Track slide direction
   isAnimating: boolean; // Track if slide animation is active
+  windowRef: Window | null; // Reference to the current window
 
   // Callbacks
   onCLickFigure?: () => void;
@@ -109,6 +109,7 @@ export type LightboxAction =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_NAVIGATING"; payload: boolean }
   | { type: "SET_ANIMATION_STATE"; payload: { isAnimating: boolean; direction?: 'left' | 'right' | null } }
+  | { type: "SET_WINDOW_REF"; payload: Window | null }
 
   // Setting overall lightbox state
   | { type: "SET_STATE"; payload: Partial<ILightboxState> }
@@ -150,6 +151,7 @@ const defaultState: ILightboxState = {
   isNavigating: false,
   navigationDirection: null,
   isAnimating: false,
+  windowRef: typeof window !== 'undefined' ? window : null,
 };
 
 // Reducer function for state mutations
@@ -181,22 +183,6 @@ function lightboxReducer(
         ...stateOnZoomOut,
       };
       updatedFigures[currentIndex] = updatedFigureZoomOut;
-      return {
-        ...state,
-        figures: updatedFigures,
-      };
-
-    case "ZOOM_IN_TO_POINT":
-      debuginfo("Handling zoom in to particular point");
-      const stateOnZoomInToPoint = zoomManipulationToPoint(
-        currentFigure,
-        action.payload
-      );
-      const updatedFigureZoomToPoint = {
-        ...currentFigure,
-        ...stateOnZoomInToPoint,
-      };
-      updatedFigures[currentIndex] = updatedFigureZoomToPoint;
       return {
         ...state,
         figures: updatedFigures,
@@ -337,6 +323,12 @@ function lightboxReducer(
         navigationDirection: action.payload.direction || state.navigationDirection,
       };
 
+    case "SET_WINDOW_REF":
+      return {
+        ...state,
+        windowRef: action.payload,
+      };
+
     case "SET_DRAGGING":
       return {
         ...state,
@@ -379,10 +371,10 @@ export interface ILightboxContext {
   setLoading: (isLoading: boolean) => void;
   setNavigating: (isNavigating: boolean) => void;
   setAnimationState: (isAnimating: boolean, direction?: 'left' | 'right' | null) => void;
+  setWindowRef: (windowRef: Window | null) => void;
 
   zoomIn: () => void;
   zoomOut: () => void;
-  zoomInToPoint: (position: { x: number; y: number }) => void;
   zoomInToFactor: (notch: number) => void;
 
   rotateLeft: () => void;
@@ -454,10 +446,6 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "ZOOM_OUT", payload: null });
   }, []);
 
-  const zoomInToPoint = useCallback((position: { x: number; y: number }) => {
-    dispatch({ type: "ZOOM_IN_TO_POINT", payload: position });
-  }, []);
-
   const zoomInToFactor = useCallback((notch: number) => {
     dispatch({ type: "ZOOM_TO_FACTOR", payload: notch });
   }, []);
@@ -494,6 +482,10 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "SET_ANIMATION_STATE", payload: { isAnimating, direction } });
   }, []);
 
+  const setWindowRef = useCallback((windowRef: Window | null) => {
+    dispatch({ type: "SET_WINDOW_REF", payload: windowRef });
+  }, []);
+
   const resetMaipulationState = useCallback(() => {
     dispatch({ type: "RESET_IMAGE" });
   }, []);
@@ -515,7 +507,6 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     setCurrentIndex,
     zoomIn,
     zoomOut,
-    zoomInToPoint,
     zoomInToFactor,
     flipVertical,
     flipHorisontal,
@@ -525,6 +516,7 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     setDraggingFigure,
     setNavigating,
     setAnimationState,
+    setWindowRef,
     resetMaipulationState,
     resetAll,
     setLoading,

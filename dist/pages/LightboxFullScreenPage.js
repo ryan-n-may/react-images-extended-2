@@ -8,14 +8,14 @@ import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
 import { FigureContainerFullScreen } from "../components/StyledComponents";
 import { SpinnerAtom } from "../components/Atoms";
 import { HEADER_Z_INDEX } from "../utils/constants";
-import { useListenForGestures } from "../hooks/useListenForGestures";
+import { useWindowResize } from "../hooks/useWindowResize";
 export const LightboxFullScreenPage = () => {
     const lightboxState = useLightboxState();
     const { figures, currentIndex } = lightboxState.state;
     const currentFigure = figures?.[currentIndex] ?? {};
     const { imageLoaded } = currentFigure;
+    useWindowResize();
     useLoadImage();
-    useListenForGestures();
     const ImageCourasselFullscreen = useMemo(() => {
         return (_jsx("figure", { role: "image-courassel-fullscreen", children: _jsx(ImageElementFullscreen, {}) }));
     }, [figures]); // Remove currentIndex dependency to prevent remounting

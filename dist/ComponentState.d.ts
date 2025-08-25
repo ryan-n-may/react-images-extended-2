@@ -40,6 +40,7 @@ export interface ILightboxState {
     isNavigating: boolean;
     navigationDirection: 'left' | 'right' | null;
     isAnimating: boolean;
+    windowRef: Window | null;
     onCLickFigure?: () => void;
     onClickNext?: () => void;
     onClickPrev?: () => void;
@@ -97,6 +98,9 @@ export type LightboxAction = {
         direction?: 'left' | 'right' | null;
     };
 } | {
+    type: "SET_WINDOW_REF";
+    payload: Window | null;
+} | {
     type: "SET_STATE";
     payload: Partial<ILightboxState>;
 } | {
@@ -127,12 +131,9 @@ export interface ILightboxContext {
     setLoading: (isLoading: boolean) => void;
     setNavigating: (isNavigating: boolean) => void;
     setAnimationState: (isAnimating: boolean, direction?: 'left' | 'right' | null) => void;
+    setWindowRef: (windowRef: Window | null) => void;
     zoomIn: () => void;
     zoomOut: () => void;
-    zoomInToPoint: (position: {
-        x: number;
-        y: number;
-    }) => void;
     zoomInToFactor: (notch: number) => void;
     rotateLeft: () => void;
     rotateRight: () => void;

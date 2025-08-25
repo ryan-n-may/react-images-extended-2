@@ -16,7 +16,7 @@ export const ScrollableImageContainer = forwardRef(({ children }, ref) => {
     const containerWidth = portraitPage ? scaledWidth : scaledHeight;
     const containerHeight = portraitPage ? scaledHeight : scaledWidth;
     // Minimum size should be at least the viewport size
-    const minWidth = window.innerWidth * 0.8;
+    const minWidth = window.innerWidth; // Full viewport width since each image container is 100vw
     const minHeight = window.innerHeight;
     // Expose scroll control methods
     useImperativeHandle(ref, () => ({
@@ -84,15 +84,14 @@ export const ScrollableImageContainer = forwardRef(({ children }, ref) => {
             width: "100vw", // Full viewport width for each image
             height: "100vh",
             overflow: "auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             zIndex: IMAGE_Z_INDEX - 1,
             flexShrink: 0, // Prevent flex shrinking
         }, children: _jsx("div", { style: {
                 position: "relative",
                 width: `${Math.max(containerWidth, minWidth)}px`,
                 height: `${Math.max(containerHeight, minHeight)}px`,
+                minWidth: "100vw", // Ensure minimum viewport width
+                minHeight: "100vh", // Ensure minimum viewport height
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

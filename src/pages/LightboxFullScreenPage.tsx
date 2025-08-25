@@ -12,7 +12,7 @@ import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
 import { FigureContainerFullScreen } from "../components/StyledComponents";
 import { SpinnerAtom } from "../components/Atoms";
 import { HEADER_Z_INDEX } from "../utils/constants";
-import { useListenForGestures } from "../hooks/useListenForGestures";
+import { useWindowResize } from "../hooks/useWindowResize";
 
 export const LightboxFullScreenPage = () => {
   const lightboxState = useLightboxState();
@@ -20,8 +20,8 @@ export const LightboxFullScreenPage = () => {
   const currentFigure = figures?.[currentIndex] ?? {};
   const { imageLoaded } = currentFigure;
 
+  useWindowResize();
   useLoadImage();
-  useListenForGestures();
 
   const ImageCourasselFullscreen = useMemo(() => {
     return (

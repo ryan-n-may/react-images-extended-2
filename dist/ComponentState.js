@@ -1,7 +1,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useReducer, useCallback, useEffect, useRef, } from "react";
 import { debuginfo } from "./utils/log";
-import { flipManipulation, handleReset, rotateManipulation, zoomManipulation, zoomManipulationToPoint, } from "./utils/manipulation";
+import { flipManipulation, handleReset, rotateManipulation, zoomManipulation } from "./utils/manipulation";
 export var IImageViewMode;
 (function (IImageViewMode) {
     IImageViewMode["READER"] = "READER";
@@ -31,6 +31,7 @@ const defaultState = {
     isNavigating: false,
     navigationDirection: null,
     isAnimating: false,
+    windowRef: typeof window !== 'undefined' ? window : null,
 };
 // Reducer function for state mutations
 function lightboxReducer(state, action) {
@@ -56,18 +57,6 @@ function lightboxReducer(state, action) {
                 ...stateOnZoomOut,
             };
             updatedFigures[currentIndex] = updatedFigureZoomOut;
-            return {
-                ...state,
-                figures: updatedFigures,
-            };
-        case "ZOOM_IN_TO_POINT":
-            debuginfo("Handling zoom in to particular point");
-            const stateOnZoomInToPoint = zoomManipulationToPoint(currentFigure, action.payload);
-            const updatedFigureZoomToPoint = {
-                ...currentFigure,
-                ...stateOnZoomInToPoint,
-            };
-            updatedFigures[currentIndex] = updatedFigureZoomToPoint;
             return {
                 ...state,
                 figures: updatedFigures,
@@ -187,6 +176,11 @@ function lightboxReducer(state, action) {
                 isAnimating: action.payload.isAnimating,
                 navigationDirection: action.payload.direction || state.navigationDirection,
             };
+        case "SET_WINDOW_REF":
+            return {
+                ...state,
+                windowRef: action.payload,
+            };
         case "SET_DRAGGING":
             return {
                 ...state,
@@ -243,9 +237,6 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
         debuginfo("Zoom out callback triggered");
         dispatch({ type: "ZOOM_OUT", payload: null });
     }, []);
-    const zoomInToPoint = useCallback((position) => {
-        dispatch({ type: "ZOOM_IN_TO_POINT", payload: position });
-    }, []);
     const zoomInToFactor = useCallback((notch) => {
         dispatch({ type: "ZOOM_TO_FACTOR", payload: notch });
     }, []);
@@ -274,6 +265,9 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
     const setAnimationState = useCallback((isAnimating, direction) => {
         dispatch({ type: "SET_ANIMATION_STATE", payload: { isAnimating, direction } });
     }, []);
+    const setWindowRef = useCallback((windowRef) => {
+        dispatch({ type: "SET_WINDOW_REF", payload: windowRef });
+    }, []);
     const resetMaipulationState = useCallback(() => {
         dispatch({ type: "RESET_IMAGE" });
     }, []);
@@ -292,7 +286,6 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
         setCurrentIndex,
         zoomIn,
         zoomOut,
-        zoomInToPoint,
         zoomInToFactor,
         flipVertical,
         flipHorisontal,
@@ -302,6 +295,7 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
         setDraggingFigure,
         setNavigating,
         setAnimationState,
+        setWindowRef,
         resetMaipulationState,
         resetAll,
         setLoading,

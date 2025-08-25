@@ -10,6 +10,7 @@ import {
   ScrollableImageContainer,
   ScrollableImageContainerRef,
 } from "./Wrappers";
+import { zoomManipulationToPoint } from "../utils/manipulation";
 
 export function ImageArrayFullScreen() {
   const lightboxContext = useLightboxState();
@@ -93,67 +94,65 @@ export const ImageAtIndexFullScreenMemo = memo(
     const scrollRef = useRef<ScrollableImageContainerRef>(null);
 
     // Integrated zoom-to-point with scroll adjustment
+
     const handleZoomToPoint = useCallback(
       (clickX: number, clickY: number) => {
-        // Get the current scroll container element
-        const scrollContainer = scrollRef.current;
-        if (!scrollContainer) return;
+        console.log("Viewport click at:", clickX, clickY);
 
-        // Get the current scale before zoom
-        const oldScaleX = currentFigure.scaleX || 1;
+        // Get the scroll container and image elements
+        const scrollContainer = scrollRef.current?.getContainerElement();
+        const imageElement = scrollContainer?.querySelector("img");
 
-        // First, perform the zoom operation
-        lightboxState.zoomInToPoint({ x: clickX, y: clickY });
+        if (!scrollContainer || !imageElement) return;
 
-        // Use requestAnimationFrame for more precise timing - runs on next frame
+        // Get the image's position within the scroll container
+        const imageRect = imageElement.getBoundingClientRect();
+
+        // Convert viewport coordinates to image-relative coordinates
+        const imageRelativeX =
+          clickX - imageRect.left + scrollContainer.scrollLeft;
+        const imageRelativeY =
+          clickY - imageRect.top + scrollContainer.scrollTop;
+
+        console.log("Image-relative click at:", imageRelativeX, imageRelativeY);
+        console.log(
+          "As fraction of image:",
+          imageRelativeX / imageRect.width,
+          imageRelativeY / imageRect.height
+        );
+
+        // Now zoom
+        const { scaleX, scaleY, zoomFactor } = zoomManipulationToPoint(currentFigure) ?? {};
+        if (!scaleX || !scaleY) return;
+
+        lightboxState.updateFigureManipulation({ scaleX, scaleY, zoomFactor });
+
+        // Calculate where that same point will be after scaling
+        const scaleRatio = scaleX / currentFigure.scaleX;
+        const newImageRelativeX = imageRelativeX * scaleRatio;
+        const newImageRelativeY = imageRelativeY * scaleRatio;
+
+        console.log(
+          "New image-relative position:",
+          newImageRelativeX,
+          newImageRelativeY
+        );
+
+        // Scroll to keep that point centered
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            const containerElement = scrollContainer.getContainerElement();
-            if (containerElement) {
-              const containerRect = containerElement.getBoundingClientRect();
-              const currentScroll = scrollContainer.getScrollPosition();
+            const containerWidth = scrollContainer.clientWidth;
+            const containerHeight = scrollContainer.clientHeight;
 
-              // Get the new scale after zoom (need to get updated figure)
-              // Since we can't easily get the updated figure, let's estimate the scale change
-              // Based on the scaleFactors array: [1, 1.25, 1.5, 2.5, 4, 6]
-              const currentZoomFactor = currentFigure.zoomFactor || oldScaleX;
-              const scaleFactors = [1, 1.25, 1.5, 2.5, 4, 6];
-              const newScaleFactor =
-                currentZoomFactor === scaleFactors[4]
-                  ? scaleFactors[1]
-                  : scaleFactors[4];
-
-              // Calculate the scale ratio
-              const scaleRatio = newScaleFactor / currentZoomFactor;
-
-              // Calculate the relative position within the scroll container BEFORE zoom
-              const relativeX = clickX - containerRect.left + currentScroll.x;
-              const relativeY = clickY - containerRect.top + currentScroll.y;
-
-              // After zoom, the same logical point will be at a different pixel location
-              // Scale the relative position by the zoom ratio
-              const scaledRelativeX = relativeX * scaleRatio;
-              const scaledRelativeY = relativeY * scaleRatio;
-
-              // Center the clicked point in the viewport after zoom
-              const newScrollX = scaledRelativeX - containerRect.width / 2;
-              const newScrollY = scaledRelativeY - containerRect.height / 2;
-
-              scrollContainer.scrollTo(
-                Math.max(0, newScrollX),
-                Math.max(0, newScrollY),
-                "auto" // Use 'auto' for instant, non-animated scroll
-              );
-            }
+            scrollRef.current?.scrollTo(
+              newImageRelativeX - containerWidth / 2,
+              newImageRelativeY - containerHeight / 2,
+              "auto"
+            );
           });
         });
       },
-      [
-        lightboxState,
-        currentFigure.scaleX,
-        currentFigure.scaleY,
-        currentFigure.zoomFactor,
-      ]
+      [lightboxState, currentFigure.scaleX, currentFigure.scaleY]
     );
 
     const handleDoubleClick = useCallback(
@@ -169,7 +168,6 @@ export const ImageAtIndexFullScreenMemo = memo(
           handleZoomToPoint(clickX, clickY);
         } else {
           // Fallback to default zoom behavior
-          lightboxState.zoomInToPoint({ x: clickX, y: clickY });
         }
 
         lightboxState.setDraggingFigure(false);

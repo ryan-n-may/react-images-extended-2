@@ -2,7 +2,6 @@ import { ILightboxTrackedImage } from "../ComponentState";
 import {
   FULL_ROTATION,
   IMAGE_MAX_SIZE_RATIO,
-  MIN_SCALE,
   ROTATE_STEP,
 } from "./constants";
 import { debuginfo } from "./log";
@@ -49,10 +48,9 @@ export function getImgWidthHeight(
 export const scaleFactors = [1, 1.25, 1.5, 2.5, 4, 6];
 
 export function zoomManipulationToPoint(
-  figure: ILightboxTrackedImage,
-  position: { x: number; y: number }
+  figure: ILightboxTrackedImage
 ): Partial<ILightboxTrackedImage> | undefined {
-  const { scaleX, scaleY, left, top, zoomFactor } = figure;
+  const { zoomFactor } = figure;
 
   const newScale =
     zoomFactor === scaleFactors[4] ? scaleFactors[0] : scaleFactors[4];
@@ -61,39 +59,10 @@ export function zoomManipulationToPoint(
   const newScaleX = newScale;
   const newScaleY = newScale;
 
-  if (newScaleX < MIN_SCALE || newScaleY < MIN_SCALE) return undefined;
-
-  // Get viewport center (since our CSS positions the image at 50%, 50%)
-  const { width: windowWidth, height: windowHeight } = getWindowSize();
-  const viewportCenterX = windowWidth / 2;
-  const viewportCenterY = windowHeight / 2;
-
-  // Current image center in viewport coordinates
-  const currentImageCenterX = viewportCenterX + left;
-  const currentImageCenterY = viewportCenterY + top;
-
-  // Click position relative to current image center
-  const clickRelativeToCenterX = position.x - currentImageCenterX;
-  const clickRelativeToCenterY = position.y - currentImageCenterY;
-
-  // Convert click position to unscaled image coordinates
-  const unscaledClickX = clickRelativeToCenterX / scaleX;
-  const unscaledClickY = clickRelativeToCenterY / scaleY;
-
-  // Calculate where the image center should move to keep the clicked point stationary
-  const newImageCenterX = position.x - unscaledClickX * newScaleX;
-  const newImageCenterY = position.y - unscaledClickY * newScaleY;
-
-  // Convert back to offset from viewport center
-  const newLeft = newImageCenterX - viewportCenterX;
-  const newTop = newImageCenterY - viewportCenterY;
-
   return {
     scaleX: newScaleX,
     scaleY: newScaleY,
-    left: newLeft,
-    top: newTop,
-    zoomFactor: newScale
+    zoomFactor: newScale,
   };
 }
 
@@ -125,8 +94,6 @@ export function zoomManipulation(
   // Scale the image
   const newScaleX = updatedScale;
   const newScaleY = updatedScale;
-
-  if (newScaleX < MIN_SCALE || newScaleY < MIN_SCALE) return undefined;
 
   return {
     scaleX: newScaleX,
