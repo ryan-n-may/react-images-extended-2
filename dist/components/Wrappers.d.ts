@@ -13,8 +13,7 @@ export interface ScrollableImageContainerRef {
 export declare const ScrollableImageContainer: import("react").ForwardRefExoticComponent<{
     children: ReactNode;
 } & import("react").RefAttributes<ScrollableImageContainerRef>>;
-export declare function Draggable({ children, onZoomToPoint, }: {
+export declare function StyledImageWrapper({ children }: {
     children: ReactNode;
-    onZoomToPoint?: (clickX: number, clickY: number) => void;
 }): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=Wrappers.d.ts.map

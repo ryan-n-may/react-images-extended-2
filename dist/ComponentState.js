@@ -29,6 +29,8 @@ const defaultState = {
     holdZoomInternal: 100, // ms
     isLoading: false,
     isNavigating: false,
+    navigationDirection: null,
+    isAnimating: false,
 };
 // Reducer function for state mutations
 function lightboxReducer(state, action) {
@@ -134,6 +136,8 @@ function lightboxReducer(state, action) {
             if (newIndex === state.currentIndex) {
                 return state; // No change needed
             }
+            // Determine animation direction
+            const direction = newIndex > state.currentIndex ? 'right' : 'left';
             const updatedFiguresOnIndexChange = [...state.figures];
             const currentFigureOnIndexChange = state.figures[state.currentIndex];
             const updatedFigureOnIndexChange = { ...currentFigureOnIndexChange, imageLoaded: false };
@@ -143,6 +147,8 @@ function lightboxReducer(state, action) {
                 currentIndex: newIndex,
                 figures: updatedFiguresOnIndexChange,
                 isNavigating: true, // Set navigating state when changing images
+                navigationDirection: direction,
+                isAnimating: true, // Start animation when changing images
             };
         case "SET_PAGE_COUNT":
             return {
@@ -174,6 +180,12 @@ function lightboxReducer(state, action) {
             return {
                 ...state,
                 isNavigating: action.payload,
+            };
+        case "SET_ANIMATION_STATE":
+            return {
+                ...state,
+                isAnimating: action.payload.isAnimating,
+                navigationDirection: action.payload.direction || state.navigationDirection,
             };
         case "SET_DRAGGING":
             return {
@@ -259,6 +271,9 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
     const setNavigating = useCallback((isNavigating) => {
         dispatch({ type: "SET_NAVIGATING", payload: isNavigating });
     }, []);
+    const setAnimationState = useCallback((isAnimating, direction) => {
+        dispatch({ type: "SET_ANIMATION_STATE", payload: { isAnimating, direction } });
+    }, []);
     const resetMaipulationState = useCallback(() => {
         dispatch({ type: "RESET_IMAGE" });
     }, []);
@@ -286,6 +301,7 @@ export const LightboxProvider = ({ children, initialState = {}, }) => {
         updateFigureManipulation,
         setDraggingFigure,
         setNavigating,
+        setAnimationState,
         resetMaipulationState,
         resetAll,
         setLoading,

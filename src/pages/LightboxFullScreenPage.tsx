@@ -12,6 +12,7 @@ import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
 import { FigureContainerFullScreen } from "../components/StyledComponents";
 import { SpinnerAtom } from "../components/Atoms";
 import { HEADER_Z_INDEX } from "../utils/constants";
+import { useListenForGestures } from "../hooks/useListenForGestures";
 
 export const LightboxFullScreenPage = () => {
   const lightboxState = useLightboxState();
@@ -20,6 +21,7 @@ export const LightboxFullScreenPage = () => {
   const { imageLoaded } = currentFigure;
 
   useLoadImage();
+  useListenForGestures();
 
   const ImageCourasselFullscreen = useMemo(() => {
     return (
@@ -27,17 +29,15 @@ export const LightboxFullScreenPage = () => {
         <ImageElementFullscreen />
       </figure>
     );
-  }, [figures, currentIndex, imageLoaded]);
+  }, [figures]); // Remove currentIndex dependency to prevent remounting
 
   return (
     <>
       <Modal hidden={false}>
         <div role="lightbox-fullscreen" className="w-screen h-screen p-0">
-          {imageLoaded && (
-            <FigureContainerFullScreen>
-              {ImageCourasselFullscreen}
-            </FigureContainerFullScreen>
-          )}
+          <FigureContainerFullScreen>
+            {ImageCourasselFullscreen}
+          </FigureContainerFullScreen>
           {!imageLoaded && <SpinnerAtom />}
           <div
             className="fixed top-0 right-0 flex justify-end w-3/4"

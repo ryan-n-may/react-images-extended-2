@@ -1,40 +1,52 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { useRef, useCallback, useEffect } from "react";
-import { useCallbackMethods, useCurrentFigure, useLightboxState, } from "../ComponentState";
+import { useRef, useCallback, memo, useEffect } from "react";
+import { useLightboxState, } from "../ComponentState";
 import { ImageFullscreen } from "./StyledComponents";
-import { Draggable, ScrollableImageContainer, } from "./Wrappers";
-export function DraggableImageFullScreen() {
-    const currentFigure = useCurrentFigure();
-    const { onCLickFigure } = useCallbackMethods();
-    const lightboxState = useLightboxState();
-    const { state } = lightboxState;
-    const { currentIndex } = state;
-    const scrollRef = useRef(null);
-    const handleScrollChange = useCallback((_event) => {
-        const scrollPos = scrollRef.current?.getScrollPosition();
-        lightboxState.updateFigureManipulation({
-            scrollX: scrollPos?.x || 0,
-            scrollY: scrollPos?.y || 0,
-        });
-    }, [scrollRef]);
+import { StyledImageWrapper, ScrollableImageContainer, } from "./Wrappers";
+export function ImageArrayFullScreen() {
+    const lightboxContext = useLightboxState();
+    const { state } = lightboxContext;
+    const { figures, currentIndex } = state;
+    const carouselRef = useRef(null);
+    // Handle transition properly with a two-step process
     useEffect(() => {
-        const cleanup = scrollRef.current?.addScrollListener(handleScrollChange);
-        return cleanup;
-    }, []);
-    useEffect(() => {
-        console.log(`on mount scroll to save position: ${currentFigure.scrollX}, ${currentFigure.scrollY}`);
-        // On mount, scroll to the saved position
-        const scrollPos = {
-            x: currentFigure.scrollX || 0,
-            y: currentFigure.scrollY || 0,
-        };
-        const scrollContainer = scrollRef.current;
-        if (!scrollContainer)
-            return;
-        requestAnimationFrame(() => {
-            scrollContainer.scrollTo(scrollPos.x, scrollPos.y, "auto");
-        });
+        if (carouselRef.current) {
+            const element = carouselRef.current;
+            // First, ensure transition is set
+            element.style.transition = "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
+            // Then, on next frame, apply the transform
+            requestAnimationFrame(() => {
+                element.style.transform = `translateX(-${currentIndex * 100}vw)`;
+            });
+        }
     }, [currentIndex]);
+    const components = figures.map((_figure, index) => (_jsx(ImageAtIndexFullScreen, { componentIndex: index }, index)));
+    return (_jsx("div", { style: {
+            position: "relative",
+            width: "100vw",
+            height: "100vh",
+            overflow: "hidden", // Hide the horizontal scroll
+        }, children: _jsx("div", { ref: carouselRef, style: {
+                display: "flex",
+                flexDirection: "row",
+                width: `${figures.length * 100}vw`, // Each image takes full viewport width
+                height: "100vh",
+                transform: `translateX(-${currentIndex * 100}vw)`, // Initial position
+                transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                willChange: "transform",
+            }, children: components }) }));
+}
+export function ImageAtIndexFullScreen(props) {
+    const { componentIndex } = props;
+    const lightboxContext = useLightboxState();
+    const { state } = lightboxContext;
+    const { figures } = state;
+    const currentFigure = figures[componentIndex] || {};
+    return (_jsx(ImageAtIndexFullScreenMemo, { lightboxState: lightboxContext, currentFigure: currentFigure }));
+}
+export const ImageAtIndexFullScreenMemo = memo((props) => {
+    const { currentFigure, lightboxState } = props;
+    const scrollRef = useRef(null);
     // Integrated zoom-to-point with scroll adjustment
     const handleZoomToPoint = useCallback((clickX, clickY) => {
         // Get the current scroll container element
@@ -83,5 +95,22 @@ export function DraggableImageFullScreen() {
         currentFigure.scaleY,
         currentFigure.zoomFactor,
     ]);
-    return (_jsx(ScrollableImageContainer, { ref: scrollRef, children: _jsx(Draggable, { onZoomToPoint: handleZoomToPoint, children: _jsx(ImageFullscreen, { onClick: onCLickFigure, alt: currentFigure.alt, src: currentFigure.src }) }) }));
-}
+    const handleDoubleClick = useCallback((event) => {
+        console.log("Double click detected");
+        event.preventDefault();
+        const clickX = event.clientX;
+        const clickY = event.clientY;
+        if (handleZoomToPoint) {
+            // Use custom zoom handler that includes scroll adjustment
+            handleZoomToPoint(clickX, clickY);
+        }
+        else {
+            // Fallback to default zoom behavior
+            lightboxState.zoomInToPoint({ x: clickX, y: clickY });
+        }
+        lightboxState.setDraggingFigure(false);
+    }, [lightboxState, handleZoomToPoint]);
+    return (_jsx(ScrollableImageContainer, { ref: scrollRef, children: _jsx(StyledImageWrapper, { children: _jsx(ImageFullscreen, { onDoubleClick: handleDoubleClick, alt: currentFigure.alt, src: currentFigure.src }) }) }));
+}, (prevProps, nextProps) => {
+    return prevProps.currentFigure === nextProps.currentFigure;
+});

@@ -1,11 +1,9 @@
 import {
-  MouseEvent,
-  useCallback,
   useRef,
   ReactNode,
   useMemo,
   useImperativeHandle,
-  forwardRef
+  forwardRef,
 } from "react";
 import { useLightboxState } from "../ComponentState";
 import { IMAGE_Z_INDEX } from "../utils/constants";
@@ -99,11 +97,11 @@ export const ScrollableImageContainer = forwardRef<
       },
       addScrollListener: (listener: (event: Event) => void) => {
         if (containerRef.current) {
-          containerRef.current.addEventListener('scroll', listener);
+          containerRef.current.addEventListener("scroll", listener);
           // Return cleanup function
           return () => {
             if (containerRef.current) {
-              containerRef.current.removeEventListener('scroll', listener);
+              containerRef.current.removeEventListener("scroll", listener);
             }
           };
         }
@@ -119,13 +117,15 @@ export const ScrollableImageContainer = forwardRef<
       ref={containerRef}
       className="scrollable-image-container"
       style={{
-        position: "absolute",
-        top: 0,
-        left: "10%",
-        width: "80vw",
+        position: "relative",
+        width: "100vw", // Full viewport width for each image
         height: "100vh",
         overflow: "auto",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         zIndex: IMAGE_Z_INDEX - 1,
+        flexShrink: 0, // Prevent flex shrinking
       }}
     >
       <div
@@ -144,13 +144,7 @@ export const ScrollableImageContainer = forwardRef<
   );
 });
 
-export function Draggable({
-  children,
-  onZoomToPoint,
-}: {
-  children: ReactNode;
-  onZoomToPoint?: (clickX: number, clickY: number) => void;
-}) {
+export function StyledImageWrapper({ children }: { children: ReactNode }) {
   const lightboxState = useLightboxState();
   const { state } = lightboxState;
   const { currentIndex, figures } = state;
@@ -200,33 +194,8 @@ export function Draggable({
     styleDependencies
   );
 
-  const handleDoubleClick = useCallback(
-    (event: MouseEvent<Element>) => {
-      console.log("Double click detected");
-      event.preventDefault();
-
-      const clickX = event.clientX;
-      const clickY = event.clientY;
-
-      if (onZoomToPoint) {
-        // Use custom zoom handler that includes scroll adjustment
-        onZoomToPoint(clickX, clickY);
-      } else {
-        // Fallback to default zoom behavior
-        lightboxState.zoomInToPoint({ x: clickX, y: clickY });
-      }
-
-      lightboxState.setDraggingFigure(false);
-    },
-    [lightboxState, onZoomToPoint]
-  );
-
   return (
-    <div
-      role="draggable-wrapper"
-      onDoubleClick={handleDoubleClick}
-      style={wrapperStyle}
-    >
+    <div role="styled-wrapper" style={wrapperStyle}>
       {children}
     </div>
   );

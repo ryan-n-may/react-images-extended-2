@@ -69,6 +69,8 @@ export interface ILightboxState {
   // UI State
   isLoading: boolean;
   isNavigating: boolean; // Add this to track navigation state
+  navigationDirection: 'left' | 'right' | null; // Track slide direction
+  isAnimating: boolean; // Track if slide animation is active
 
   // Callbacks
   onCLickFigure?: () => void;
@@ -106,6 +108,7 @@ export type LightboxAction =
   | { type: "SET_SHOW_THUMBNAILS"; payload: boolean }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_NAVIGATING"; payload: boolean }
+  | { type: "SET_ANIMATION_STATE"; payload: { isAnimating: boolean; direction?: 'left' | 'right' | null } }
 
   // Setting overall lightbox state
   | { type: "SET_STATE"; payload: Partial<ILightboxState> }
@@ -145,6 +148,8 @@ const defaultState: ILightboxState = {
 
   isLoading: false,
   isNavigating: false,
+  navigationDirection: null,
+  isAnimating: false,
 };
 
 // Reducer function for state mutations
@@ -272,6 +277,9 @@ function lightboxReducer(
         return state; // No change needed
       }
 
+      // Determine animation direction
+      const direction = newIndex > state.currentIndex ? 'right' : 'left';
+
       const updatedFiguresOnIndexChange = [...state.figures];
       const currentFigureOnIndexChange = state.figures[state.currentIndex];
       const updatedFigureOnIndexChange = { ...currentFigureOnIndexChange, imageLoaded: false };
@@ -282,6 +290,8 @@ function lightboxReducer(
         currentIndex: newIndex,
         figures: updatedFiguresOnIndexChange,
         isNavigating: true, // Set navigating state when changing images
+        navigationDirection: direction,
+        isAnimating: true, // Start animation when changing images
       };
 
     case "SET_PAGE_COUNT":
@@ -318,6 +328,13 @@ function lightboxReducer(
       return {
         ...state,
         isNavigating: action.payload,
+      };
+
+    case "SET_ANIMATION_STATE":
+      return {
+        ...state,
+        isAnimating: action.payload.isAnimating,
+        navigationDirection: action.payload.direction || state.navigationDirection,
       };
 
     case "SET_DRAGGING":
@@ -361,6 +378,7 @@ export interface ILightboxContext {
 
   setLoading: (isLoading: boolean) => void;
   setNavigating: (isNavigating: boolean) => void;
+  setAnimationState: (isAnimating: boolean, direction?: 'left' | 'right' | null) => void;
 
   zoomIn: () => void;
   zoomOut: () => void;
@@ -472,6 +490,10 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     dispatch({ type: "SET_NAVIGATING", payload: isNavigating });
   }, []);
 
+  const setAnimationState = useCallback((isAnimating: boolean, direction?: 'left' | 'right' | null) => {
+    dispatch({ type: "SET_ANIMATION_STATE", payload: { isAnimating, direction } });
+  }, []);
+
   const resetMaipulationState = useCallback(() => {
     dispatch({ type: "RESET_IMAGE" });
   }, []);
@@ -502,6 +524,7 @@ export const LightboxProvider: FC<ILightboxProviderProps> = ({
     updateFigureManipulation,
     setDraggingFigure,
     setNavigating,
+    setAnimationState,
     resetMaipulationState,
     resetAll,
     setLoading,

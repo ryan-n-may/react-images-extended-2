@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { useCallback, useRef, useMemo, useImperativeHandle, forwardRef } from "react";
+import { useRef, useMemo, useImperativeHandle, forwardRef, } from "react";
 import { useLightboxState } from "../ComponentState";
 import { IMAGE_Z_INDEX } from "../utils/constants";
 export const ScrollableImageContainer = forwardRef(({ children }, ref) => {
@@ -67,11 +67,11 @@ export const ScrollableImageContainer = forwardRef(({ children }, ref) => {
         },
         addScrollListener: (listener) => {
             if (containerRef.current) {
-                containerRef.current.addEventListener('scroll', listener);
+                containerRef.current.addEventListener("scroll", listener);
                 // Return cleanup function
                 return () => {
                     if (containerRef.current) {
-                        containerRef.current.removeEventListener('scroll', listener);
+                        containerRef.current.removeEventListener("scroll", listener);
                     }
                 };
             }
@@ -80,13 +80,15 @@ export const ScrollableImageContainer = forwardRef(({ children }, ref) => {
         },
     }), []);
     return (_jsx("div", { ref: containerRef, className: "scrollable-image-container", style: {
-            position: "absolute",
-            top: 0,
-            left: "10%",
-            width: "80vw",
+            position: "relative",
+            width: "100vw", // Full viewport width for each image
             height: "100vh",
             overflow: "auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             zIndex: IMAGE_Z_INDEX - 1,
+            flexShrink: 0, // Prevent flex shrinking
         }, children: _jsx("div", { style: {
                 position: "relative",
                 width: `${Math.max(containerWidth, minWidth)}px`,
@@ -96,7 +98,7 @@ export const ScrollableImageContainer = forwardRef(({ children }, ref) => {
                 justifyContent: "center",
             }, children: children }) }));
 });
-export function Draggable({ children, onZoomToPoint, }) {
+export function StyledImageWrapper({ children }) {
     const lightboxState = useLightboxState();
     const { state } = lightboxState;
     const { currentIndex, figures } = state;
@@ -136,20 +138,5 @@ export function Draggable({ children, onZoomToPoint, }) {
         WebkitUserSelect: "none", // Add this
         flexShrink: 0, // Prevent flexbox from shrinking the image
     }), styleDependencies);
-    const handleDoubleClick = useCallback((event) => {
-        console.log("Double click detected");
-        event.preventDefault();
-        const clickX = event.clientX;
-        const clickY = event.clientY;
-        if (onZoomToPoint) {
-            // Use custom zoom handler that includes scroll adjustment
-            onZoomToPoint(clickX, clickY);
-        }
-        else {
-            // Fallback to default zoom behavior
-            lightboxState.zoomInToPoint({ x: clickX, y: clickY });
-        }
-        lightboxState.setDraggingFigure(false);
-    }, [lightboxState, onZoomToPoint]);
-    return (_jsx("div", { role: "draggable-wrapper", onDoubleClick: handleDoubleClick, style: wrapperStyle, children: children }));
+    return (_jsx("div", { role: "styled-wrapper", style: wrapperStyle, children: children }));
 }

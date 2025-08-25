@@ -38,6 +38,8 @@ export interface ILightboxState {
     holdZoomInternal: number;
     isLoading: boolean;
     isNavigating: boolean;
+    navigationDirection: 'left' | 'right' | null;
+    isAnimating: boolean;
     onCLickFigure?: () => void;
     onClickNext?: () => void;
     onClickPrev?: () => void;
@@ -89,6 +91,12 @@ export type LightboxAction = {
     type: "SET_NAVIGATING";
     payload: boolean;
 } | {
+    type: "SET_ANIMATION_STATE";
+    payload: {
+        isAnimating: boolean;
+        direction?: 'left' | 'right' | null;
+    };
+} | {
     type: "SET_STATE";
     payload: Partial<ILightboxState>;
 } | {
@@ -118,6 +126,7 @@ export interface ILightboxContext {
     setFigures: (figures: ILightboxTrackedImage[]) => void;
     setLoading: (isLoading: boolean) => void;
     setNavigating: (isNavigating: boolean) => void;
+    setAnimationState: (isAnimating: boolean, direction?: 'left' | 'right' | null) => void;
     zoomIn: () => void;
     zoomOut: () => void;
     zoomInToPoint: (position: {

@@ -1,5 +1,5 @@
-import { DraggableImageFullScreen } from "../../components/Draggable";
+import { ImageArrayFullScreen } from "../../components/Draggable";
 
 export function ImageElementFullscreen() {
-  return <DraggableImageFullScreen key="image-draggable-fullscreen" />;
+  return <ImageArrayFullScreen key="image-draggable-fullscreen" />;
 }
