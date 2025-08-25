@@ -10,6 +10,5 @@ export interface IHeaderProps {
 }
 export declare function HeaderMolecule({ controls, extraControls, showCloseButton, showExtraControls, }: IHeaderProps): import("react/jsx-runtime").JSX.Element;
 export declare const PageCountMolecule: () => import("react/jsx-runtime").JSX.Element;
-export declare const PinnedImagesHeader: () => import("react/jsx-runtime").JSX.Element | null;
 export declare function ZoomMolecule(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=Molecules.d.ts.map

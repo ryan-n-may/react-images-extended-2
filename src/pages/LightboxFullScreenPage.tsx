@@ -2,17 +2,12 @@ import { useMemo } from "react";
 import {
   NextImageMolecule,
   PageCountMolecule,
-  PinnedImagesHeader,
   PreviousImageMolecule,
   ThumbnailsMolecule,
 } from "../components/Molecules";
 import { Modal, DefaultHeader } from "../components/Organisms";
-import {
-  useLightboxState,
-  useLightboxManipulationState,
-} from "../ComponentState";
+import { useLightboxState } from "../ComponentState";
 import { useLoadImage } from "../hooks/useLoadImage";
-import { debuginfo } from "../utils/log";
 import { ImageElementFullscreen } from "./elements/ImageElementFullscreen";
 import { FigureContainerFullScreen } from "../components/StyledComponents";
 import { SpinnerAtom } from "../components/Atoms";
@@ -20,20 +15,19 @@ import { HEADER_Z_INDEX } from "../utils/constants";
 
 export const LightboxFullScreenPage = () => {
   const lightboxState = useLightboxState();
-  const { images, currentIndex, viewMode, sourceType } = lightboxState.state;
-  const { manipulationState } = useLightboxManipulationState();
-  const { imageLoaded } = manipulationState;
+  const { figures, currentIndex } = lightboxState.state;
+  const currentFigure = figures?.[currentIndex] ?? {};
+  const { imageLoaded } = currentFigure;
 
   useLoadImage();
 
   const ImageCourasselFullscreen = useMemo(() => {
-    debuginfo(`Rendering ImageCourassel for currentImage: ${currentIndex}`);
     return (
       <figure role="image-courassel-fullscreen">
-        <ImageElementFullscreen state={lightboxState.state} />
+        <ImageElementFullscreen />
       </figure>
     );
-  }, [images, currentIndex, viewMode, imageLoaded, sourceType]);
+  }, [figures, currentIndex, imageLoaded]);
 
   return (
     <>
@@ -83,7 +77,6 @@ export const LightboxFullScreenPage = () => {
             style={{ zIndex: HEADER_Z_INDEX }}
           >
             <div className="flex flex-col items-center space-y-2">
-              <PinnedImagesHeader />
               <ThumbnailsMolecule />
             </div>
           </div>
@@ -92,28 +85,3 @@ export const LightboxFullScreenPage = () => {
     </>
   );
 };
-
-/**
- * <div className="fixed left-0 top-0 z-10 h-screen w-screen p-4">
-            <PinnedImagesHeader key="pinned-images-header" />
-          </div>
- */
-
-/**
-           * <div className="sticky top-0 z-10">
-            <DefaultHeader
-              key="default-header"
-              pipControls={{ open: handlePipOpen, close, isOpen }}
-              newTabControls={{ open: handleTabOpen }}
-            />
-          </div>
-          {imageLoaded && (
-            <FigureContainerFullScreen key="figure-container-fullscreen">
-              {ImageCourasselFullscreen}
-            </FigureContainerFullScreen>
-          )}
-          {!imageLoaded && <SpinnerAtom key="document-preview-spinner" />}
-          <div className="sticky bottom-0 z-10">
-            {showThumbnails && <ThumbnailsMolecule key="thumbnails" />}
-          </div>
-           */

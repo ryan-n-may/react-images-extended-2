@@ -8,7 +8,6 @@ export interface ICustomControl {
     isActive?: (state?: ILightboxState) => boolean;
 }
 export interface ILightboxProps extends IStableLightboxProps {
-    pdfSource?: string;
     customControls?: Array<ICustomControl>;
 }
 interface IStableLightboxProps {

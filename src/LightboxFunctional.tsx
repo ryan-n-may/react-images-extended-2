@@ -3,10 +3,10 @@ import {
   LightboxProvider,
   useSetupState,
   ILightboxState,
-  ILightboxImageType,
 } from "./ComponentState";
 import { IImage } from "./utils/types";
 import { LightboxFullScreenPage } from "./pages/LightboxFullScreenPage";
+import { handleInitialisingImages } from "./utils/loading";
 
 export interface ICustomControl {
   label: string;
@@ -17,7 +17,6 @@ export interface ICustomControl {
 }
 
 export interface ILightboxProps extends IStableLightboxProps {
-  pdfSource?: string;
   customControls?: Array<ICustomControl>;
 }
 
@@ -60,7 +59,6 @@ export function LightboxWrapper(props: ILightboxProps) {
   // Might need to tweak requirements
   const {
     images,
-    pdfSource,
     onClickImage,
     onClickNext,
     onClickPrev,
@@ -74,25 +72,8 @@ export function LightboxWrapper(props: ILightboxProps) {
     currentImage,
   } = props;
 
-  if (images && images.length > 0 && Boolean(pdfSource)) {
-    throw new Error(
-      "Cannot use pdfSource with images. Please provide either images or pdfSource."
-    );
-  }
-
-  // DETERMINE THE APPROPRIATE SOURCE TYPE FOR PDF OR IMAGE.
-  const sourceType = pdfSource
-    ? ILightboxImageType.PDF
-    : ILightboxImageType.IMAGE;
-
-  console.log(`Lightbox initialized with sourceType: ${sourceType}`); // Debugging log
-
-  let pageCount = 0;
-  if (sourceType === ILightboxImageType.PDF) {
-    pageCount = 0;
-  } else {
-    pageCount = images ? images.length : 0;
-  }
+  const figures = handleInitialisingImages(images || []);
+  const pageCount = figures ? figures.length : 0;
 
   // Memoize the initial state to prevent function reference changes
   const initialState = useMemo(
@@ -106,10 +87,8 @@ export function LightboxWrapper(props: ILightboxProps) {
         onClose,
         onSave,
         pageCount,
-        images: images || [],
+        figures: figures,
         currentImage,
-        pdfDocumentSrc: pdfSource || "",
-        sourceType,
         zoomDelay,
         zoomInternal,
         resetImageOnLoad,
@@ -124,8 +103,7 @@ export function LightboxWrapper(props: ILightboxProps) {
       onClickPrev,
       onClose,
       onSave,
-      images,
-      sourceType,
+      figures,
       zoomDelay,
       zoomInternal,
       resetImageOnLoad,

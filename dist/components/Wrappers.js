@@ -1,37 +1,132 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { useCallback, useRef, useMemo, useEffect, } from "react";
-import { useLightboxManipulationState, useLightboxState, } from "../ComponentState";
-import { debuginfo } from "../utils/log";
+import { useCallback, useRef, useMemo, useImperativeHandle, forwardRef } from "react";
+import { useLightboxState } from "../ComponentState";
 import { IMAGE_Z_INDEX } from "../utils/constants";
-export function Draggable({ children }) {
-    const dragStartRef = useRef({ x: 0, y: 0 });
-    const dragOffsetRef = useRef({ x: 0, y: 0 });
+export const ScrollableImageContainer = forwardRef(({ children }, ref) => {
+    const containerRef = useRef(null);
     const lightboxState = useLightboxState();
-    const { isDraggingFigure } = lightboxState.state;
-    const { manipulationState } = useLightboxManipulationState();
-    const { top, left } = manipulationState;
-    useEffect(() => {
-        debuginfo(`image state left updated to ${left}`);
-    }, [left]);
+    const { state } = lightboxState;
+    const { currentIndex, figures } = state;
+    const currentFigure = figures?.[currentIndex] ?? {};
+    // Calculate the total size needed for the scaled image with padding
+    const scaledWidth = currentFigure.width * currentFigure.scaleX;
+    const scaledHeight = currentFigure.height * currentFigure.scaleY;
+    // Add extra padding around the scaled image to ensure all edges are reachable
+    const portraitPage = [0, 180].includes(currentFigure.rotate % 360);
+    const containerWidth = portraitPage ? scaledWidth : scaledHeight;
+    const containerHeight = portraitPage ? scaledHeight : scaledWidth;
+    // Minimum size should be at least the viewport size
+    const minWidth = window.innerWidth * 0.8;
+    const minHeight = window.innerHeight;
+    // Expose scroll control methods
+    useImperativeHandle(ref, () => ({
+        scrollTo: (x, y, behavior = "smooth") => {
+            if (containerRef.current) {
+                containerRef.current.scrollTo({ left: x, top: y, behavior });
+            }
+        },
+        scrollToCenter: () => {
+            if (containerRef.current) {
+                const centerX = (containerRef.current.scrollWidth -
+                    containerRef.current.clientWidth) /
+                    2;
+                const centerY = (containerRef.current.scrollHeight -
+                    containerRef.current.clientHeight) /
+                    2;
+                containerRef.current.scrollTo({
+                    left: centerX,
+                    top: centerY,
+                    behavior: "smooth",
+                });
+            }
+        },
+        scrollToPoint: (x, y, behavior = "smooth") => {
+            if (containerRef.current) {
+                // Convert viewport coordinates to scroll coordinates
+                const rect = containerRef.current.getBoundingClientRect();
+                const scrollX = x - rect.left - containerRef.current.clientWidth / 2;
+                const scrollY = y - rect.top - containerRef.current.clientHeight / 2;
+                containerRef.current.scrollTo({
+                    left: scrollX,
+                    top: scrollY,
+                    behavior,
+                });
+            }
+        },
+        getScrollPosition: () => {
+            if (containerRef.current) {
+                return {
+                    x: containerRef.current.scrollLeft,
+                    y: containerRef.current.scrollTop,
+                };
+            }
+            return { x: 0, y: 0 };
+        },
+        getContainerElement: () => {
+            return containerRef.current;
+        },
+        addScrollListener: (listener) => {
+            if (containerRef.current) {
+                containerRef.current.addEventListener('scroll', listener);
+                // Return cleanup function
+                return () => {
+                    if (containerRef.current) {
+                        containerRef.current.removeEventListener('scroll', listener);
+                    }
+                };
+            }
+            // Return no-op cleanup if no container
+            return () => { };
+        },
+    }), []);
+    return (_jsx("div", { ref: containerRef, className: "scrollable-image-container", style: {
+            position: "absolute",
+            top: 0,
+            left: "10%",
+            width: "80vw",
+            height: "100vh",
+            overflow: "auto",
+            zIndex: IMAGE_Z_INDEX - 1,
+        }, children: _jsx("div", { style: {
+                position: "relative",
+                width: `${Math.max(containerWidth, minWidth)}px`,
+                height: `${Math.max(containerHeight, minHeight)}px`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+            }, children: children }) }));
+});
+export function Draggable({ children, onZoomToPoint, }) {
+    const lightboxState = useLightboxState();
+    const { state } = lightboxState;
+    const { currentIndex, figures } = state;
+    const currentFigure = figures?.[currentIndex] ?? {};
+    const styleDependencies = [
+        currentFigure.imageHeight,
+        currentFigure.imageWidth,
+        currentFigure.width,
+        currentFigure.height,
+        currentFigure.top,
+        currentFigure.left,
+        currentFigure.scaleX,
+        currentFigure.scaleY,
+        currentFigure.rotate,
+    ];
     const wrapperStyle = useMemo(() => ({
-        border: isDraggingFigure ? "1px solid #ccc" : "none",
-        width: `${manipulationState.width}px`,
-        minWidth: `${manipulationState.width}px`,
-        maxWidth: `${manipulationState.width}px`,
+        width: `${currentFigure.width}px`,
+        minWidth: `${currentFigure.width}px`,
+        maxWidth: `${currentFigure.width}px`,
         height: "auto",
-        transform: `translate(-50%, -50%) translate(${left || 0}px, ${top || 0}px) rotate(${manipulationState.rotate}deg) scaleX(${manipulationState.scaleX}) scaleY(${manipulationState.scaleY})`,
+        transform: `rotate(${currentFigure.rotate}deg) scaleX(${currentFigure.scaleX}) scaleY(${currentFigure.scaleY})`,
         transformOrigin: "center",
         willChange: "transform",
-        transition: isDraggingFigure ? "none" : "transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)", // More visible smooth transitions when not dragging
         backfaceVisibility: "hidden", // Prevent flashing on transform
         WebkitBackfaceVisibility: "hidden",
-        WebkitTransform: `translate(-50%, -50%) translate(${left || 0}px, ${top || 0}px) rotate(${manipulationState.rotate}deg) scaleX(${manipulationState.scaleX}) scaleY(${manipulationState.scaleY})`,
-        position: "absolute",
+        WebkitTransform: `rotate(${currentFigure.rotate}deg) scaleX(${currentFigure.scaleX}) scaleY(${currentFigure.scaleY})`,
+        position: "relative",
         display: "block",
         zIndex: IMAGE_Z_INDEX, // Ensure image is below controls
-        left: "50%",
-        top: "50%",
-        cursor: isDraggingFigure ? "grabbing" : "grab",
+        cursor: "zoom-in", // Indicate zoom capability
         // Additional properties to reduce flashing
         imageRendering: "crisp-edges",
         WebkitFontSmoothing: "antialiased",
@@ -40,58 +135,21 @@ export function Draggable({ children }) {
         userSelect: "none", // Add this
         WebkitUserSelect: "none", // Add this
         flexShrink: 0, // Prevent flexbox from shrinking the image
-    }), [
-        manipulationState.left,
-        manipulationState.top,
-        manipulationState.height,
-        manipulationState.width,
-        manipulationState.rotate,
-        manipulationState.scaleX,
-        manipulationState.scaleY,
-        isDraggingFigure, // Add this dependency so transition updates properly
-    ]);
-    const handleMouseDown = useCallback((event) => {
-        event.preventDefault();
-        lightboxState.setDraggingFigure(true);
-        //debuginfo(`Mouse down position at (${event.clientX}, ${event.clientY})`);
-        dragStartRef.current = {
-            x: event.clientX,
-            y: event.clientY,
-        };
-        const { left, top } = manipulationState;
-        dragOffsetRef.current = {
-            x: left || 0,
-            y: top || 0,
-        };
-    }, [isDraggingFigure, manipulationState.left, manipulationState.top]);
-    const handleMouseMove = useCallback((event) => {
-        if (!isDraggingFigure)
-            return;
-        event.preventDefault();
-        //debuginfo(`Screen coordinates: (${event.clientX}, ${event.clientY})`);
-        const deltaX = event.clientX - dragStartRef.current.x;
-        const deltaY = event.clientY - dragStartRef.current.y;
-        const newLeft = dragOffsetRef.current.x + deltaX;
-        const newTop = dragOffsetRef.current.y + deltaY;
-        const updatedImageState = {
-            left: newLeft,
-            top: newTop,
-        };
-        lightboxState.updateFigureManipulation(updatedImageState);
-    }, [isDraggingFigure, dragOffsetRef, dragStartRef]);
+    }), styleDependencies);
     const handleDoubleClick = useCallback((event) => {
+        console.log("Double click detected");
         event.preventDefault();
         const clickX = event.clientX;
         const clickY = event.clientY;
-        const deltaX = clickX - dragStartRef.current.x;
-        const deltaY = clickY - dragStartRef.current.y;
-        if (deltaX <= 1 && deltaY <= 1) {
+        if (onZoomToPoint) {
+            // Use custom zoom handler that includes scroll adjustment
+            onZoomToPoint(clickX, clickY);
+        }
+        else {
+            // Fallback to default zoom behavior
             lightboxState.zoomInToPoint({ x: clickX, y: clickY });
         }
         lightboxState.setDraggingFigure(false);
-    }, [lightboxState]);
-    const handleMouseUp = useCallback(() => {
-        lightboxState.setDraggingFigure(false);
-    }, [lightboxState]);
-    return (_jsx("div", { role: "draggable-wrapper", onMouseDown: handleMouseDown, onMouseMove: handleMouseMove, onMouseUp: handleMouseUp, onMouseLeave: handleMouseUp, onDoubleClick: handleDoubleClick, style: wrapperStyle, children: children }));
+    }, [lightboxState, onZoomToPoint]);
+    return (_jsx("div", { role: "draggable-wrapper", onDoubleClick: handleDoubleClick, style: wrapperStyle, children: children }));
 }

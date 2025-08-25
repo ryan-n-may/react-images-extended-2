@@ -1,12 +1,5 @@
-import { ActionButtonAtom, GhostActionButtonAtom } from "./Atoms";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CircleX,
-  X,
-  ZoomIn,
-  ZoomOut,
-} from "lucide-react";
+import { ActionButtonAtom } from "./Atoms";
+import { ArrowLeft, ArrowRight, X, ZoomIn, ZoomOut } from "lucide-react";
 import {
   CollapsedControls,
   Header,
@@ -14,7 +7,6 @@ import {
   LeftGradientThumbnail,
   NoGradientThumbnail,
   PageCount,
-  PinnedThumbnail,
   RightGradientThumbnail,
   ThumbnailScroller,
   ThumnailBar,
@@ -24,22 +16,27 @@ import {
   useLightboxImages,
   useLightboxState,
 } from "../ComponentState";
-import { debuginfo } from "../utils/log";
 
 export function PreviousImageMolecule() {
   const imageState = useLightboxImages();
   const callBacks = useCallbackMethods();
 
+  const handlePrevious = () => {
+    imageState.prevImage();
+    if (callBacks.onClickPrev) callBacks.onClickPrev();
+  };
+
   return (
     <ActionButtonAtom
       tooltip="Previous Image"
       icon={<ArrowLeft color="white" />}
-      onClick={() => {
-        debuginfo("Previous image clicked");
-        imageState.prevImage();
-        if (callBacks.onClickPrev) callBacks.onClickPrev();
-      }}
-      disabled={imageState.currentIndex <= 0}
+      onClick={handlePrevious}
+      keyboardKeys={["ArrowLeft"]}
+      disabled={
+        !imageState.hasPrev ||
+        !imageState.currentFigureData?.imageLoaded ||
+        imageState.isNavigating
+      }
     />
   );
 }
@@ -48,38 +45,42 @@ export function NextImageMolecule() {
   const imageState = useLightboxImages();
   const callBacks = useCallbackMethods();
 
+  const handleNext = () => {
+    console.log("NextImageMolecule: handleNext called");
+    imageState.nextImage();
+    if (callBacks.onClickNext) callBacks.onClickNext();
+  };
+
   return (
     <ActionButtonAtom
       tooltip="Next Image"
       icon={<ArrowRight color="white" />}
-      onClick={() => {
-        debuginfo("Next image clicked");
-        imageState.nextImage();
-        if (callBacks.onClickNext) callBacks.onClickNext();
-      }}
-      disabled={imageState.currentIndex >= imageState.pageCount - 1}
+      onClick={handleNext}
+      keyboardKeys={["ArrowRight"]}
+      disabled={
+        !imageState.hasNext ||
+        !imageState.currentFigureData?.imageLoaded ||
+        imageState.isNavigating
+      }
     />
   );
 }
 
 export function ThumbnailsMolecule() {
-  const { state } = useLightboxState();
-  const imageState = useLightboxImages();
+  const lightboxState = useLightboxState();
+  const { state } = lightboxState;
+  const { figures, currentIndex, pageCount } = state;
   const callBacks = useCallbackMethods();
-
-  const currentImage = imageState.currentIndex;
-  const imageArray = imageState.images;
-  const pageCount = imageState.pageCount;
 
   if (pageCount === 0) return null;
 
-  const minimalBackthumbnail = Math.max(0, currentImage - 5);
-  const minimalForwardthumbnail = Math.min(pageCount - 1, currentImage + 5);
+  const minimalBackthumbnail = Math.max(0, currentIndex - 5);
+  const minimalForwardthumbnail = Math.min(pageCount - 1, currentIndex + 5);
 
-  const noScrollImage = imageArray[currentImage];
-  const leftScrollImage = imageArray.slice(minimalBackthumbnail, currentImage);
-  const rightScrollImage = imageArray.slice(
-    currentImage + 1,
+  const noScrollImage = figures[currentIndex];
+  const leftScrollImage = figures.slice(minimalBackthumbnail, currentIndex);
+  const rightScrollImage = figures.slice(
+    currentIndex + 1,
     minimalForwardthumbnail + 1
   );
 
@@ -89,7 +90,7 @@ export function ThumbnailsMolecule() {
 
   return (
     <ThumnailBar>
-      {imageArray.length > 0 && (
+      {figures && figures.length > 0 && (
         <ThumbnailScroller>
           {leftScrollImage.map((image, index) => {
             return (
@@ -97,7 +98,7 @@ export function ThumbnailsMolecule() {
                 index={index}
                 src={image.src}
                 onClick={() => {
-                  imageState.setCurrentIndex(minimalBackthumbnail + index);
+                  lightboxState.setCurrentIndex(minimalBackthumbnail + index);
                   if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
                 }}
               />
@@ -109,10 +110,10 @@ export function ThumbnailsMolecule() {
           {rightScrollImage.map((image, index) => {
             return (
               <RightGradientThumbnail
-                index={currentImage + 1 + index}
+                index={currentIndex + 1 + index}
                 src={image.src}
                 onClick={() => {
-                  imageState.setCurrentIndex(currentImage + 1 + index);
+                  lightboxState.setCurrentIndex(currentIndex + 1 + index);
                   if (callBacks.onClickThumbnail) callBacks.onClickThumbnail();
                 }}
               />
@@ -154,6 +155,7 @@ export function HeaderMolecule({
             <ActionButtonAtom
               onClick={() => callBacks.onClose?.()}
               key="close-button"
+              keyboardKeys={["Escape"]}
               tooltip="Close"
               icon={<X color="white" />}
             />
@@ -178,75 +180,20 @@ export const PageCountMolecule = () => {
   );
 };
 
-export const PinnedImagesHeader = () => {
-  const lightboxContext = useLightboxState();
-  const { state } = lightboxContext;
-  const { images, currentIndex } = state;
-  const pinnedImages = state.pinnedFigureStates || [];
-
-  if (pinnedImages.length === 0) return null;
-
-  return (
-    <Header>
-      <HeaderGroup>
-        {pinnedImages.map((image, index) => {
-          const currentImage = images[image.imageIndex];
-          const active = currentIndex === image.imageIndex;
-          return (
-            <div className="relative" key={`pinned-image-${index}`}>
-              <div
-                style={{
-                  border: active ? "2px solid white" : "0px solid white",
-                  borderRadius: "0.5rem",
-                  backgroundColor: active ? "white" : "transparent",
-                  opacity: active ? 1 : 0.5,
-                }}
-              >
-                <PinnedThumbnail
-                  key={`pinned-thumbnail-${index}`}
-                  src={currentImage.src}
-                  onClick={() => {
-                    lightboxContext.goToPinnedFigure(
-                      image.imageIndex,
-                      image.imageState
-                    );
-                  }}
-                />
-              </div>
-
-              <div className="absolute -top-1 -right-1">
-                <GhostActionButtonAtom
-                  icon={
-                    <CircleX
-                      color="red"
-                      size={16}
-                      className="bg-neutral-700 rounded-full"
-                    />
-                  }
-                  onClick={() => {
-                    lightboxContext.unPinFigure(index);
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </HeaderGroup>
-    </Header>
-  );
-};
-
 export function ZoomMolecule() {
   const lightboxContext = useLightboxState();
   const { state } = lightboxContext;
-  const { figureManipulation, holdZoomDelay, holdZoomInternal } = state;
-  const { imageLoaded } = figureManipulation;
+  const { figures, currentIndex, holdZoomDelay, holdZoomInternal } = state;
+
+  const currentFigure = figures?.[currentIndex] ?? {};
+  const { imageLoaded } = currentFigure;
 
   return (
     <div key="zoom-controls" className="flex items-center gap-2">
       <ActionButtonAtom
         tooltip="Zoom in"
         key="zoom-in"
+        keyboardKeys={["ArrowUp", "+", "NumpadAdd"]}
         disabled={!imageLoaded}
         onClick={() => lightboxContext.zoomIn()}
         onHoldDown={() => lightboxContext.zoomIn()}
@@ -258,6 +205,7 @@ export function ZoomMolecule() {
       <ActionButtonAtom
         tooltip="Zoom out"
         key="zoom-out"
+        keyboardKeys={["ArrowDown", "-", "NumpadSubtract"]}
         disabled={!imageLoaded}
         onClick={() => lightboxContext.zoomOut()}
         onHoldDown={() => lightboxContext.zoomOut()}

@@ -1,6 +1,5 @@
-import React from "react";
-import { Thumbnail, ImageSpinnerWrapper } from "./StyledComponents";
-import { debuginfo } from "../utils/log";
+import React, { useEffect } from "react";
+import { ImageSpinnerWrapper } from "./StyledComponents";
 
 export function SpinnerAtom() {
   return (
@@ -10,69 +9,17 @@ export function SpinnerAtom() {
   );
 }
 
-export interface IThumbnailAtomProps {
-  index: number;
-  src: string;
-  size: string;
-  thumbnail?: string;
-  active?: boolean;
-  onClick: (event: React.MouseEvent<HTMLImageElement>) => void;
-}
-
-export function ThumbnailAtom({
-  index,
-  src,
-  active,
-  onClick,
-}: IThumbnailAtomProps) {
-  return (
-    <Thumbnail
-      active={active ?? false}
-      key={`thumbnail-${index}`}
-      src={src}
-      onClick={onClick}
-    />
-  );
-}
-
-export interface IIconSwitcherButtonProps {
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  icon: JSX.Element;
-  iconOnHover: JSX.Element;
-  disabled?: boolean;
-}
-
-export function IconSwitcherButton({
-  onClick,
-  icon,
-  iconOnHover,
-  disabled = false,
-}: IIconSwitcherButtonProps) {
-  const [showHoverIcon, setShowHoverIcon] = React.useState(false);
-
-  return (
-    <button
-      onClick={onClick}
-      aria-label="action-button"
-      disabled={disabled}
-      className="flex items-center justify-center p-2 rounded hover:bg-neutral-600 transition-colors"
-      style={{ opacity: disabled ? 0.5 : 1 }}
-      onMouseEnter={() => setShowHoverIcon(true)}
-      onMouseLeave={() => setShowHoverIcon(false)}
-    >
-      {showHoverIcon ? iconOnHover : icon}
-    </button>
-  );
-}
-
 export interface IActionButtonProps {
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick: (
+    event: React.MouseEvent<HTMLButtonElement> | KeyboardEvent | undefined
+  ) => void;
   onHoldDown?: () => void;
   icon: JSX.Element;
   disabled?: boolean;
   holdDelay?: number; // Delay before starting hold action
   holdInterval?: number; // Interval for repeating hold action
   tooltip?: string;
+  keyboardKeys?: string[]; // Keys that can trigger the button
 }
 
 export function ActionButtonAtom({
@@ -80,8 +27,9 @@ export function ActionButtonAtom({
   onHoldDown,
   icon,
   holdDelay = 250, // Start holding after 500ms
-  holdInterval = 100, // Repeat every 100ms
+  holdInterval = 500, // Repeat every 100ms
   disabled = false,
+  keyboardKeys = [],
 }: IActionButtonProps) {
   const [holding, setHolding] = React.useState(false);
 
@@ -90,7 +38,6 @@ export function ActionButtonAtom({
 
   const startHold = () => {
     if (holding || disabled) return;
-    debuginfo("Starting to hold action button");
 
     setHolding(true);
 
@@ -121,6 +68,21 @@ export function ActionButtonAtom({
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (keyboardKeys.includes(e.key) && !disabled) {
+        e.preventDefault(); // Prevent default browser behavior
+        e.stopPropagation(); // Stop event bubbling
+
+        // Call onClick with the keyboard event
+        onClick(e);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [keyboardKeys, disabled, onClick]); // Add dependencies
+
   return (
     <button
       onClick={onClick}
@@ -135,19 +97,5 @@ export function ActionButtonAtom({
     >
       {icon}
     </button>
-  );
-}
-
-export function GhostActionButtonAtom({ onClick, icon }: IActionButtonProps) {
-  return (
-    <>
-      <button
-        onClick={onClick}
-        aria-label="action-button-ghost"
-        className="flex items-center justify-center p-0 m-0"
-      >
-        {icon}
-      </button>
-    </>
   );
 }

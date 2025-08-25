@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { preloadImage } from "../utils/loading";
-import { ILightboxImageType, useLightboxState } from "../ComponentState";
+import { useLightboxState } from "../ComponentState";
 import canUseDom from "../utils/canUseDom";
 import { debuginfo } from "../utils/log";
 
 export function useLoadImage() {
   const lightboxContext = useLightboxState();
   const { state } = lightboxContext;
-  const { currentIndex, images, currentIndexIsPinned, resetImageOnLoad } = state;
+  const { currentIndex } = state;
+  const { imageLoaded } = state.figures?.[currentIndex] || {};
   useEffect(() => {
     debuginfo(`useLoadImage: currentImage index is ${currentIndex}`);
 
@@ -16,18 +17,9 @@ export function useLoadImage() {
       return;
     }
 
-    // We do not need to preload pdf sources
-    if (state.sourceType === ILightboxImageType.PDF) {
-      lightboxContext.updateFigureManipulation({
-        imageLoaded: true,
-      });
-    }
-
-
     preloadImage(
       state,
-      lightboxContext.updateFigureManipulation,
-      !currentIndexIsPinned || resetImageOnLoad
+      lightboxContext.setState
     );
-  }, [currentIndex, preloadImage, images]);
+  }, [currentIndex, preloadImage, imageLoaded]);
 }

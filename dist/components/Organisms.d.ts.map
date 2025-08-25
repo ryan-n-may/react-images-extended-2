@@ -1,1 +1,1 @@
-{"version":3,"file":"Organisms.d.ts","sourceRoot":"","sources":["../../src/components/Organisms.tsx"],"names":[],"mappings":";AAyBA,wBAAgB,aAAa,4CAiI5B;AAED,wBAAgB,KAAK,CAAC,EACpB,QAAQ,EACR,MAAM,GACP,EAAE;IACD,QAAQ,EAAE,GAAG,CAAC,OAAO,CAAC;IACtB,MAAM,EAAE,OAAO,CAAC;CACjB,sCAyCA"}
+{"version":3,"file":"Organisms.d.ts","sourceRoot":"","sources":["../../src/components/Organisms.tsx"],"names":[],"mappings":";AAiBA,wBAAgB,aAAa,4CAiG5B;AAED,wBAAgB,KAAK,CAAC,EACpB,QAAQ,EACR,MAAM,GACP,EAAE;IACD,QAAQ,EAAE,GAAG,CAAC,OAAO,CAAC;IACtB,MAAM,EAAE,OAAO,CAAC;CACjB,sCAyCA"}

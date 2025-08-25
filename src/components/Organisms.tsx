@@ -9,24 +9,17 @@ import {
   ArrowRightToLine,
   ArrowLeftToLine,
   Download,
-  BookOpen,
-  Image,
-  Pin,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiddenPortal, Portal } from "./StyledComponents";
-import {
-  IImageViewMode,
-  useLightboxManipulationState,
-  useLightboxState,
-} from "../ComponentState";
-import { handlePinFigure } from "../utils/manipulation";
+import { useLightboxState } from "../ComponentState";
 
 export function DefaultHeader() {
   const lightboxState = useLightboxState();
-  const { manipulationState } = useLightboxManipulationState();
-  const { imageLoaded } = manipulationState;
+  const { state } = lightboxState;
+  const { figures, currentIndex } = state;
+  const currentFigure = figures?.[currentIndex] ?? {};
 
   const [showExtraControls, setShowExtraControls] = useState<boolean>(false);
   const toggleShowExtraControls = () =>
@@ -42,14 +35,14 @@ export function DefaultHeader() {
       <ActionButtonAtom
         tooltip="Rotate left"
         key="rotate-left"
-        disabled={!imageLoaded}
+        disabled={!currentFigure.imageLoaded}
         onClick={() => lightboxState.rotateLeft()}
         icon={<RotateCcwSquare color="white" />}
       />
       <ActionButtonAtom
         tooltip="Rotate right"
         key="rotate-right"
-        disabled={!imageLoaded}
+        disabled={!currentFigure.imageLoaded}
         onClick={() => lightboxState.rotateRight()}
         icon={<RotateCwSquare color="white" />}
       />
@@ -60,7 +53,7 @@ export function DefaultHeader() {
     <ActionButtonAtom
       tooltip="Reset image position"
       key="reset-image"
-      disabled={!imageLoaded}
+      disabled={!currentFigure.imageLoaded}
       onClick={() => lightboxState.resetMaipulationState()}
       icon={<RefreshCw color="white" />}
     />
@@ -70,7 +63,7 @@ export function DefaultHeader() {
     <ActionButtonAtom
       tooltip="Extra controls"
       key="toggle-collapse"
-      disabled={!imageLoaded}
+      disabled={!currentFigure.imageLoaded}
       onClick={() => toggleShowExtraControls()}
       icon={
         showExtraControls ? (
@@ -87,14 +80,14 @@ export function DefaultHeader() {
       <ActionButtonAtom
         tooltip="Flip vertical"
         key="flip-vertical"
-        disabled={!imageLoaded}
+        disabled={!currentFigure.imageLoaded}
         onClick={() => lightboxState.flipVertical()}
         icon={<FlipVertical2 color="white" />}
       />
       <ActionButtonAtom
         tooltip="Flip horizontal"
         key="flip-horisontal"
-        disabled={!imageLoaded}
+        disabled={!currentFigure.imageLoaded}
         onClick={() => lightboxState.flipHorisontal()}
         icon={<FlipHorizontal2 color="white" />}
       />
@@ -105,42 +98,9 @@ export function DefaultHeader() {
     <ActionButtonAtom
       tooltip="Download"
       key="save-image-button"
-      disabled={!imageLoaded}
+      disabled={!currentFigure.imageLoaded}
       onClick={() => {}}
       icon={<Download color="white" />}
-    />
-  );
-
-  extraActions.push(
-    <ActionButtonAtom
-      tooltip="Reader mode"
-      key="reader-mode-button"
-      disabled={!imageLoaded}
-      onClick={() => lightboxState.updateViewState(IImageViewMode.READER)}
-      icon={<BookOpen color="white" />}
-    />
-  );
-
-  extraActions.push(
-    <ActionButtonAtom
-      tooltip="Image mode"
-      key="image-mode-button"
-      disabled={!imageLoaded}
-      onClick={() => lightboxState.updateViewState(IImageViewMode.IMAGE)}
-      icon={<Image color="white" />}
-    />
-  );
-
-  extraActions.push(
-    <ActionButtonAtom
-      tooltip="Pin image"
-      key="pin-image-button"
-      disabled={!imageLoaded}
-      onClick={() => {
-        const pinnedFigure = handlePinFigure(lightboxState.state);
-        lightboxState.pinFigure(pinnedFigure);
-      }}
-      icon={<Pin color="white" />}
     />
   );
 

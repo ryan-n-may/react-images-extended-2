@@ -1,8 +1,4 @@
-import {
-  IImageViewMode,
-  ILightboxManipulationState,
-  ILightboxState,
-} from "../ComponentState";
+import { ILightboxTrackedImage } from "../ComponentState";
 import {
   FULL_ROTATION,
   IMAGE_MAX_SIZE_RATIO,
@@ -18,7 +14,7 @@ const SCALE_DIRECTION_NEGATIVE = -1;
 const SCALE_DIRECTION_POSITIVE = 1;
 
 // Get image center coordinates
-export function getImageCenterXY(state: ILightboxManipulationState): {
+export function getImageCenterXY(figure: ILightboxTrackedImage): {
   x: number;
   y: number;
 } {
@@ -27,8 +23,8 @@ export function getImageCenterXY(state: ILightboxManipulationState): {
   const viewportCenterY = windowHeight / 2;
 
   return {
-    x: viewportCenterX + state.left,
-    y: viewportCenterY + state.top,
+    x: viewportCenterX + figure.left,
+    y: viewportCenterY + figure.top,
   };
 }
 
@@ -50,17 +46,20 @@ export function getImgWidthHeight(
   return [calculatedWidth, calculatedHeight];
 }
 
-export function zoomManipulationToPoint(
-  state: ILightboxManipulationState,
-  position: { x: number; y: number }
-): Partial<ILightboxManipulationState> | undefined {
-  const { scaleX, scaleY, left, top } = state;
+export const scaleFactors = [1, 1.25, 1.5, 2.5, 4, 6];
 
-  const zoomFactor = 2;
+export function zoomManipulationToPoint(
+  figure: ILightboxTrackedImage,
+  position: { x: number; y: number }
+): Partial<ILightboxTrackedImage> | undefined {
+  const { scaleX, scaleY, left, top, zoomFactor } = figure;
+
+  const newScale =
+    zoomFactor === scaleFactors[4] ? scaleFactors[0] : scaleFactors[4];
 
   // Calculate new scale values
-  const newScaleX = scaleX * zoomFactor;
-  const newScaleY = scaleY * zoomFactor;
+  const newScaleX = newScale;
+  const newScaleY = newScale;
 
   if (newScaleX < MIN_SCALE || newScaleY < MIN_SCALE) return undefined;
 
@@ -94,61 +93,54 @@ export function zoomManipulationToPoint(
     scaleY: newScaleY,
     left: newLeft,
     top: newTop,
-  };
-}
-
-// Handle zoom
-export function zoomToAFactor(notchNumber: number): Partial<ILightboxManipulationState> {
-  const scaleArr = new Array(100);
-  scaleArr.map((_, index) => {
-    const scaleFactor = 1 + index * 1; // Scale factor increases by 0.1 for each notch
-    scaleArr[index] = scaleFactor;
-  });
-
-  return {
-    scaleX: scaleArr[notchNumber] || 1,
-    scaleY: scaleArr[notchNumber] || 1,
+    zoomFactor: newScale
   };
 }
 
 // Handle zoom
 export function zoomManipulation(
   zoomingIn: boolean,
-  state: ILightboxManipulationState,
-  zoomFactor?: number
-): Partial<ILightboxManipulationState> | undefined {
-  const { scaleX, scaleY } = state;
-
+  figure: ILightboxTrackedImage
+): Partial<ILightboxTrackedImage> | undefined {
   // Which way are we zooming?
   const direction: 1 | -1 = zoomingIn
     ? SCALE_DIRECTION_NEGATIVE
     : SCALE_DIRECTION_POSITIVE;
 
-  // Dynamic step size based on current scale - larger steps at higher zoom levels
-  const baseStep = zoomFactor ?? 0.1;
-  const scaleFactor = Math.max(scaleX, scaleY); // Use the larger of the two scales
-  const dynamicStep = baseStep * (1 + scaleFactor * 1.2); // More aggressive step increases with scale
+  const previousZoomFactor = figure.zoomFactor;
+  const previousZoomIndex = previousZoomFactor ? scaleFactors.indexOf(previousZoomFactor) : 0;
 
-  const scaleChange = direction * dynamicStep;
+  let nextRealIndex = previousZoomIndex + direction;
+
+  if (
+    (nextRealIndex >= scaleFactors.length &&
+      direction === SCALE_DIRECTION_POSITIVE) ||
+    (nextRealIndex < 0 && direction === SCALE_DIRECTION_NEGATIVE)
+  )
+    nextRealIndex = 0;
+
+  const updatedScale = scaleFactors[nextRealIndex];
+  console.log(`Updated scale factor: ${updatedScale}`);
 
   // Scale the image
-  const newScaleX = scaleX + scaleChange;
-  const newScaleY = scaleY + scaleChange;
+  const newScaleX = updatedScale;
+  const newScaleY = updatedScale;
 
   if (newScaleX < MIN_SCALE || newScaleY < MIN_SCALE) return undefined;
 
   return {
     scaleX: newScaleX,
     scaleY: newScaleY,
+    zoomFactor: updatedScale,
   };
 }
 
 // Handle rotate
 export function flipManipulation(
-  state: ILightboxManipulationState,
+  figure: ILightboxTrackedImage,
   isHorisontal: boolean = false
-): Partial<ILightboxManipulationState> {
-  const { scaleX, scaleY } = state;
+): Partial<ILightboxTrackedImage> {
+  const { scaleX, scaleY } = figure;
 
   const newScaleX = scaleX * (isHorisontal ? -1 : 1);
   const newScaleY = scaleY * (isHorisontal ? 1 : -1);
@@ -162,67 +154,58 @@ export function flipManipulation(
 
 // Handle rotate
 export function rotateManipulation(
-  state: ILightboxManipulationState,
+  figure: ILightboxTrackedImage,
   isRight: boolean = false
-): Partial<ILightboxManipulationState> {
+): Partial<ILightboxTrackedImage> {
   debuginfo(
-    `Handling rotate: isRight=${isRight}, current rotate=${state.rotate}`
+    `Handling rotate: isRight=${isRight}, current rotate=${figure.rotate}`
   );
   // Use requestAnimationFrame to batch the state update and prevent flashing
   return {
     rotate:
-      (state.rotate +
+      (figure.rotate +
         ROTATE_STEP *
           (isRight ? ROTATION_DIRECTION_RIGHT : ROTATION_DIRECTION_LEFT)) %
       FULL_ROTATION,
   };
 }
 
-export interface IPinnedState {
-  imageState: ILightboxManipulationState;
-  imageIndex: number;
-}
+export function resetOnAbsence(
+  trackedImage: ILightboxTrackedImage
+) : Partial<ILightboxTrackedImage>{
+  const missingWidth = !trackedImage.width || trackedImage.width <= 0;
+  const missingHeight = !trackedImage.height || trackedImage.height <= 0;
+  const missingScaleX = !trackedImage.scaleX || trackedImage.scaleX <= 0;
+  const missingScaleY = !trackedImage.scaleY || trackedImage.scaleY <= 0;
+  const missingRotate = trackedImage.rotate === undefined || trackedImage.rotate === null;  
+  const missingZoomFactor = !trackedImage.zoomFactor || trackedImage.zoomFactor <= 0;
+  
+  const needsReset = missingWidth || missingHeight || missingScaleX || missingScaleY || missingRotate || missingZoomFactor;
 
-export function handlePinFigure(state: ILightboxState): IPinnedState {
-  return {
-    imageState: state.figureManipulation,
-    imageIndex: state.currentIndex,
-  };
+  if(needsReset) 
+    return handleReset(trackedImage);
+  else
+    return {};
 }
 
 export function handleReset(
-  state: ILightboxState
-): Partial<ILightboxManipulationState> {
+  trackedImage: ILightboxTrackedImage
+): Partial<ILightboxTrackedImage> {
   debuginfo("Handling reset: resetting image state to initial values");
   // Use requestAnimationFrame to batch the state update and prevent flashing
   const { height: windowHeight } = getWindowSize();
 
   const getImageAspectRatio = () => {
-    if (state.viewMode === IImageViewMode.IMAGE) {
-      return (
-        state.figureManipulation.imageWidth /
-        state.figureManipulation.imageHeight
-      );
-    }
-
-    const imageHeight = state.figureManipulation.imageHeight;
-    const imageWidth = state.figureManipulation.imageWidth * 2;
+    const imageHeight = trackedImage.imageHeight;
+    const imageWidth = trackedImage.imageWidth;
 
     return imageWidth / imageHeight;
   };
 
   const imageAspectRatio = getImageAspectRatio();
 
-  console.log(
-    `Image aspect ratio: ${imageAspectRatio}: ${state.figureManipulation.imageWidth} / ${state.figureManipulation.imageHeight}`
-  );
-
-  const imageHeightFillingScreen = windowHeight * IMAGE_MAX_SIZE_RATIO;
+  const imageHeightFillingScreen = windowHeight;
   const imageWidthFillingScreen = imageAspectRatio * imageHeightFillingScreen;
-
-  // With center-based positioning, we start at (0, 0) offset from center
-  const left = 0;
-  const top = 0;
 
   return {
     height: imageHeightFillingScreen,
@@ -230,7 +213,7 @@ export function handleReset(
     rotate: 0,
     scaleX: 1,
     scaleY: 1,
-    top,
-    left,
+    top: 0,
+    left: 0,
   };
 }
